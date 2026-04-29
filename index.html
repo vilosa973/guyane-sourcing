@@ -7,9 +7,11 @@
     <style>
         body { font-family: sans-serif; line-height: 1.6; margin: 0; color: #333; text-align: center; }
         header { background: #003366; color: white; padding: 40px 20px; }
-        .btn { background: #ff6600; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 20px; }
+        .btn { background: #ff6600; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         section { padding: 30px 20px; max-width: 800px; margin: auto; }
         .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 15px; background: #f9f9f9; }
+        .payment-section { background: #f0f4f8; padding: 40px 20px; border-top: 2px solid #003366; }
+        .payment-icons { font-size: 2rem; margin: 15px 0; display: flex; justify-content: center; gap: 30px; }
     </style>
 </head>
 <body>
@@ -17,25 +19,29 @@
         <h1>GUYANE SOURCING DIRECT</h1>
         <p>Pièces Auto & Agricoles depuis l'Hexagone</p>
     </header>
+
     <section>
         <h2>Votre pièce au prix juste</h2>
         <p>Nous trouvons, testons et expédions vos pièces d'occasion certifiées directement en Guyane.</p>
         <a href="https://wa.me/33699337803" class="btn">DEMANDER UN DEVIS WHATSAPP</a>
     </section>
+
     <section>
-        <div class="card"><h3>Sourcing Auto</h3><p>Moteurs, boîtes, optiques testés avec garantie.</p></div>
-        <div class="card"><h3>Matériel Agricole</h3><p>Pièces et équipements sur mesure.</p></div>
+        <div class="card"><h3>Approvisionnement Automobile</h3><p>Moteurs, boîtes, optiques testés avec garantie.</p></div>
+        <div class="card"><h3>Matériel Agricole</h3><p>Pièces et équipements sur mesure pour les professionnels.</p></div>
     </section>
-    <footer><p>&copy; 2026 Guyane Sourcing Direct</p></footer>
+
+    <section class="payment-section">
+        <h3>Paiements 100% Sécurisés</h3>
+        <div class="payment-icons">
+            <span>💳</span> <span>🅿️</span> <span>🏦</span>
+        </div>
+        <p>Nous acceptons les règlements par <b>Carte Bancaire, PayPal et Virement</b>.<br>
+        Transactions protégées pour votre sécurité.</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Guyane Sourcing Direct</p>
+    </footer>
 </body>
 </html>
-    <section style="background: #eee; padding: 20px;">
-        <h3>Paiements Sécurisés</h3>
-        <p>Pour votre sécurité, nous acceptons les règlements via :</p>
-        <div style="display: flex; justify-content: center; gap: 20px; font-weight: bold;">
-            <span>💳 Carte Bancaire</span>
-            <span>🅿️ PayPal</span>
-            <span>🏦 Virement</span>
-        </div>
-        <p style="font-size: 0.8rem; color: #666;">Toutes nos transactions sont sécurisées et garanties.</p>
-    </section>
