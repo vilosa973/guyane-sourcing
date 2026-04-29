@@ -15,8 +15,7 @@
 
     <header class="bg-white py-6 px-4 shadow-md text-center border-b-4 border-yellow-500">
         <div class="flex flex-col items-center">
-            <img src="logo.jpg" alt="Guyane Sourcing Direct" class="h-40 w-auto mb-2">
-            
+            <img src="logo.jpg" alt="Guyane Sourcing Direct" class="h-32 w-auto mb-2">
             <h1 class="text-guyane text-xl font-bold uppercase tracking-tight">GUYANE SOURCING DIRECT</h1>
             <p class="text-gray-600 text-[10px] font-medium italic uppercase tracking-widest">Pièces Auto & Agricoles : France -> Guyane</p>
         </div>
@@ -29,7 +28,7 @@
                 <i class="fas fa-file-signature"></i> Demande de devis gratuit
             </h2>
             
-            <form action="https://formspree.io/f/meenjkyj" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -53,11 +52,6 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Email (Optionnel)</label>
-                    <input type="email" name="email" placeholder="votre@email.com" class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800">
-                </div>
-
-                <div>
                     <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Description de la pièce *</label>
                     <textarea name="message" rows="3" placeholder="Détaillez votre besoin..." required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800"></textarea>
                 </div>
@@ -67,9 +61,10 @@
                     <input type="text" name="livraison" placeholder="Ex: Cayenne, Kourou..." required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800">
                 </div>
 
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1 text-center">Photo de la pièce / Carte grise</label>
-                    <input type="file" name="photo" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-50 file:text-green-700 font-semibold">
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-2">
+                    <p class="text-[11px] text-blue-700 text-center leading-tight">
+                        <i class="fas fa-info-circle"></i> <strong>Note :</strong> Une fois le formulaire envoyé, nous vous contacterons sur WhatsApp pour les photos (Carte grise / Pièces).
+                    </p>
                 </div>
 
                 <button type="submit" class="w-full bg-guyane text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-900 transition flex justify-center items-center gap-2 mt-4 uppercase tracking-wider">
