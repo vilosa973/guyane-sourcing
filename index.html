@@ -22,7 +22,28 @@
     </header>
 
     <main class="max-w-xl mx-auto p-4 pb-24">
-        
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100 border-t-4 border-t-blue-500">
+            <h2 class="text-lg font-bold mb-4 text-blue-800 italic flex items-center gap-2">
+                <i class="fas fa-box-open"></i> Suivre mon dossier
+            </h2>
+            <div class="flex gap-2">
+                <input type="text" id="numDevis" placeholder="N° de Devis (ex: 01300426)" class="flex-1 border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                <button onclick="chercherDossier()" class="bg-blue-600 text-white px-4 rounded-xl hover:bg-blue-700 transition">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div id="resultat" class="hidden mt-6 p-4 rounded-xl border border-blue-100 bg-blue-50">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 id="nomClient" class="font-bold text-gray-800"></h3>
+                    <span id="statut" class="text-[10px] uppercase font-bold px-3 py-1 rounded-full text-white"></span>
+                </div>
+                <p id="infoColis" class="text-sm text-gray-600 mb-4"></p>
+                <div id="lienSuivi"></div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
             <h2 class="text-lg font-bold mb-6 text-guyane border-b pb-2 italic flex items-center gap-2">
                 <i class="fas fa-file-signature"></i> Demande de devis gratuit
@@ -91,6 +112,51 @@
     <footer class="text-center py-6 text-gray-400 text-[10px] uppercase tracking-widest leading-relaxed">
         © 2026 Guyane Sourcing Direct<br>Service de sourcing professionnel
     </footer>
+
+    <script>
+        const dossiers = {
+            "01300426": {
+                nom: "Daniel R.",
+                statut: "EN ATTENTE DE PAIEMENT",
+                couleur: "#f59e0b", // Orange
+                suivi: "",
+                details: "Bâche Ford Ranger"
+            },
+            "2026002": {
+                nom: "Edouard N.",
+                statut: "DEVIS EN COURS",
+                couleur: "#3b82f6", // Bleu
+                suivi: "",
+                details: "Courroies Seco Cross Jet"
+            }
+        };
+
+        function chercherDossier() {
+            const id = document.getElementById('numDevis').value.trim();
+            const res = document.getElementById('resultat');
+            const dossier = dossiers[id];
+
+            if (dossier) {
+                res.classList.remove('hidden');
+                document.getElementById('nomClient').innerText = dossier.nom + " - " + dossier.details;
+                document.getElementById('statut').innerText = dossier.statut;
+                document.getElementById('statut').style.backgroundColor = dossier.couleur;
+                
+                if (dossier.suivi) {
+                    document.getElementById('infoColis').innerText = "Colis expédié ! Retrouvez l'avancée réelle via le bouton ci-dessous.";
+                    document.getElementById('lienSuivi').innerHTML = `
+                        <a href="https://www.17track.net/fr/track?nums=${dossier.suivi}" target="_blank" class="block w-full bg-green-600 text-white text-center py-2 rounded-lg font-bold text-xs uppercase shadow hover:bg-green-700 transition">
+                            <i class="fas fa-shipping-fast"></i> Suivre sur 17TRACK
+                        </a>`;
+                } else {
+                    document.getElementById('infoColis').innerText = "Dossier en cours de traitement logistique.";
+                    document.getElementById('lienSuivi').innerHTML = "";
+                }
+            } else {
+                alert("N° de dossier non reconnu. Vérifiez votre numéro de devis.");
+            }
+        }
+    </script>
 
 </body>
 </html>
