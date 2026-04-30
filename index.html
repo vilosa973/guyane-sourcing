@@ -10,149 +10,76 @@
 <body class="bg-gray-100 font-sans">
 
     <header class="bg-white shadow-md p-6 text-center">
-        <img src="1000000129.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2">
-        
-        <p class="text-gray-500 text-sm mt-1 font-medium">Sourcing • Logistique • Accompagnement</p>
+        <img src="LOGO/1000000129.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2">
+        <p class="text-gray-500 text-sm mt-1 font-medium italic">Sourcing • Logistique • Accompagnement</p>
     </header>
 
     <div class="max-w-2xl mx-auto p-4 space-y-8">
-
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-700">
-            <div class="mb-6">
-                <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
-                    <i class="fas fa-file-signature mr-3 text-blue-700"></i> Demande de Devis
-                </h2>
-                <p class="text-gray-500 text-sm">Réponse rapide garantie pour vos projets logistiques.</p>
-            </div>
-
+            <h2 class="text-2xl font-black text-gray-800 uppercase mb-4 tracking-tighter">Demande de Devis</h2>
             <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-gray-400 mb-1 ml-1">Votre Nom complet</label>
-                        <input type="text" name="nom" placeholder="Ex: Jean Martin" required 
-                            class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-blue-600 focus:bg-white outline-none transition-all font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-gray-400 mb-1 ml-1">Téléphone</label>
-                        <input type="tel" name="telephone" placeholder="Ex: 0694 00 00 00" required 
-                            class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-blue-600 focus:bg-white outline-none transition-all font-bold">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1 ml-1">Adresse Email</label>
-                    <input type="email" name="email" placeholder="votre@email.com" required 
-                        class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-blue-600 focus:bg-white outline-none transition-all font-bold">
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1 ml-1">Description du besoin</label>
-                    <textarea name="besoin" placeholder="Détaillez ici les produits, quantités, ou liens..." rows="4" required 
-                        class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-blue-600 focus:bg-white outline-none transition-all font-medium"></textarea>
-                </div>
-                
-                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest hover:bg-blue-800 transition shadow-lg transform hover:scale-[1.02]">
-                    <i class="fas fa-paper-plane mr-2"></i> Envoyer ma demande
+                <input type="text" name="nom" placeholder="Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none">
+                <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none">
+                <input type="email" name="email" placeholder="Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none">
+                <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none"></textarea>
+                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg">
+                    Envoyer ma demande
                 </button>
             </form>
         </section>
 
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
-            <h2 class="text-xl font-black text-gray-800 uppercase flex items-center">
-                <i class="fas fa-box-open mr-3 text-orange-500"></i> Suivi de Dossier
-            </h2>
-            <p class="text-xs text-gray-500 mb-5 font-bold italic">Entrez votre numéro de devis (ex: 01300426).</p>
-            
-            <div class="flex space-x-2 mb-4">
-                <input type="text" id="numDevis" placeholder="N° de Devis" 
-                    class="flex-1 p-4 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none font-black text-blue-700 text-lg uppercase">
-                <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl hover:bg-orange-600 transition shadow-md">
+            <h2 class="text-xl font-black text-gray-800 uppercase mb-4 tracking-tighter">Suivi de Dossier</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="numDevis" placeholder="N° de Devis" class="flex-1 p-4 border-2 border-gray-200 rounded-xl font-black text-blue-700 uppercase outline-none">
+                <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md">
                     <i class="fas fa-search text-2xl"></i>
                 </button>
             </div>
-
-            <div id="resultat" class="hidden animate-fade-in bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-200 text-center">
-                <p id="nomClient" class="text-xl font-black text-gray-800 mb-3 uppercase">-</p>
-                <div id="statut" class="inline-block px-6 py-3 rounded-full text-white font-black text-sm shadow-xl mb-5 uppercase tracking-widest">
-                    -
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-inner text-left">
-                    <p id="infoColis" class="text-[10px] text-gray-500 font-black uppercase mb-2"></p>
-                    <div id="lienSuivi"></div>
-                </div>
+            <div id="resultat" class="hidden mt-4 bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-200 text-center">
+                <p id="nomClient" class="text-xl font-black text-gray-800 uppercase mb-2"></p>
+                <div id="statut" class="inline-block px-6 py-3 rounded-full text-white font-black text-sm uppercase tracking-widest shadow-md"></div>
+                <div id="lienSuivi" class="mt-4"></div>
             </div>
         </section>
 
-        <a href="https://wa.me/594694200000" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl hover:bg-green-600 transition transform hover:scale-[1.03]">
+        <a href="https://wa.me/594694200000" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl transition transform hover:scale-105">
             <i class="fab fa-whatsapp text-4xl"></i>
-            <div class="text-left leading-tight">
-                <span class="block text-sm opacity-90 uppercase font-black">Besoin d'aide ?</span>
-                <span class="text-xl uppercase tracking-tighter">Contact WhatsApp Direct</span>
-            </div>
+            <span class="text-xl uppercase font-black">Contact WhatsApp Direct</span>
         </a>
-
     </div>
 
     <script>
-        // LIEN AUTOMATIQUE VERS TON GOOGLE SHEETS
-        const linkFichier = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/edit";
-        const urlCSV = linkFichier.replace('/edit', '/export?format=csv');
-
+        const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
         async function chercherDossier() {
             const idRecherche = document.getElementById('numDevis').value.trim();
             const res = document.getElementById('resultat');
             if(!idRecherche) return;
-
             try {
                 const response = await fetch(urlCSV);
                 const data = await response.text();
-                // Gestion du CSV avec virgules
                 const lignes = data.split('\n').map(l => l.split(','));
                 const dossiers = {};
-                
                 for (let i = 1; i < lignes.length; i++) {
                     const [id, client, statut, details, suivi] = lignes[i];
-                    if(id) {
-                        const cleanId = id.replace(/"/g, '').trim();
-                        dossiers[cleanId] = { 
-                            nom: client ? client.replace(/"/g, '') : "Client", 
-                            statut: statut ? statut.replace(/"/g, '') : "En cours", 
-                            details: details ? details.replace(/"/g, '') : "", 
-                            suivi: suivi ? suivi.replace(/"/g, '').trim() : "" 
-                        };
-                    }
+                    if(id) dossiers[id.replace(/"/g, '').trim()] = { 
+                        nom: client.replace(/"/g, ''), 
+                        statut: statut.replace(/"/g, ''),
+                        suivi: suivi ? suivi.replace(/"/g, '').trim() : ""
+                    };
                 }
-
-                const dossier = dossiers[idRecherche];
-
-                if (dossier) {
+                const d = dossiers[idRecherche];
+                if (d) {
                     res.classList.remove('hidden');
-                    document.getElementById('nomClient').innerText = dossier.nom + (dossier.details ? " — " + dossier.details : "");
-                    document.getElementById('statut').innerText = dossier.statut;
-                    
-                    let st = dossier.statut.toLowerCase();
-                    let couleur = "#3b82f6"; // Bleu
-                    if(st.includes("attente") || st.includes("paiement")) couleur = "#f59e0b"; // Orange
-                    if(st.includes("payé") || st.includes("expédié") || st.includes("reçu")) couleur = "#10b981"; // Vert
-                    
-                    document.getElementById('statut').style.backgroundColor = couleur;
-                    
-                    if (dossier.suivi && dossier.suivi.length > 5) {
-                        document.getElementById('infoColis').innerText = "Numéro de suivi :";
-                        document.getElementById('lienSuivi').innerHTML = `
-                            <a href="https://www.17track.net/fr/track?nums=${dossier.suivi}" target="_blank" class="block w-full bg-blue-700 text-white text-center py-4 rounded-xl font-black text-xs shadow hover:bg-blue-800 transition">
-                                <i class="fas fa-truck-moving mr-2"></i> Suivre mon colis
-                            </a>`;
-                    } else {
-                        document.getElementById('infoColis').innerText = "Traitement en cours (Logistique).";
-                        document.getElementById('lienSuivi').innerHTML = "";
-                    }
-                } else {
-                    alert("Numéro " + idRecherche + " non reconnu. Vérifiez votre saisie.");
-                }
-            } catch (error) {
-                alert("Erreur de chargement. Vérifiez que votre tableau est bien publié sur le Web.");
-            }
+                    document.getElementById('nomClient').innerText = d.nom;
+                    const s = document.getElementById('statut');
+                    s.innerText = d.statut;
+                    s.style.backgroundColor = (d.statut.toLowerCase().includes('payé') || d.statut.toLowerCase().includes('expédié')) ? '#10b981' : '#f59e0b';
+                    if(d.suivi && d.suivi.length > 5) {
+                        document.getElementById('lienSuivi').innerHTML = `<a href="https://www.17track.net/fr/track?nums=${d.suivi}" target="_blank" class="block w-full bg-blue-700 text-white py-3 rounded-xl font-bold text-xs shadow">Suivre sur 17TRACK</a>`;
+                    } else { document.getElementById('lienSuivi').innerHTML = ""; }
+                } else { alert("Numéro non trouvé."); }
+            } catch (e) { alert("Erreur"); }
         }
     </script>
 </body>
