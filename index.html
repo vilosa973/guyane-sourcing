@@ -3,160 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guyane Sourcing Direct - Devis Pièces Auto & Agricoles</title>
+    <title>Guyane Sourcing Direct - Suivi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .bg-guyane { background-color: #004d3d; }
-        .text-guyane { color: #004d3d; }
-    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-gray-100 font-sans">
 
-    <header class="bg-white py-6 px-4 shadow-md text-center border-b-4 border-yellow-500">
-        <div class="flex flex-col items-center">
-            <img src="logo.jpg" alt="Guyane Sourcing Direct" class="h-32 w-auto mb-2">
-            <h1 class="text-guyane text-xl font-bold uppercase tracking-tight">GUYANE SOURCING DIRECT</h1>
-            <p class="text-gray-600 text-[10px] font-medium italic uppercase tracking-widest">Pièces Auto & Agricoles : France -> Guyane</p>
-        </div>
+    <header class="bg-white shadow-md p-4 text-center">
+        <h1 class="text-2xl font-bold text-blue-600">GUYANE SOURCING DIRECT</h1>
+        <p class="text-gray-500 text-sm">Votre partenaire logistique & sourcing</p>
     </header>
 
-    <main class="max-w-xl mx-auto p-4 pb-24">
+    <main class="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+        <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-box-open mr-2 text-blue-500"></i>Suivi de votre dossier</h2>
+        
+        <p class="text-sm text-gray-600 mb-4">Entrez votre numéro de devis (ex: 01300426) pour voir l'avancement.</p>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100 border-t-4 border-t-blue-500">
-            <h2 class="text-lg font-bold mb-4 text-blue-800 italic flex items-center gap-2">
-                <i class="fas fa-box-open"></i> Suivre mon dossier
-            </h2>
-            <div class="flex gap-2">
-                <input type="text" id="numDevis" placeholder="N° de Devis (ex: 01300426)" class="flex-1 border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 uppercase">
-                <button onclick="chercherDossier()" class="bg-blue-600 text-white px-4 rounded-xl hover:bg-blue-700 transition">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-
-            <div id="resultat" class="hidden mt-6 p-4 rounded-xl border border-blue-100 bg-blue-50">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 id="nomClient" class="font-bold text-gray-800"></h3>
-                    <span id="statut" class="text-[10px] uppercase font-bold px-3 py-1 rounded-full text-white"></span>
-                </div>
-                <p id="infoColis" class="text-sm text-gray-600 mb-4"></p>
-                <div id="lienSuivi"></div>
-            </div>
+        <div class="flex space-x-2 mb-6">
+            <input type="text" id="numDevis" placeholder="N° de devis..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="chercherDossier()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                <i class="fas fa-search"></i>
+            </button>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
-            <h2 class="text-lg font-bold mb-6 text-guyane border-b pb-2 italic flex items-center gap-2">
-                <i class="fas fa-file-signature"></i> Demande de devis gratuit
-            </h2>
-            
-            <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Nom *</label>
-                        <input type="text" name="nom" required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Prénom *</label>
-                        <input type="text" name="prenom" required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800">
-                    </div>
+        <div id="resultat" class="hidden border-t pt-6 animate-fade-in">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Client & Commande</p>
+                <p id="nomClient" class="text-lg font-bold text-gray-800 mb-4">-</p>
+
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Statut actuel</p>
+                <span id="statut" class="inline-block px-4 py-2 rounded-full text-white font-bold text-sm shadow-sm mb-4">
+                    Chargement...
+                </span>
+
+                <div id="infoLogistique" class="mt-4 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                    <p id="infoColis" class="text-sm text-blue-800 font-medium"></p>
+                    <div id="lienSuivi" class="mt-3"></div>
                 </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Immatriculation *</label>
-                    <input type="text" name="immatriculation" placeholder="Ex: AB-123-CD" required class="w-full border p-3 rounded-xl bg-gray-50 uppercase text-blue-700 font-bold outline-none focus:ring-2 focus:ring-green-800">
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Téléphone (WhatsApp) *</label>
-                    <input type="tel" name="telephone" placeholder="06 99 33 78 03" required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800">
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Description de la pièce *</label>
-                    <textarea name="message" rows="3" placeholder="Détaillez votre besoin..." required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Lieu de livraison (Guyane) *</label>
-                    <input type="text" name="livraison" placeholder="Ex: Cayenne, Kourou..." required class="w-full border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-green-800">
-                </div>
-
-                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-2">
-                    <p class="text-[11px] text-blue-700 text-center leading-tight">
-                        <i class="fas fa-info-circle"></i> <strong>Note :</strong> Une fois le formulaire envoyé, nous vous contacterons sur WhatsApp pour les photos (Carte grise / Pièces).
-                    </p>
-                </div>
-
-                <button type="submit" class="w-full bg-guyane text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-900 transition flex justify-center items-center gap-2 mt-4 uppercase tracking-wider">
-                    <i class="fas fa-paper-plane"></i> Envoyer ma demande
-                </button>
-            </form>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 text-center text-[9px] uppercase font-bold text-gray-500">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 border-t-2 border-t-yellow-500">
-                <i class="fas fa-shield-alt text-guyane text-xl mb-1"></i><br>Paiement Sécurisé
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 border-t-2 border-t-yellow-500">
-                <i class="fas fa-truck text-guyane text-xl mb-1"></i><br>Livraison Guyane
             </div>
         </div>
-
     </main>
 
-    <a href="https://wa.me/33699337803" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl z-50 text-2xl hover:scale-110 transition-transform">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
-    <footer class="text-center py-6 text-gray-400 text-[10px] uppercase tracking-widest leading-relaxed">
-        © 2026 Guyane Sourcing Direct<br>Service de sourcing professionnel
-    </footer>
+    <div class="text-center mt-10">
+        <a href="https://wa.me/594694200000" class="inline-flex items-center bg-green-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-green-600 transition">
+            <i class="fab fa-whatsapp mr-2 text-xl"></i> Une question ? Contactez-nous
+        </a>
+    </div>
 
     <script>
-        const dossiers = {
-            "01300426": {
-                nom: "Daniel R.",
-                statut: "EN ATTENTE DE PAIEMENT",
-                couleur: "#f59e0b", // Orange
-                suivi: "",
-                details: "Bâche Ford Ranger"
-            },
-            "2026002": {
-                nom: "Edouard N.",
-                statut: "DEVIS EN COURS",
-                couleur: "#3b82f6", // Bleu
-                suivi: "",
-                details: "Courroies Seco Cross Jet"
-            }
-        };
+        // ON UTILISE TON LIEN DE FICHIER DIRECTEMENT
+        // Le code va transformer automatiquement ton lien pour pouvoir le lire
+        const linkPrivé = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/edit";
+        const urlCSV = linkPrivé.replace('/edit', '/export?format=csv');
 
-        function chercherDossier() {
-            const id = document.getElementById('numDevis').value.trim();
+        async function chercherDossier() {
+            const idRecherche = document.getElementById('numDevis').value.trim();
             const res = document.getElementById('resultat');
-            const dossier = dossiers[id];
+            
+            if(!idRecherche) return alert("Veuillez entrer un numéro.");
 
-            if (dossier) {
-                res.classList.remove('hidden');
-                document.getElementById('nomClient').innerText = dossier.nom + " - " + dossier.details;
-                document.getElementById('statut').innerText = dossier.statut;
-                document.getElementById('statut').style.backgroundColor = dossier.couleur;
+            try {
+                const response = await fetch(urlCSV);
+                const data = await response.text();
                 
-                if (dossier.suivi) {
-                    document.getElementById('infoColis').innerText = "Colis expédié ! Retrouvez l'avancée réelle via le bouton ci-dessous.";
-                    document.getElementById('lienSuivi').innerHTML = `
-                        <a href="https://www.17track.net/fr/track?nums=${dossier.suivi}" target="_blank" class="block w-full bg-green-600 text-white text-center py-2 rounded-lg font-bold text-xs uppercase shadow hover:bg-green-700 transition">
-                            <i class="fas fa-shipping-fast"></i> Suivre sur 17TRACK
-                        </a>`;
-                } else {
-                    document.getElementById('infoColis').innerText = "Dossier en cours de traitement logistique.";
-                    document.getElementById('lienSuivi').innerHTML = "";
+                // Découpage du tableau
+                const lignes = data.split('\n').map(l => l.split(','));
+                const dossiers = {};
+                
+                // On remplit la liste des dossiers depuis ton Google Sheets
+                for (let i = 1; i < lignes.length; i++) {
+                    const [id, client, statut, details, suivi] = lignes[i];
+                    if(id) {
+                        // On enlève les guillemets et les espaces
+                        const cleanId = id.replace(/"/g, '').trim();
+                        dossiers[cleanId] = { 
+                            nom: client ? client.replace(/"/g, '') : "", 
+                            statut: statut ? statut.replace(/"/g, '') : "En cours", 
+                            details: details ? details.replace(/"/g, '') : "", 
+                            suivi: suivi ? suivi.replace(/"/g, '').trim() : "" 
+                        };
+                    }
                 }
-            } else {
-                alert("N° de dossier non reconnu. Vérifiez votre numéro de devis.");
+
+                const dossier = dossiers[idRecherche];
+
+                if (dossier) {
+                    res.classList.remove('hidden');
+                    document.getElementById('nomClient').innerText = dossier.nom + (dossier.details ? " (" + dossier.details + ")" : "");
+                    document.getElementById('statut').innerText = dossier.statut;
+                    
+                    // Gestion des couleurs selon les mots clés dans ton tableau
+                    let st = dossier.statut.toLowerCase();
+                    let couleur = "#3b82f6"; // Bleu par défaut
+                    if(st.includes("attente") || st.includes("paiement")) couleur = "#f59e0b"; // Orange
+                    if(st.includes("payé") || st.includes("expédié") || st.includes("reçu")) couleur = "#10b981"; // Vert
+                    
+                    document.getElementById('statut').style.backgroundColor = couleur;
+                    
+                    if (dossier.suivi && dossier.suivi.length > 5) {
+                        document.getElementById('infoColis').innerText = "Votre colis est en route !";
+                        document.getElementById('lienSuivi').innerHTML = `
+                            <a href="https://www.17track.net/fr/track?nums=${dossier.suivi}" target="_blank" class="block w-full bg-blue-600 text-white text-center py-2 rounded-lg font-bold text-xs uppercase shadow hover:bg-blue-700 transition">
+                                <i class="fas fa-shipping-fast mr-2"></i> Suivre sur 17TRACK
+                            </a>`;
+                    } else {
+                        document.getElementById('infoColis').innerText = "Aucun numéro de suivi disponible pour le moment.";
+                        document.getElementById('lienSuivi').innerHTML = "";
+                    }
+                } else {
+                    alert("Numéro " + idRecherche + " non trouvé. Vérifiez votre tableau Google Sheets.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erreur de connexion au tableau. Assurez-vous d'avoir cliqué sur 'Publier sur le web' dans Google Sheets.");
             }
         }
     </script>
-
 </body>
 </html>
