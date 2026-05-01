@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Guyane Sourcing Direct | Pièces Auto & Logistique 973</title>
-    <meta name="description" content="Sourcing et livraison de pièces auto neuves et occasion en Guyane. Cayenne, Kourou, Saint-Laurent. Devis rapide et suivi sécurisé.">
-    <meta name="keywords" content="pièces auto guyane, sourcing cayenne, moteur occasion guyane, livraison pièces détachées 973, import auto guyane">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -36,42 +32,9 @@
                 <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">Envoyer ma demande</button>
             </form>
             <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
-                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Votre demande a bien été envoyée. Nous vous répondons sous 24h.
+                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Votre demande a bien été envoyée.
             </div>
         </section>
-
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-l-8 border-emerald-500">
-            <h2 class="text-xl font-black text-gray-800 uppercase mb-6 text-center">Comment ça marche ?</h2>
-            <div class="grid grid-cols-3 gap-2 text-center mb-8">
-                <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-edit"></i></div>
-                    <p class="text-[10px] font-bold uppercase text-gray-600">1. Demandez</p>
-                </div>
-                <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-envelope-open-text"></i></div>
-                    <p class="text-[10px] font-bold uppercase text-gray-600">2. Recevez</p>
-                </div>
-                <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-shipping-fast"></i></div>
-                    <p class="text-[10px] font-bold uppercase text-gray-600">3. Validez</p>
-                </div>
-            </div>
-            <div class="rounded-xl overflow-hidden shadow-lg bg-black aspect-video border-4 border-emerald-50">
-                <video controls class="w-full h-full">
-                    <source src="explication.mp4" type="video/mp4">
-                    Votre navigateur ne supporte pas la vidéo.
-                </video>
-            </div>
-        </section>
-
-        <div class="bg-blue-50 border-l-4 border-blue-700 p-4 rounded-r-xl shadow-sm">
-            <div class="flex items-center">
-                <i class="fas fa-clock text-blue-700 mr-3"></i>
-                <p class="text-xs font-bold text-blue-900 uppercase">
-                    Note : Service disponible du lundi au vendredi. Fermé les week-ends et jours fériés.
-                </p>
-            </div>
-        </div>
 
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
             <h2 class="text-xl font-black text-gray-800 uppercase mb-4 flex items-center">
@@ -86,22 +49,17 @@
                 <div id="statut" class="inline-block px-6 py-3 rounded-full text-white font-black text-sm uppercase tracking-widest shadow-md mb-4"></div>
                 
                 <div id="zonePaiement" class="hidden pt-4 border-t border-gray-200 space-y-3">
-                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Choisir un mode de règlement :</p>
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Règlement du montant exact :</p>
                     
-                    <a id="btnStripe" href="#" target="_blank" class="block w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-3">
-                        <i class="fas fa-credit-card"></i> Carte Bancaire
+                    <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-3">
+                        <i class="fas fa-credit-card"></i> Payer par Carte
                     </a>
 
-                    <a href="https://www.paypal.com/paypalme/jvilosa" target="_blank" class="block w-full bg-[#0070ba] text-white py-4 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-[#005ea6] transition flex items-center justify-center gap-3">
-                        <i class="fab fa-paypal"></i> PayPal
+                    <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-4 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-[#005ea6] transition flex items-center justify-center gap-3">
+                        <i class="fab fa-paypal"></i> Payer par PayPal
                     </a>
                 </div>
             </div>
-        </section>
-
-        <section class="text-gray-600 text-sm leading-relaxed p-4 border-t border-gray-200">
-            <h3 class="font-bold text-gray-800 mb-2">Votre partenaire sourcing en Guyane</h3>
-            <p>Guyane Sourcing Direct est spécialisé dans la recherche et l'importation de pièces détachées automobiles (moteurs, boîtes de vitesses, carrosserie) pour les particuliers et professionnels à <strong>Cayenne, Matoury, Kourou et Saint-Laurent-du-Maroni</strong>. Nous assurons la logistique et le suivi de vos commandes pour une livraison sécurisée dans tout le 973.</p>
         </section>
 
         <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl transition transform hover:scale-105">
@@ -109,14 +67,14 @@
         </a>
     </div>
 
-    <footer class="bg-white mt-12 p-8 text-center border-t border-gray-200 text-gray-400">
-        <p class="font-bold uppercase tracking-widest text-xs mb-2">Guyane Sourcing Direct</p>
-        <p class="text-xs">Responsable : VILOSA | <a href="mailto:vilo972@hotmail.com" class="underline">vilo972@hotmail.com</a></p>
-        <p class="text-[10px] mt-4 uppercase"><i class="fas fa-lock text-green-500 mr-1"></i> Site sécurisé</p>
+    <footer class="bg-white mt-12 p-8 text-center border-t border-gray-200 text-gray-400 text-xs uppercase tracking-widest font-bold">
+        <p>Guyane Sourcing Direct | Responsable : VILOSA</p>
     </footer>
 
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
+        
+        // Gestion du formulaire de devis
         const form = document.getElementById('devisForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
@@ -126,33 +84,59 @@
             document.getElementById('successMessage').classList.remove('hidden');
         };
 
+        // Fonction de recherche de dossier
         async function chercherDossier() {
-            const idRecherche = document.getElementById('numDevis').value.trim();
+            const idRecherche = document.getElementById('numDevis').value.trim().toUpperCase();
             const res = document.getElementById('resultat');
             if(!idRecherche) return;
+            
             try {
                 const response = await fetch(urlCSV);
                 const data = await response.text();
                 const lignes = data.split('\n');
                 let trouve = false;
+                
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(col[0]?.replace(/"/g, '').trim() === idRecherche) {
+                    
+                    // Vérification de l'ID en Colonne A (index 0)
+                    if(col[0]?.replace(/"/g, '').trim().toUpperCase() === idRecherche) {
                         trouve = true;
                         res.classList.remove('hidden');
                         document.getElementById('nomClient').innerText = col[1]?.replace(/"/g, '').trim();
+                        
                         const s = document.getElementById('statut');
-                        s.innerText = col[2]?.replace(/"/g, '').trim();
-                        s.style.backgroundColor = (col[2].toLowerCase().includes('expédié') || col[2].toLowerCase().includes('payé')) ? '#10b981' : '#f59e0b';
-                        if (col[3] && col[3].includes('http')) {
-                            document.getElementById('zonePaiement').classList.remove('hidden');
-                            document.getElementById('btnStripe').href = col[3].replace(/"/g, '').trim();
-                        } else { document.getElementById('zonePaiement').classList.add('hidden'); }
+                        const statutTexte = col[2]?.replace(/"/g, '').trim();
+                        s.innerText = statutTexte;
+                        s.style.backgroundColor = statutTexte.toLowerCase().includes('payé') ? '#10b981' : '#f59e0b';
+                        
+                        document.getElementById('zonePaiement').classList.remove('hidden');
+
+                        // Bouton STRIPE - Colonne D (index 3)
+                        const linkStripe = col[3]?.replace(/"/g, '').trim();
+                        const bStripe = document.getElementById('btnStripe');
+                        if(linkStripe && linkStripe.startsWith('http')) {
+                            bStripe.href = linkStripe;
+                            bStripe.classList.remove('hidden');
+                            bStripe.classList.add('flex');
+                        } else { bStripe.classList.add('hidden'); bStripe.classList.remove('flex'); }
+
+                        // Bouton PAYPAL - Colonne F (index 5)
+                        const linkPaypal = col[5]?.replace(/"/g, '').trim();
+                        const bPaypal = document.getElementById('btnPaypal');
+                        if(linkPaypal && linkPaypal.startsWith('http')) {
+                            bPaypal.href = linkPaypal;
+                            bPaypal.classList.remove('hidden');
+                            bPaypal.classList.add('flex');
+                        } else { bPaypal.classList.add('hidden'); bPaypal.classList.remove('flex'); }
+                        
                         break;
                     }
                 }
-                if (!trouve) alert("Dossier inconnu.");
-            } catch (e) { alert("Erreur."); }
+                if (!trouve) alert("Numéro de dossier inconnu.");
+            } catch (e) { 
+                alert("Erreur lors de la récupération des données."); 
+            }
         }
     </script>
 </body>
