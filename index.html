@@ -32,41 +32,42 @@
                 <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">Envoyer ma demande</button>
             </form>
             <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
-                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Demande envoyée.
+                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Votre demande a bien été envoyée. Nous vous répondons sous 24h.
             </div>
         </section>
 
         <section class="bg-white rounded-2xl shadow-xl p-6 border-l-8 border-emerald-500">
-            <h2 class="text-xl font-black text-gray-800 uppercase mb-6">Comment ça marche ?</h2>
-            
+            <h2 class="text-xl font-black text-gray-800 uppercase mb-6 text-center">Comment ça marche ?</h2>
             <div class="grid grid-cols-3 gap-2 text-center mb-8">
                 <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
-                        <i class="fas fa-edit"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-edit"></i></div>
                     <p class="text-[10px] font-bold uppercase text-gray-600">1. Demandez</p>
                 </div>
                 <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
-                        <i class="fas fa-envelope-open-text"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-envelope-open-text"></i></div>
                     <p class="text-[10px] font-bold uppercase text-gray-600">2. Recevez</p>
                 </div>
                 <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
-                        <i class="fas fa-shipping-fast"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-shipping-fast"></i></div>
                     <p class="text-[10px] font-bold uppercase text-gray-600">3. Validez</p>
                 </div>
             </div>
-
-            <div class="rounded-xl overflow-hidden shadow-lg bg-black aspect-video flex items-center justify-center border-4 border-emerald-50">
+            <div class="rounded-xl overflow-hidden shadow-lg bg-black aspect-video border-4 border-emerald-50">
                 <video controls class="w-full h-full">
                     <source src="explication.mp4" type="video/mp4">
                     Votre navigateur ne supporte pas la vidéo.
                 </video>
             </div>
         </section>
+
+        <div class="bg-blue-50 border-l-4 border-blue-700 p-4 rounded-r-xl shadow-sm">
+            <div class="flex items-center">
+                <i class="fas fa-clock text-blue-700 mr-3"></i>
+                <p class="text-xs font-bold text-blue-900 uppercase">
+                    Note : Service disponible du lundi au vendredi. Fermé les week-ends et jours fériés.
+                </p>
+            </div>
+        </div>
 
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
             <h2 class="text-xl font-black text-gray-800 uppercase mb-4 flex items-center">
@@ -112,8 +113,6 @@
         async function chercherDossier() {
             const idRecherche = document.getElementById('numDevis').value.trim();
             const res = document.getElementById('resultat');
-            const zonePay = document.getElementById('zonePaiement');
-            const btnPay = document.getElementById('btnStripe');
             if(!idRecherche) return;
             try {
                 const response = await fetch(urlCSV);
@@ -130,9 +129,9 @@
                         s.innerText = col[2]?.replace(/"/g, '').trim();
                         s.style.backgroundColor = (col[2].toLowerCase().includes('expédié') || col[2].toLowerCase().includes('payé')) ? '#10b981' : '#f59e0b';
                         if (col[3] && col[3].includes('http')) {
-                            zonePay.classList.remove('hidden');
-                            btnPay.href = col[3].replace(/"/g, '').trim();
-                        } else { zonePay.classList.add('hidden'); }
+                            document.getElementById('zonePaiement').classList.remove('hidden');
+                            document.getElementById('btnStripe').href = col[3].replace(/"/g, '').trim();
+                        } else { document.getElementById('zonePaiement').classList.add('hidden'); }
                         break;
                     }
                 }
