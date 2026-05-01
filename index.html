@@ -3,149 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Guyane Sourcing Direct | Pièces Auto & Logistique 973</title>
-    <meta name="description" content="Sourcing et livraison de pièces auto neuves et occasion en Guyane. Cayenne, Kourou, Saint-Laurent. Devis rapide et suivi sécurisé.">
-    <meta name="keywords" content="pièces auto guyane, sourcing cayenne, moteur occasion guyane, livraison pièces détachées 973, import auto guyane">
-    
+    <title>Guyane Sourcing Direct - Pièces Auto & Agricoles</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lexend', sans-serif; }
+        .bg-guyane { background-color: #004526; } /* Vert profond */
+        .text-guyane { color: #004526; }
+        .btn-paypal { background-color: #0070ba; }
+        .btn-paypal:hover { background-color: #005ea6; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
+<body class="bg-gray-50">
 
-    <header class="bg-white shadow-md p-6 text-center">
-        <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2">
-        <p class="text-gray-500 text-sm mt-1 font-medium italic uppercase tracking-widest">Sourcing • Logistique • Accompagnement</p>
+    <header class="bg-guyane text-white py-12 px-6 text-center shadow-2xl">
+        <h1 class="text-4xl font-black uppercase tracking-tighter mb-2">Guyane Sourcing Direct</h1>
+        <p class="text-emerald-200 font-light italic">Votre expert en pièces auto et agricoles en Guyane</p>
     </header>
 
-    <div class="max-w-2xl mx-auto p-4 space-y-8 flex-grow">
-
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-700">
-            <h2 class="text-2xl font-black text-gray-800 uppercase mb-6 flex items-center">
-                <i class="fas fa-file-signature mr-3 text-blue-700"></i> Demande de Devis
+    <main class="max-w-4xl mx-auto p-6 -mt-8">
+        
+        <section class="bg-white rounded-3xl shadow-xl p-8 mb-8 border-t-4 border-yellow-500">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+                <i class="fas fa-search-location text-yellow-500"></i> Suivi de votre commande
             </h2>
-            <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                <input type="text" name="nom" placeholder="Votre Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+            <div class="space-y-4">
+                <p class="text-sm text-gray-600">Entrez votre numéro de dossier pour voir l'état et payer.</p>
+                <div class="flex gap-2">
+                    <input type="text" id="numDossier" placeholder="Ex: GSD-973-123" class="flex-1 p-4 border-2 border-gray-200 rounded-xl focus:border-guyane outline-none text-lg font-bold uppercase">
+                    <button onclick="chercherDossier()" class="bg-guyane text-white px-6 rounded-xl font-bold hover:scale-105 transition">Vérifier</button>
+                </div>
+
+                <div id="resultatDossier" class="hidden mt-6 p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
+                    <div id="infoClient" class="mb-4 text-gray-800 space-y-2">
+                        </div>
+                    
+                    <div id="zonePaiement" class="hidden pt-4 border-t border-gray-200 space-y-3">
+                        <p class="font-bold text-center text-gray-700 mb-2 underline">Options de paiement sécurisé :</p>
+                        
+                        <a id="btnStripe" href="#" target="_blank" class="block w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-center uppercase shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-3">
+                            <i class="fas fa-credit-card"></i> Payer par Carte Bancaire
+                        </a>
+                        
+                        <a id="btnPaypal" href="https://www.paypal.me/JoakimVilosa" target="_blank" class="block w-full btn-paypal text-white py-4 rounded-xl font-black text-center uppercase shadow-lg transition flex items-center justify-center gap-3">
+                            <i class="fab fa-paypal"></i> Payer avec PayPal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-3xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+                <i class="fas fa-file-invoice-dollar text-guyane"></i> Demande de Devis Gratuit
+            </h2>
+            <form action="https://formspree.io/f/votre_id" method="POST" class="space-y-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold outline-none focus:border-blue-700 uppercase">
-                    <input type="text" name="modele" placeholder="Marque / Modèle" class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                    <input type="text" name="nom" placeholder="Votre nom complet" required class="p-4 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-guyane">
+                    <input type="text" name="telephone" placeholder="Téléphone (WhatsApp)" required class="p-4 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-guyane">
                 </div>
-                <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <input type="email" name="email" placeholder="Adresse Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none focus:border-blue-700"></textarea>
-                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">Envoyer ma demande</button>
+                <input type="text" name="vehicule" placeholder="Immatriculation ou Modèle du véhicule" required class="w-full p-4 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-guyane">
+                <textarea name="message" rows="4" placeholder="Quelles pièces recherchez-vous ? (Précisez si c'est agricole ou auto)" required class="w-full p-4 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-guyane"></textarea>
+                <button type="submit" class="w-full bg-guyane text-white py-5 rounded-2xl font-black text-xl uppercase shadow-xl hover:translate-y-1 transition">Envoyer ma demande</button>
             </form>
-            <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
-                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Votre demande a bien été envoyée. Nous vous répondons sous 24h.
-            </div>
         </section>
 
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-l-8 border-emerald-500">
-            <h2 class="text-xl font-black text-gray-800 uppercase mb-6 text-center">Comment ça marche ?</h2>
-            <div class="grid grid-cols-3 gap-2 text-center mb-8">
-                <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-edit"></i></div>
-                    <p class="text-[10px] font-bold uppercase text-gray-600">1. Demandez</p>
-                </div>
-                <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-envelope-open-text"></i></div>
-                    <p class="text-[10px] font-bold uppercase text-gray-600">2. Recevez</p>
-                </div>
-                <div>
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fas fa-shipping-fast"></i></div>
-                    <p class="text-[10px] font-bold uppercase text-gray-600">3. Validez</p>
-                </div>
-            </div>
-            <div class="rounded-xl overflow-hidden shadow-lg bg-black aspect-video border-4 border-emerald-50">
-                <video controls class="w-full h-full">
-                    <source src="explication.mp4" type="video/mp4">
-                    Votre navigateur ne supporte pas la vidéo.
-                </video>
-            </div>
-        </section>
+    </main>
 
-        <div class="bg-blue-50 border-l-4 border-blue-700 p-4 rounded-r-xl shadow-sm">
-            <div class="flex items-center">
-                <i class="fas fa-clock text-blue-700 mr-3"></i>
-                <p class="text-xs font-bold text-blue-900 uppercase">
-                    Note : Service disponible du lundi au vendredi. Fermé les week-ends et jours fériés.
-                </p>
-            </div>
-        </div>
-
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
-            <h2 class="text-xl font-black text-gray-800 uppercase mb-4 flex items-center">
-                <i class="fas fa-box-open mr-3 text-orange-500"></i> Suivi de Dossier
-            </h2>
-            <div class="flex space-x-2">
-                <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-gray-200 rounded-xl font-black text-blue-700 uppercase outline-none focus:border-orange-500">
-                <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md"><i class="fas fa-search text-2xl"></i></button>
-            </div>
-            <div id="resultat" class="hidden mt-4 bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-200 text-center">
-                <p id="nomClient" class="text-xl font-black text-gray-800 uppercase mb-2"></p>
-                <div id="statut" class="inline-block px-6 py-3 rounded-full text-white font-black text-sm uppercase tracking-widest shadow-md mb-4"></div>
-                <div id="zonePaiement" class="hidden pt-4 border-t border-gray-200">
-                    <a id="btnStripe" href="#" target="_blank" class="block w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-3">
-                        <i class="fas fa-credit-card"></i> Payer mon devis
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <section class="text-gray-600 text-sm leading-relaxed p-4 border-t border-gray-200">
-            <h3 class="font-bold text-gray-800 mb-2">Votre partenaire sourcing en Guyane</h3>
-            <p>Guyane Sourcing Direct est spécialisé dans la recherche et l'importation de pièces détachées automobiles (moteurs, boîtes de vitesses, carrosserie) pour les particuliers et professionnels à <strong>Cayenne, Matoury, Kourou et Saint-Laurent-du-Maroni</strong>. Nous assurons la logistique et le suivi de vos commandes pour une livraison sécurisée dans tout le 973.</p>
-        </section>
-
-        <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl transition transform hover:scale-105">
-            <i class="fab fa-whatsapp text-4xl"></i><span class="text-xl uppercase">WhatsApp Direct</span>
-        </a>
-    </div>
-
-    <footer class="bg-white mt-12 p-8 text-center border-t border-gray-200 text-gray-400">
-        <p class="font-bold uppercase tracking-widest text-xs mb-2">Guyane Sourcing Direct</p>
-        <p class="text-xs">Responsable : VILOSA | <a href="mailto:vilo972@hotmail.com" class="underline">vilo972@hotmail.com</a></p>
-        <p class="text-[10px] mt-4 uppercase"><i class="fas fa-lock text-green-500 mr-1"></i> Site sécurisé</p>
+    <footer class="mt-12 py-8 text-center text-gray-400 text-sm">
+        <p>© 2024 Guyane Sourcing Direct - Cayenne, Kourou, Saint-Laurent.</p>
+        <p class="mt-2 italic">Expertise en pièces détachées importées pour la Guyane.</p>
     </footer>
 
     <script>
-        const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
-        const form = document.getElementById('devisForm');
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            await fetch(form.action, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
-            form.classList.add('hidden');
-            document.getElementById('successMessage').classList.remove('hidden');
-        };
+        // LIEN DE TON GOOGLE SHEET (JSON)
+        const URL_SHEET = "TON_URL_JSON_ICI"; 
 
         async function chercherDossier() {
-            const idRecherche = document.getElementById('numDevis').value.trim();
-            const res = document.getElementById('resultat');
-            if(!idRecherche) return;
+            const input = document.getElementById('numDossier').value.trim().toUpperCase();
+            const resBox = document.getElementById('resultatDossier');
+            const infoClient = document.getElementById('infoClient');
+            const zonePaiement = document.getElementById('zonePaiement');
+            const btnStripe = document.getElementById('btnStripe');
+
+            if(!input) return alert("Entrez un numéro !");
+
+            resBox.classList.remove('hidden');
+            infoClient.innerHTML = "🔍 Recherche en cours...";
+            zonePaiement.classList.add('hidden');
+
             try {
-                const response = await fetch(urlCSV);
-                const data = await response.text();
-                const lignes = data.split('\n');
-                let trouve = false;
-                for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(col[0]?.replace(/"/g, '').trim() === idRecherche) {
-                        trouve = true;
-                        res.classList.remove('hidden');
-                        document.getElementById('nomClient').innerText = col[1]?.replace(/"/g, '').trim();
-                        const s = document.getElementById('statut');
-                        s.innerText = col[2]?.replace(/"/g, '').trim();
-                        s.style.backgroundColor = (col[2].toLowerCase().includes('expédié') || col[2].toLowerCase().includes('payé')) ? '#10b981' : '#f59e0b';
-                        if (col[3] && col[3].includes('http')) {
-                            document.getElementById('zonePaiement').classList.remove('hidden');
-                            document.getElementById('btnStripe').href = col[3].replace(/"/g, '').trim();
-                        } else { document.getElementById('zonePaiement').classList.add('hidden'); }
-                        break;
+                const response = await fetch(URL_SHEET);
+                const data = await response.json();
+                
+                // On cherche la ligne correspondant au dossier
+                const dossier = data.find(d => d.ID === input || d.Dossier === input);
+
+                if(dossier) {
+                    infoClient.innerHTML = `
+                        <p class='text-xl font-bold text-guyane'>Bonjour ${dossier.Nom || 'Client'}</p>
+                        <p>📦 Statut : <span class="font-bold text-yellow-600">${dossier.Statut}</span></p>
+                        <p>💰 Montant à régler : <span class="text-2xl font-black">${dossier.Prix || '0'} €</span></p>
+                    `;
+                    
+                    if(dossier.LienPaiement && dossier.LienPaiement !== "") {
+                        btnStripe.href = dossier.LienPaiement;
+                        zonePaiement.classList.remove('hidden');
                     }
+                } else {
+                    infoClient.innerHTML = "❌ Aucun dossier trouvé avec ce numéro.";
                 }
-                if (!trouve) alert("Dossier inconnu.");
-            } catch (e) { alert("Erreur."); }
+            } catch (error) {
+                infoClient.innerHTML = "❌ Erreur de connexion au suivi.";
+            }
         }
     </script>
 </body>
