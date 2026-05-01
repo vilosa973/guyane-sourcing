@@ -3,68 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guyane Sourcing Direct | Suivi de Commande</title>
+    <title>Guyane Sourcing Direct | Automatisation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 font-sans p-4">
+<body class="bg-slate-50 font-sans">
 
-    <header class="max-w-md mx-auto text-center mb-8 pt-6">
-        <h1 class="text-2xl font-black text-blue-900 uppercase italic">Guyane Sourcing Direct</h1>
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Espace Client Sécurisé</p>
+    <header class="bg-white shadow-sm p-6 text-center border-b-4 border-blue-600">
+        <h1 class="text-xl font-black text-blue-900 uppercase italic">Guyane Sourcing Direct</h1>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Suivi & Règlement en ligne</p>
     </header>
 
-    <main class="max-w-md mx-auto">
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 border-blue-600">
-            <div class="p-6">
-                <h2 class="text-lg font-black text-slate-800 uppercase mb-4 text-center">Suivi de mon dossier</h2>
-                
-                <div class="space-y-4 mb-6">
-                    <input type="text" id="numDevis" placeholder="VOTRE N° DE DEVIS" 
-                           class="w-full p-4 border-2 border-slate-200 rounded-2xl font-bold text-blue-800 outline-none focus:border-blue-600 text-center uppercase">
-                    <button onclick="chercherDossier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-search mr-2"></i> CHERCHER
-                    </button>
+    <div class="max-w-xl mx-auto p-4 space-y-6">
+        
+        <section class="bg-white rounded-3xl shadow-xl p-6 border-t-8 border-orange-500">
+            <h2 class="text-xl font-black text-slate-800 uppercase mb-4 text-center">Accéder à mon dossier</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="numDevis" placeholder="N° DE DEVIS (ex: 2026002)" class="flex-1 p-4 border-2 border-slate-200 rounded-xl font-black text-blue-800 uppercase outline-none focus:border-orange-500">
+                <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md hover:bg-orange-600">
+                    <i class="fas fa-search text-2xl"></i>
+                </button>
+            </div>
+            
+            <div id="resultat" class="hidden mt-6 space-y-4">
+                <div class="p-6 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 text-center">
+                    <p id="nomClient" class="text-xl font-black text-slate-800 uppercase mb-2"></p>
+                    <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-xs uppercase tracking-widest"></div>
                 </div>
 
-                <div id="resultat" class="hidden animate-fade-in border-t pt-6">
-                    <div class="text-center space-y-4">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Client</p>
-                            <p id="nomClient" class="text-xl font-black text-slate-800 uppercase"></p>
-                        </div>
-                        
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">État de votre commande</p>
-                            <div id="statutBadge" class="inline-block px-4 py-2 rounded-full bg-orange-500 text-white font-black text-xs uppercase mt-1">
-                                -
-                            </div>
-                        </div>
-
-                        <div id="zonePaiement" class="hidden pt-6">
-                            <a id="lienStripe" href="#" target="_blank" 
-                               class="block w-full bg-emerald-600 text-white py-5 rounded-2xl font-black text-lg uppercase text-center shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-3">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Payer mon devis</span>
-                            </a>
-                            <p class="text-[9px] text-slate-400 mt-2">Paiement 100% sécurisé via Stripe</p>
-                        </div>
-                    </div>
+                <div id="zonePaiement" class="hidden">
+                    <a id="lienStripe" href="#" target="_blank" class="block w-full bg-emerald-600 text-white py-5 rounded-2xl font-black text-xl uppercase text-center shadow-lg hover:bg-emerald-700 transition transform hover:scale-[1.02]">
+                        <i class="fas fa-credit-card mr-2"></i> Payer mon devis
+                    </a>
+                    <p class="text-center text-[10px] text-slate-400 mt-2 uppercase font-bold">Paiement sécurisé par Stripe &copy;</p>
                 </div>
             </div>
-        </div>
-        
-        <p class="text-center text-[10px] text-slate-400 mt-8 uppercase font-bold tracking-widest">
-            Expertise & Sourcing - Guyane
-        </p>
-    </main>
+        </section>
+
+    </div>
 
     <script>
+        // TON URL DE TABLEAU EXCEL (CSV)
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
 
         async function chercherDossier() {
-            const idRecherche = document.getElementById('numDevis').value.trim().toUpperCase();
-            const resZone = document.getElementById('resultat');
+            const idRecherche = document.getElementById('numDevis').value.trim();
+            const res = document.getElementById('resultat');
             const zonePay = document.getElementById('zonePaiement');
             const btnStripe = document.getElementById('lienStripe');
             
@@ -73,40 +57,43 @@
             try {
                 const response = await fetch(urlCSV);
                 const data = await response.text();
-                const lignes = data.split('\n');
-                let trouve = false;
-
+                const lignes = data.split('\n').map(l => l.split(','));
+                
+                // On crée une liste des dossiers à partir de ton Excel
+                const dossiers = {};
                 for (let i = 1; i < lignes.length; i++) {
-                    const colonnes = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (colonnes.length >= 4) {
-                        const id = colonnes[0].replace(/"/g, '').trim();
-                        if (id === idRecherche) {
-                            trouve = true;
-                            resZone.classList.remove('hidden');
-                            document.getElementById('nomClient').innerText = colonnes[1].replace(/"/g, '').trim();
-                            document.getElementById('statutBadge').innerText = colonnes[2].replace(/"/g, '').trim();
-                            
-                            const lien = colonnes[3].replace(/"/g, '').trim();
-                            if(lien.startsWith('http')) {
-                                zonePay.classList.remove('hidden');
-                                btnStripe.href = lien;
-                            } else {
-                                zonePay.classList.add('hidden');
-                            }
-                            break;
-                        }
+                    const [id, client, statut, lien] = lignes[i];
+                    if(id) {
+                        dossiers[id.replace(/"/g, '').trim()] = { 
+                            nom: client ? client.replace(/"/g, '') : "Client", 
+                            statut: statut ? statut.replace(/"/g, '') : "En cours",
+                            stripe: lien ? lien.replace(/"/g, '').trim() : ""
+                        };
                     }
                 }
-                if(!trouve) alert("N° de devis introuvable.");
-            } catch (error) {
-                alert("Erreur de chargement. Vérifiez votre connexion.");
+
+                const d = dossiers[idRecherche];
+                if (d) {
+                    res.classList.remove('hidden');
+                    document.getElementById('nomClient').innerText = d.nom;
+                    const s = document.getElementById('statut');
+                    s.innerText = d.statut;
+                    s.style.backgroundColor = d.statut.toLowerCase().includes('payé') ? '#10b981' : '#f59e0b';
+                    
+                    // AUTOMATISATION DU BOUTON
+                    if(d.stripe && d.stripe.includes('http')) {
+                        zonePay.classList.remove('hidden');
+                        btnStripe.href = d.stripe;
+                    } else {
+                        zonePay.classList.add('hidden');
+                    }
+                } else {
+                    alert("Numéro de devis non trouvé.");
+                }
+            } catch (e) {
+                alert("Erreur de connexion au tableau.");
             }
         }
     </script>
-
-    <style>
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
 </body>
 </html>
