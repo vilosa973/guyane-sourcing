@@ -22,9 +22,13 @@
             </h2>
             <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
                 <input type="text" name="nom" placeholder="Votre Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                
+                <input type="text" name="immatriculation" placeholder="Immatriculation du véhicule (Ex: AA-123-BB)" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold outline-none focus:border-blue-700 placeholder-blue-300 uppercase">
+                
                 <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
                 <input type="email" name="email" placeholder="Adresse Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
                 <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none focus:border-blue-700"></textarea>
+                
                 <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">
                     Envoyer ma demande
                 </button>
@@ -74,7 +78,6 @@
             try {
                 const response = await fetch(urlCSV);
                 const data = await response.text();
-                // Utilisation d'une découpe plus précise pour gérer les liens
                 const lignes = data.split('\n');
                 
                 let trouve = false;
@@ -92,7 +95,6 @@
                         s.innerText = statutTexte;
                         s.style.backgroundColor = (statutTexte.toLowerCase().includes('expédié') || statutTexte.toLowerCase().includes('payé')) ? '#10b981' : '#f59e0b';
                         
-                        // Gestion du lien de paiement (Colonne D)
                         const lienStripe = col[3]?.replace(/"/g, '').trim();
                         if (lienStripe && lienStripe.startsWith('http')) {
                             zonePay.classList.remove('hidden');
