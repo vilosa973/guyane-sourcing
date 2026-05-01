@@ -3,81 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guyane Sourcing Direct</title>
+    <title>Guyane Sourcing Direct | Suivi & Paiement</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-slate-100 font-sans p-4">
 
-    <header class="bg-white shadow-md p-6 text-center">
-        <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2">
-        <p class="text-gray-500 text-sm mt-1 font-medium italic uppercase tracking-widest">Sourcing • Logistique • Accompagnement</p>
+    <header class="max-w-md mx-auto text-center mb-8 pt-6">
+        <h1 class="text-2xl font-black text-blue-900 uppercase italic">Guyane Sourcing Direct</h1>
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Espace Client Sécurisé</p>
     </header>
 
-    <div class="max-w-2xl mx-auto p-4 space-y-8">
+    <main class="max-w-md mx-auto">
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 border-orange-500">
+            <div class="p-6">
+                <h2 class="text-lg font-black text-slate-800 uppercase mb-4 text-center">Consulter mon dossier</h2>
+                
+                <div class="flex gap-2 mb-6">
+                    <input type="text" id="numDevis" placeholder="N° DE DEVIS (ex: 2026002)" 
+                           class="flex-1 p-4 border-2 border-slate-200 rounded-2xl font-bold text-blue-800 outline-none focus:border-orange-500 text-center uppercase">
+                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 rounded-2xl hover:bg-orange-600 transition shadow-lg">
+                        <i class="fas fa-search text-xl"></i>
+                    </button>
+                </div>
 
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-700">
-            <h2 class="text-2xl font-black text-gray-800 uppercase mb-6 flex items-center">
-                <i class="fas fa-file-signature mr-3 text-blue-700"></i> Demande de Devis
-            </h2>
-            <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                <input type="text" name="nom" placeholder="Votre Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <input type="email" name="email" placeholder="Adresse Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none focus:border-blue-700"></textarea>
-                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">
-                    Envoyer ma demande
-                </button>
-            </form>
-        </section>
+                <div id="resultat" class="hidden animate-fade-in">
+                    <div class="p-6 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 text-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-1">Nom du client</p>
+                        <p id="nomClient" class="text-xl font-black text-slate-800 uppercase mb-4"></p>
+                        
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-1">Statut actuel</p>
+                        <div id="statutBadge" class="inline-block px-6 py-2 rounded-full text-white font-black text-xs uppercase tracking-widest">
+                            -
+                        </div>
+                    </div>
 
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
-            <h2 class="text-xl font-black text-gray-800 uppercase mb-4 flex items-center">
-                <i class="fas fa-box-open mr-3 text-orange-500"></i> Suivi de Dossier
-            </h2>
-            <div class="flex space-x-2">
-                <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-gray-200 rounded-xl font-black text-blue-700 uppercase outline-none focus:border-orange-500">
-                <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md">
-                    <i class="fas fa-search text-2xl"></i>
-                </button>
+                    <div id="zonePaiement" class="hidden mt-6">
+                        <a id="lienStripe" href="#" target="_blank" 
+                           class="block w-full bg-emerald-600 text-white py-5 rounded-2xl font-black text-xl uppercase text-center shadow-lg hover:bg-emerald-700 transition transform hover:scale-[1.02] flex items-center justify-center gap-3">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Payer mon devis</span>
+                        </a>
+                        <div class="mt-4 flex justify-center gap-4 opacity-30">
+                            <i class="fab fa-cc-visa text-2xl"></i>
+                            <i class="fab fa-cc-mastercard text-2xl"></i>
+                            <i class="fab fa-apple-pay text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="resultat" class="hidden mt-4 bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-200 text-center animate-fade-in">
-                <p id="nomClient" class="text-xl font-black text-gray-800 uppercase mb-2"></p>
-                <div id="statut" class="inline-block px-6 py-3 rounded-full text-white font-black text-sm uppercase tracking-widest shadow-md"></div>
-            </div>
-        </section>
-
-        <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl transition transform hover:scale-105">
-            <i class="fab fa-whatsapp text-4xl"></i>
-            <span class="text-xl uppercase">WhatsApp Direct</span>
-        </a>
-    </div>
+        </div>
+        
+        <p class="text-center text-[10px] text-slate-400 mt-8 uppercase font-bold tracking-widest">
+            Service de sourcing professionnel - Guyane
+        </p>
+    </main>
 
     <script>
+        // LIEN VERS TON GOOGLE SHEETS (Format CSV)
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
+
         async function chercherDossier() {
-            const idRecherche = document.getElementById('numDevis').value.trim();
-            const res = document.getElementById('resultat');
+            const idRecherche = document.getElementById('numDevis').value.trim().toUpperCase();
+            const resZone = document.getElementById('resultat');
+            const zonePay = document.getElementById('zonePaiement');
+            const btnStripe = document.getElementById('lienStripe');
+            
             if(!idRecherche) return;
+
             try {
                 const response = await fetch(urlCSV);
                 const data = await response.text();
-                const lignes = data.split('\n').map(l => l.split(','));
-                const dossiers = {};
+                
+                // Découpage du fichier Excel
+                const lignes = data.split('\n');
+                let dossierTrouve = null;
+
                 for (let i = 1; i < lignes.length; i++) {
-                    const [id, client, statut] = lignes[i];
-                    if(id) dossiers[id.replace(/"/g, '').trim()] = { nom: client, statut: statut };
+                    const colonnes = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Découpage propre des colonnes
+                    if (colonnes.length >= 4) {
+                        const id = colonnes[0].replace(/"/g, '').trim();
+                        if (id === idRecherche) {
+                            dossierTrouve = {
+                                nom: colonnes[1].replace(/"/g, '').trim(),
+                                statut: colonnes[2].replace(/"/g, '').trim(),
+                                lien: colonnes[3].replace(/"/g, '').trim()
+                            };
+                            break;
+                        }
+                    }
                 }
-                const d = dossiers[idRecherche];
-                if (d) {
-                    res.classList.remove('hidden');
-                    document.getElementById('nomClient').innerText = d.nom.replace(/"/g, '');
-                    const s = document.getElementById('statut');
-                    s.innerText = d.statut.replace(/"/g, '');
-                    s.style.backgroundColor = (d.statut.toLowerCase().includes('expédié') || d.statut.toLowerCase().includes('payé')) ? '#10b981' : '#f59e0b';
-                } else { alert("Numéro non trouvé."); }
-            } catch (e) { alert("Erreur."); }
+
+                if (dossierTrouve) {
+                    // Affichage des infos
+                    resZone.classList.remove('hidden');
+                    document.getElementById('nomClient').innerText = dossierTrouve.nom;
+                    
+                    const badge = document.getElementById('statutBadge');
+                    badge.innerText = dossierTrouve.statut;
+                    
+                    // Couleur du badge selon le statut
+                    if(dossierTrouve.statut.toUpperCase().includes('PAYÉ')) {
+                        badge.className = "inline-block px-6 py-2 rounded-full bg-emerald-500 text-white font-black text-xs uppercase tracking-widest";
+                    } else {
+                        badge.className = "inline-block px-6 py-2 rounded-full bg-orange-500 text-white font-black text-xs uppercase tracking-widest";
+                    }
+
+                    // Affichage du bouton de paiement si un lien existe en colonne D
+                    if(dossierTrouve.lien.startsWith('http')) {
+                        zonePay.classList.remove('hidden');
+                        btnStripe.href = dossierTrouve.lien;
+                    } else {
+                        zonePay.classList.add('hidden');
+                    }
+                } else {
+                    alert("Numéro de dossier introuvable. Vérifiez votre saisie.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erreur de chargement des données. Vérifiez votre connexion.");
+            }
         }
     </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </body>
 </html>
