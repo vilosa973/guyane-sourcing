@@ -7,24 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
 
     <header class="bg-white shadow-md p-6 text-center">
         <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2">
         <p class="text-gray-500 text-sm mt-1 font-medium italic uppercase tracking-widest">Sourcing • Logistique • Accompagnement</p>
     </header>
 
-    <div class="max-w-2xl mx-auto p-4 space-y-8">
+    <div class="max-w-2xl mx-auto p-4 space-y-8 flex-grow">
 
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-700">
             <h2 class="text-2xl font-black text-gray-800 uppercase mb-6 flex items-center">
                 <i class="fas fa-file-signature mr-3 text-blue-700"></i> Demande de Devis
             </h2>
-            <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
+            
+            <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
                 <input type="text" name="nom" placeholder="Votre Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
                 
-                <input type="text" name="immatriculation" placeholder="Immatriculation du véhicule (Ex: AA-123-BB)" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold outline-none focus:border-blue-700 placeholder-blue-300 uppercase">
-                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold outline-none focus:border-blue-700 uppercase">
+                    <input type="text" name="modele" placeholder="Marque / Modèle" class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                </div>
+
                 <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
                 <input type="email" name="email" placeholder="Adresse Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
                 <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none focus:border-blue-700"></textarea>
@@ -33,6 +37,10 @@
                     Envoyer ma demande
                 </button>
             </form>
+            <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
+                <i class="fas fa-check-circle text-3xl mb-2"></i><br>
+                Merci ! Votre demande a bien été envoyée.<br>Nous vous répondons sous 24h.
+            </div>
         </section>
 
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
@@ -64,49 +72,57 @@
         </a>
     </div>
 
+    <footer class="bg-white mt-12 p-8 text-center border-t border-gray-200 text-gray-400">
+        <p class="font-bold uppercase tracking-widest text-xs mb-2">Guyane Sourcing Direct</p>
+        <p class="text-xs">Responsable : VILOSA | <a href="mailto:vilo972@hotmail.com" class="underline">vilo972@hotmail.com</a></p>
+        <p class="text-[10px] mt-4 uppercase"><i class="fas fa-lock text-green-500 mr-1"></i> Site sécurisé</p>
+    </footer>
+
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
         
+        // Gestion de l'envoi du formulaire sans changer de page
+        const form = document.getElementById('devisForm');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            await fetch(form.action, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
+            form.classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+        };
+
         async function chercherDossier() {
             const idRecherche = document.getElementById('numDevis').value.trim();
             const res = document.getElementById('resultat');
             const zonePay = document.getElementById('zonePaiement');
             const btnPay = document.getElementById('btnStripe');
-            
             if(!idRecherche) return;
-            
             try {
                 const response = await fetch(urlCSV);
                 const data = await response.text();
                 const lignes = data.split('\n');
-                
                 let trouve = false;
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const id = col[0]?.replace(/"/g, '').trim();
-                    
                     if(id === idRecherche) {
                         trouve = true;
                         res.classList.remove('hidden');
                         document.getElementById('nomClient').innerText = col[1]?.replace(/"/g, '').trim();
-                        
                         const s = document.getElementById('statut');
                         const statutTexte = col[2]?.replace(/"/g, '').trim();
                         s.innerText = statutTexte;
                         s.style.backgroundColor = (statutTexte.toLowerCase().includes('expédié') || statutTexte.toLowerCase().includes('payé')) ? '#10b981' : '#f59e0b';
-                        
                         const lienStripe = col[3]?.replace(/"/g, '').trim();
                         if (lienStripe && lienStripe.startsWith('http')) {
                             zonePay.classList.remove('hidden');
                             btnPay.href = lienStripe;
-                        } else {
-                            zonePay.classList.add('hidden');
-                        }
+                        } else { zonePay.classList.add('hidden'); }
                         break;
                     }
                 }
                 if (!trouve) { alert("Numéro de dossier non trouvé."); }
-            } catch (e) { alert("Erreur de chargement du tableau."); }
+            } catch (e) { alert("Erreur."); }
         }
     </script>
 </body>
