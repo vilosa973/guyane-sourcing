@@ -108,9 +108,11 @@
                         // 1. Nom du client (Colonne B)
                         document.getElementById('nomClient').innerText = col[1]?.replace(/"/g, '').trim();
                         
-                        // 2. Détails + Numéro (Colonne E + Colonne A)
+                        // 2. Détails (Colonne E) + Montant (Colonne H)
                         const detail = col[4]?.replace(/"/g, '').trim() || "Pièces Auto";
-                        document.getElementById('detailDevis').innerText = "Devis n° " + idRecherche + " - " + detail;
+                        const montant = col[7]?.replace(/"/g, '').trim() || "0";
+                        
+                        document.getElementById('detailDevis').innerText = "Devis n° " + idRecherche + " - " + detail + " - " + montant + " €";
                         
                         // 3. Statut (Colonne C)
                         const s = document.getElementById('statut');
