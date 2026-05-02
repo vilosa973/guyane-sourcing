@@ -16,6 +16,26 @@
 
     <div class="max-w-2xl mx-auto p-4 space-y-8 flex-grow">
 
+        <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-700">
+            <h2 class="text-2xl font-black text-gray-800 uppercase mb-6 flex items-center">
+                <i class="fas fa-file-signature mr-3 text-blue-700"></i> Demande de Devis
+            </h2>
+            <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
+                <input type="text" name="nom" placeholder="Votre Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold outline-none focus:border-blue-700 uppercase">
+                    <input type="text" name="modele" placeholder="Marque / Modèle" class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                </div>
+                <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                <input type="email" name="email" placeholder="Adresse Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
+                <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none focus:border-blue-700"></textarea>
+                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">Envoyer ma demande</button>
+            </form>
+            <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
+                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Votre demande a bien été envoyée.
+            </div>
+        </section>
+
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
             <h2 class="text-xl font-black text-gray-800 uppercase mb-4 flex items-center">
                 <i class="fas fa-shield-alt mr-3 text-orange-500"></i> Suivi de Dossier Sécurisé
@@ -24,9 +44,7 @@
                 <input type="text" id="nomRecherche" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="VOTRE NOM (SANS M. OU MME)" class="w-full p-4 border-2 border-gray-200 rounded-xl font-bold text-gray-700 uppercase outline-none focus:border-orange-500">
                 <div class="flex space-x-2">
                     <input type="text" id="numDevis" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-gray-200 rounded-xl font-black text-blue-700 uppercase outline-none focus:border-orange-500">
-                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md transition hover:bg-orange-600">
-                        <i class="fas fa-search text-2xl"></i>
-                    </button>
+                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md transition hover:bg-orange-600"><i class="fas fa-search text-2xl"></i></button>
                 </div>
             </div>
             
@@ -70,13 +88,24 @@
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
         
+        // Gestion du formulaire de devis (haut de page)
+        const formDevis = document.getElementById('devisForm');
+        formDevis.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(formDevis);
+            await fetch(formDevis.action, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
+            formDevis.classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+        };
+
+        // Fonction de recherche de dossier
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
             const res = document.getElementById('resultat');
 
             if(!nomSaisi || !idSaisi) {
-                alert("Veuillez remplir votre NOM et votre N° DE DEVIS.");
+                alert("Veuillez remplir votre NOM et votre N° DE DEVIS pour accéder au dossier.");
                 return;
             }
             
@@ -89,17 +118,26 @@
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    const idTableau = col[0]?.replace(/"/g, '').trim().toUpperCase();
-                    const civiliteTableau = col[1]?.replace(/"/g, '').trim() || "";
-                    const nomTableau = col[2]?.replace(/"/g, '').trim().toUpperCase();
+                    // Index basés sur ta nouvelle structure de colonnes (Civilité insérée en B)
+                    const idTableau = col[0]?.replace(/"/g, '').trim().toUpperCase();      // Col A
+                    const civiliteTableau = col[1]?.replace(/"/g, '').trim() || "";       // Col B
+                    const nomTableau = col[2]?.replace(/"/g, '').trim().toUpperCase();   // Col C
 
-                    // Vérification Nom + ID
+                    // DOUBLE VÉRIFICATION : Nom ET Numéro de devis
                     if(idTableau === idSaisi && nomTableau === nomSaisi) {
                         trouve = true;
                         res.classList.remove('hidden');
                         
-                        // Affichage Civilité (Col B) + Nom (Col C)
+                        // Affichage Civilité + Nom
                         document.getElementById('nomClientDisplay').innerText = civiliteTableau + " " + col[2]?.replace(/"/g, '').trim();
+                        
+                        // Montant en H (index 7)
+                        const montant = col[7]?.replace(/"/g, '').trim() || "0";
+                        document.getElementById('montantDisplay').innerText = montant + " €";
+                        
+                        // Détails en F (index 5)
+                        const detail = col[5]?.replace(/"/g, '').trim() || "Pièces Auto";
+                        document.getElementById('detailDevis').innerText = "Dossier n° " + idSaisi + " - " + detail;
                         
                         // Statut en D (index 3)
                         const s = document.getElementById('statut');
@@ -107,7 +145,9 @@
                         s.innerText = statutTexte;
                         s.style.backgroundColor = statutTexte.toLowerCase().includes('payé') ? '#10b981' : '#f59e0b';
                         
-                        // LIEN STRIPE en E (index 4)
+                        document.getElementById('zonePaiement').classList.remove('hidden');
+
+                        // Stripe en E (index 4)
                         const linkStripe = col[4]?.replace(/"/g, '').trim();
                         const bStripe = document.getElementById('btnStripe');
                         if(linkStripe && linkStripe.startsWith('http')) {
@@ -115,28 +155,21 @@
                             bStripe.classList.remove('hidden'); bStripe.classList.add('flex');
                         } else { bStripe.classList.add('hidden'); bStripe.classList.remove('flex'); }
 
-                        // DÉTAILS en F (index 5)
-                        const detail = col[5]?.replace(/"/g, '').trim() || "Pièces Auto";
-                        document.getElementById('detailDevis').innerText = "Dossier n° " + idSaisi + " - " + detail;
-
-                        // LIEN PAYPAL en G (index 6)
+                        // PayPal en G (index 6)
                         const linkPaypal = col[6]?.replace(/"/g, '').trim();
                         const bPaypal = document.getElementById('btnPaypal');
                         if(linkPaypal && linkPaypal.startsWith('http')) {
                             bPaypal.href = linkPaypal;
                             bPaypal.classList.remove('hidden'); bPaypal.classList.add('flex');
                         } else { bPaypal.classList.add('hidden'); bPaypal.classList.remove('flex'); }
-
-                        // MONTANT en H (index 7)
-                        const montant = col[7]?.replace(/"/g, '').trim() || "0";
-                        document.getElementById('montantDisplay').innerText = montant + " €";
                         
-                        document.getElementById('zonePaiement').classList.remove('hidden');
                         break;
                     }
                 }
-                if (!trouve) alert("Aucun dossier trouvé. Vérifiez l'orthographe du NOM (sans civilite) et le N° de devis.");
-            } catch (e) { alert("Erreur de connexion."); }
+                if (!trouve) alert("Aucun dossier trouvé. Vérifiez l'orthographe du NOM (sans civilité) et le N° de DEVIS.");
+            } catch (e) { 
+                alert("Erreur de connexion lors de la récupération des données."); 
+            }
         }
     </script>
 </body>
