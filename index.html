@@ -16,26 +16,6 @@
 
     <div class="max-w-2xl mx-auto p-4 space-y-8 flex-grow">
 
-        <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-700">
-            <h2 class="text-2xl font-black text-gray-800 uppercase mb-6 flex items-center">
-                <i class="fas fa-file-signature mr-3 text-blue-700"></i> Demande de Devis
-            </h2>
-            <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                <input type="text" name="nom" placeholder="Votre Nom complet" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-xl font-bold outline-none focus:border-blue-700 uppercase">
-                    <input type="text" name="modele" placeholder="Marque / Modèle" class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                </div>
-                <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <input type="email" name="email" placeholder="Adresse Email" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl font-bold outline-none focus:border-blue-700">
-                <textarea name="besoin" placeholder="Détaillez votre besoin ici..." rows="4" required class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none focus:border-blue-700"></textarea>
-                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-widest shadow-lg hover:bg-blue-800 transition">Envoyer ma demande</button>
-            </form>
-            <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
-                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Merci ! Votre demande a bien été envoyée.
-            </div>
-        </section>
-
         <section class="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-orange-500">
             <h2 class="text-xl font-black text-gray-800 uppercase mb-4 flex items-center">
                 <i class="fas fa-shield-alt mr-3 text-orange-500"></i> Suivi de Dossier Sécurisé
@@ -75,15 +55,7 @@
                 </div>
             </div>
         </section>
-
-        <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl transition transform hover:scale-105">
-            <i class="fab fa-whatsapp text-4xl"></i><span class="text-xl uppercase">WhatsApp Direct</span>
-        </a>
     </div>
-
-    <footer class="bg-white mt-12 p-8 text-center border-t border-gray-200 text-gray-400 text-xs uppercase tracking-widest font-bold">
-        <p>Guyane Sourcing Direct | Responsable : VILOSA</p>
-    </footer>
 
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
@@ -107,19 +79,14 @@
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // N° Devis en A (index 0)
                     const idTableau = col[0]?.replace(/"/g, '').trim().toUpperCase();
-                    // Civilité en B (index 1)
-                    const civiliteTableau = col[1]?.replace(/"/g, '').trim();
-                    // Nom en C (index 2)
+                    const civiliteTableau = col[1]?.replace(/"/g, '').trim() || "";
                     const nomTableau = col[2]?.replace(/"/g, '').trim().toUpperCase();
 
-                    // VÉRIFICATION : Nom (C) ET Numéro (A)
                     if(idTableau === idSaisi && nomTableau === nomSaisi) {
                         trouve = true;
                         res.classList.remove('hidden');
                         
-                        // Affichage combiné : B + C
                         document.getElementById('nomClientDisplay').innerText = civiliteTableau + " " + col[2]?.replace(/"/g, '').trim();
                         
                         // Statut en D (index 3)
@@ -128,7 +95,7 @@
                         s.innerText = statutTexte;
                         s.style.backgroundColor = statutTexte.toLowerCase().includes('payé') ? '#10b981' : '#f59e0b';
                         
-                        // Stripe en E (index 4)
+                        // LIEN STRIPE en E (index 4)
                         const linkStripe = col[4]?.replace(/"/g, '').trim();
                         const bStripe = document.getElementById('btnStripe');
                         if(linkStripe && linkStripe.startsWith('http')) {
@@ -140,7 +107,7 @@
                         const detail = col[5]?.replace(/"/g, '').trim() || "Pièces Auto";
                         document.getElementById('detailDevis').innerText = "Dossier n° " + idSaisi + " - " + detail;
 
-                        // PayPal en G (index 6)
+                        // LIEN PAYPAL en G (index 6)
                         const linkPaypal = col[6]?.replace(/"/g, '').trim();
                         const bPaypal = document.getElementById('btnPaypal');
                         if(linkPaypal && linkPaypal.startsWith('http')) {
@@ -156,7 +123,7 @@
                         break;
                     }
                 }
-                if (!trouve) alert("Aucun dossier trouvé. Vérifiez votre NOM (sans civilite) et votre N° de devis.");
+                if (!trouve) alert("Aucun dossier trouvé. Vérifiez votre NOM et votre N° de devis.");
             } catch (e) { alert("Erreur de connexion."); }
         }
     </script>
