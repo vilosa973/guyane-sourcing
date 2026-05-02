@@ -23,20 +23,21 @@
             min-height: 100vh;
         }
 
-        /* EFFET VERRE ULTRA TRANSPARENT */
+        /* Style Premium (Glassmorphism) - Transparence 40% pour voir le fond */
         section {
-            backdrop-filter: blur(8px); /* Flou pour la lisibilité */
-            background-color: rgba(255, 255, 255, 0.4) !important; /* Transparence à 40% */
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.4) !important;
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
 
         section:hover {
             transform: translateY(-3px);
-            background-color: rgba(255, 255, 255, 0.5) !important; /* S'éclaire un peu au survol */
+            background-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
         }
 
-        /* CHAMPS DE SAISIE TRANSPARENTS */
+        /* Champs de saisie semi-transparents pour l'esthétique */
         input, textarea {
             background-color: rgba(255, 255, 255, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -45,7 +46,7 @@
         }
 
         input::placeholder, textarea::placeholder {
-            color: #374151; /* Gris foncé pour être vu sur le fond transparent */
+            color: #374151;
         }
     </style>
 </head>
@@ -53,7 +54,7 @@
 
     <div class="content-overlay flex flex-col">
         
-        <header class="bg-white/90 p-4 text-center border-b-4 border-green-600 shadow-md sticky top-0 z-50">
+        <header class="bg-white/95 p-4 text-center border-b-4 border-green-600 shadow-md sticky top-0 z-50">
             <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-16 mx-auto">
             <p class="text-green-700 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Sourcing • Logistique • Guyane</p>
         </header>
@@ -83,32 +84,34 @@
                     <i class="fas fa-sync-alt mr-3 text-emerald-600"></i> Comment ça marche ?
                 </h2>
                 
-                <div class="grid grid-cols-3 gap-2 text-center mb-6">
-                    <div class="flex flex-col items-center text-gray-800">
-                        <div class="w-10 h-10 bg-emerald-200/50 text-emerald-800 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                <div class="grid grid-cols-3 gap-2 text-center mb-6 text-gray-800 font-bold">
+                    <div class="flex flex-col items-center">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2 shadow-inner">
                             <i class="fas fa-edit"></i>
                         </div>
-                        <p class="text-[9px] font-black uppercase">1. Devis</p>
+                        <p class="text-[9px] uppercase">1. Devis</p>
                     </div>
-                    <div class="flex flex-col items-center text-gray-800">
-                        <div class="w-10 h-10 bg-emerald-200/50 text-emerald-800 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                    <div class="flex flex-col items-center">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2 shadow-inner">
                             <i class="fas fa-credit-card"></i>
                         </div>
-                        <p class="text-[9px] font-black uppercase">2. Paiement</p>
+                        <p class="text-[9px] uppercase">2. Paiement</p>
                     </div>
-                    <div class="flex flex-col items-center text-gray-800">
-                        <div class="w-10 h-10 bg-emerald-200/50 text-emerald-800 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                    <div class="flex flex-col items-center">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2 shadow-inner">
                             <i class="fas fa-truck-loading"></i>
                         </div>
-                        <p class="text-[9px] font-black uppercase">3. Livraison</p>
+                        <p class="text-[9px] uppercase">3. Livraison</p>
                     </div>
                 </div>
 
                 <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video flex items-center justify-center border-4 border-white/50">
                     <video controls class="w-full h-full">
                         <source src="explication.mp4" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
                 </div>
+                <p class="text-[10px] text-center mt-3 font-bold text-gray-700 italic uppercase">Regardez la vidéo pour comprendre notre processus (15s)</p>
             </section>
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
@@ -118,7 +121,7 @@
                 <div class="space-y-3">
                     <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none focus:border-orange-500">
                     <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-800 text-center outline-none focus:border-orange-500">
+                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none focus:border-orange-500">
                         <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
                             <i class="fas fa-search text-xl"></i>
                         </button>
