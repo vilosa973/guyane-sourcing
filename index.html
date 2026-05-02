@@ -105,16 +105,14 @@
                         trouve = true;
                         res.classList.remove('hidden');
                         
-                        // 1. Nom du client (Colonne B)
                         document.getElementById('nomClient').innerText = col[1]?.replace(/"/g, '').trim();
                         
-                        // 2. Détails (Colonne E) + Montant (Colonne H)
+                        // CORRECTION ICI : col[6] pour la colonne G (Montant) et col[4] pour E (Détails)
                         const detail = col[4]?.replace(/"/g, '').trim() || "Pièces Auto";
-                        const montant = col[7]?.replace(/"/g, '').trim() || "0";
+                        const montant = col[6]?.replace(/"/g, '').trim() || "0";
                         
                         document.getElementById('detailDevis').innerText = "Devis n° " + idRecherche + " - " + detail + " - " + montant + " €";
                         
-                        // 3. Statut (Colonne C)
                         const s = document.getElementById('statut');
                         const statutTexte = col[2]?.replace(/"/g, '').trim();
                         s.innerText = statutTexte;
@@ -122,7 +120,6 @@
                         
                         document.getElementById('zonePaiement').classList.remove('hidden');
 
-                        // Liens Stripe et PayPal
                         const linkStripe = col[3]?.replace(/"/g, '').trim();
                         const bStripe = document.getElementById('btnStripe');
                         if(linkStripe && linkStripe.startsWith('http')) {
