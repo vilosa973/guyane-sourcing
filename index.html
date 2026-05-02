@@ -10,28 +10,36 @@
         .bg-guyane-green { background-color: #00843D; } /* Vert forêt Guyane */
         .text-guyane-yellow { color: #FFCD00; } /* Jaune Logo */
         .border-guyane-yellow { border-color: #FFCD00; }
+        
+        /* Animation pour l'avion */
+        @keyframes planeTravel {
+            0% { transform: translateX(-20px) translateY(10px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(20px) translateY(-10px); opacity: 0; }
+        }
+        .animate-plane { animation: planeTravel 4s infinite linear; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans flex flex-col min-h-screen text-slate-900">
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-100/50 font-sans flex flex-col min-h-screen text-slate-900">
 
-    <header class="bg-white shadow-sm p-6 text-center border-b-4 border-guyane-green">
+    <header class="bg-white/90 backdrop-blur-md shadow-sm p-6 text-center border-b-4 border-guyane-green sticky top-0 z-50">
         <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2 drop-shadow-md">
         <p class="text-guyane-green text-sm mt-1 font-black italic uppercase tracking-[0.2em]">Sourcing • Logistique • Guyane</p>
     </header>
 
     <div class="max-w-2xl mx-auto p-4 space-y-8 flex-grow w-full">
 
-        <section class="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
+        <section class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 border border-slate-100">
             <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center">
                 <i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis
             </h2>
             <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                <input type="text" name="nom" placeholder="Nom complet" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600 transition-all">
+                <input type="text" name="nom" placeholder="Nom complet" required class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600 transition-all">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl font-bold outline-none focus:border-blue-600 uppercase">
-                    <input type="text" name="modele" placeholder="Modèle" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600">
+                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50/50 border-2 border-blue-100 rounded-2xl font-bold outline-none focus:border-blue-600 uppercase">
+                    <input type="text" name="modele" placeholder="Modèle" class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600">
                 </div>
-                <textarea name="besoin" placeholder="Que recherchez-vous ?" rows="3" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-600"></textarea>
+                <textarea name="besoin" placeholder="Que recherchez-vous ?" rows="3" required class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-600"></textarea>
                 <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-wider shadow-md hover:bg-blue-800 transition-all active:scale-95">Envoyer la demande</button>
             </form>
             <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
@@ -40,14 +48,14 @@
         </section>
 
         <section class="bg-white rounded-3xl shadow-xl p-6 border-2 border-guyane-green relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-guyane-green opacity-5 -mr-10 -mt-10 rounded-full"></div>
+            <div class="absolute top-0 right-0 w-24 h-24 bg-guyane-green opacity-5 -mr-12 -mt-12 rounded-full"></div>
             
             <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
                 <i class="fas fa-shield-check mr-3 text-guyane-green"></i> Espace Client Sécurisé
             </h2>
             
             <div class="space-y-3 relative z-10">
-                <input type="text" id="nomRecherche" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="VOTRE NOM" class="w-full p-4 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 uppercase outline-none focus:border-guyane-green transition-all">
+                <input type="text" id="nomRecherche" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="VOTRE NOM (SANS M. OU MME)" class="w-full p-4 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 uppercase outline-none focus:border-guyane-green transition-all">
                 <div class="flex space-x-2">
                     <input type="text" id="numDevis" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-slate-100 rounded-2xl font-black text-blue-700 uppercase outline-none focus:border-guyane-green transition-all">
                     <button onclick="chercherDossier()" class="bg-guyane-green text-white px-8 py-4 rounded-2xl shadow-lg hover:brightness-110 transition-all active:scale-95">
@@ -56,9 +64,18 @@
                 </div>
             </div>
             
-            <div id="resultat" class="hidden mt-8 animate-in fade-in zoom-in duration-300">
-                <div class="bg-slate-900 rounded-3xl p-6 text-center text-white border-b-8 border-guyane-yellow shadow-2xl">
-                    <p id="nomClientDisplay" class="text-xl font-black uppercase tracking-widest text-guyane-yellow mb-2"></p>
+            <div id="resultat" class="hidden mt-8 animate-in fade-in zoom-in duration-500">
+                
+                <div class="flex justify-center mb-4 text-slate-300">
+                    <i class="fas fa-plane text-4xl animate-plane"></i>
+                </div>
+
+                <div class="bg-slate-900 rounded-3xl p-6 text-center text-white border-b-8 border-guyane-yellow shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                        <i class="fas fa-globe-americas text-9xl absolute -right-10 -bottom-10"></i>
+                    </div>
+
+                    <p id="nomClientDisplay" class="text-xl font-black uppercase tracking-widest text-guyane-yellow mb-2 relative z-10"></p>
                     
                     <div class="my-4 py-4 px-2 border-y border-slate-700">
                         <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Montant total du devis</p>
@@ -72,7 +89,7 @@
                 <div id="zonePaiement" class="hidden mt-6 space-y-4">
                     <div class="flex items-center justify-center gap-2 text-slate-400 mb-2">
                         <i class="fas fa-lock text-[10px]"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Paiement 100% Sécurisé</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600">Paiement 100% Sécurisé</span>
                     </div>
                     
                     <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-[#059669] text-white py-5 rounded-2xl font-black text-lg uppercase shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-3">
@@ -83,11 +100,10 @@
                         <i class="fab fa-paypal text-2xl"></i> PayPal / 4X
                     </a>
 
-                    <div class="flex justify-center items-center gap-4 pt-2 opacity-30 grayscale">
-                        <i class="fab fa-cc-visa text-2xl"></i>
-                        <i class="fab fa-cc-mastercard text-2xl"></i>
-                        <i class="fab fa-cc-paypal text-2xl"></i>
-                        <i class="fab fa-apple-pay text-2xl"></i>
+                    <div class="flex justify-center items-center gap-8 pt-6 text-slate-300">
+                        <div class="text-center"><i class="fas fa-plane-departure text-xl"></i><p class="text-[8px] uppercase mt-1">Air</p></div>
+                        <div class="text-center"><i class="fas fa-ship text-xl"></i><p class="text-[8px] uppercase mt-1">Mer</p></div>
+                        <div class="text-center"><i class="fas fa-truck-container text-xl"></i><p class="text-[8px] uppercase mt-1">Route</p></div>
                     </div>
                 </div>
             </div>
@@ -99,8 +115,8 @@
         </a>
     </div>
 
-    <footer class="bg-white mt-12 p-10 text-center border-t border-slate-200 text-slate-400 text-[10px] uppercase tracking-[0.3em] font-bold">
-        <p>© 2026 Guyane Sourcing Direct | VILOSA</p>
+    <footer class="bg-white/80 backdrop-blur-sm mt-12 p-10 text-center border-t border-slate-200 text-slate-400 text-[10px] uppercase font-bold">
+        <p>© 2026 Guyane Sourcing Direct | Sourcing & Logistique</p>
     </footer>
 
     <script>
