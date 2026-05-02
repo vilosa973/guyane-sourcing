@@ -6,59 +6,41 @@
     <title>Guyane Sourcing Direct | Pièces Auto & Logistique 973</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .bg-guyane-green { background-color: #00843D; } /* Vert forêt Guyane */
-        .text-guyane-yellow { color: #FFCD00; } /* Jaune Logo */
-        .border-guyane-yellow { border-color: #FFCD00; }
-    </style>
 </head>
-<body class="bg-slate-50 font-sans flex flex-col min-h-screen text-slate-900">
+<body class="bg-gradient-to-b from-blue-50/50 via-white to-green-50/50 font-sans flex flex-col min-h-screen text-slate-900">
 
-    <header class="bg-white shadow-sm p-6 text-center border-b-4 border-guyane-green">
-        <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-32 mx-auto mb-2 drop-shadow-md">
-        <p class="text-guyane-green text-sm mt-1 font-black italic uppercase tracking-[0.2em]">Sourcing • Logistique • Guyane</p>
+    <header class="bg-white/90 backdrop-blur-sm shadow-sm p-6 text-center border-b-2 border-slate-100 sticky top-0 z-50">
+        <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-28 mx-auto mb-2 drop-shadow-md">
+        <p class="text-slate-500 text-xs mt-1 font-black italic uppercase tracking-[0.3em]">Sourcing • Logistique • Guyane</p>
     </header>
 
     <div class="max-w-2xl mx-auto p-4 space-y-8 flex-grow w-full">
 
-        <section class="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
-            <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center">
-                <i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis
-            </h2>
-            <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                <input type="text" name="nom" placeholder="Nom complet" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600 transition-all">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" name="immatriculation" placeholder="Immatriculation" required class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl font-bold outline-none focus:border-blue-600 uppercase">
-                    <input type="text" name="modele" placeholder="Modèle" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600">
-                </div>
-                <textarea name="besoin" placeholder="Que recherchez-vous ?" rows="3" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-600"></textarea>
-                <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-wider shadow-md hover:bg-blue-800 transition-all active:scale-95">Envoyer la demande</button>
-            </form>
-            <div id="successMessage" class="hidden text-center p-6 bg-green-100 text-green-800 rounded-2xl font-bold">
-                <i class="fas fa-check-circle text-3xl mb-2"></i><br>Demande envoyée avec succès !
-            </div>
-        </section>
-
-        <section class="bg-white rounded-3xl shadow-xl p-6 border-2 border-guyane-green relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-guyane-green opacity-5 -mr-10 -mt-10 rounded-full"></div>
-            
-            <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
-                <i class="fas fa-shield-check mr-3 text-guyane-green"></i> Espace Client Sécurisé
+        <section class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-6 border border-slate-100">
+            <h2 class="text-xl font-black text-slate-800 uppercase mb-5 flex items-center">
+                <i class="fas fa-shield-alt mr-3 text-orange-600"></i> Suivi de Dossier Sécurisé
             </h2>
             
-            <div class="space-y-3 relative z-10">
-                <input type="text" id="nomRecherche" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="VOTRE NOM" class="w-full p-4 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 uppercase outline-none focus:border-guyane-green transition-all">
+            <div class="space-y-3">
+                <input type="text" id="nomRecherche" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="VOTRE NOM (SANS CIVILITE)" class="w-full p-4 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 uppercase outline-none focus:border-orange-500 transition-all">
                 <div class="flex space-x-2">
-                    <input type="text" id="numDevis" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-slate-100 rounded-2xl font-black text-blue-700 uppercase outline-none focus:border-guyane-green transition-all">
-                    <button onclick="chercherDossier()" class="bg-guyane-green text-white px-8 py-4 rounded-2xl shadow-lg hover:brightness-110 transition-all active:scale-95">
+                    <input type="text" id="numDevis" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-slate-100 rounded-2xl font-black text-blue-700 uppercase outline-none focus:border-orange-500 transition-all">
+                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-8 py-4 rounded-2xl shadow-md hover:bg-orange-600 transition-all active:scale-95">
                         <i class="fas fa-search text-xl"></i>
                     </button>
                 </div>
             </div>
             
-            <div id="resultat" class="hidden mt-8 animate-in fade-in zoom-in duration-300">
-                <div class="bg-slate-900 rounded-3xl p-6 text-center text-white border-b-8 border-guyane-yellow shadow-2xl">
-                    <p id="nomClientDisplay" class="text-xl font-black uppercase tracking-widest text-guyane-yellow mb-2"></p>
+            <div id="resultat" class="hidden mt-8 transition-all duration-300">
+                
+                <div class="text-center text-slate-300 mb-2">
+                    <i class="fas fa-plane-departure text-3xl"></i>
+                </div>
+
+                <div class="bg-slate-900 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-10 -left-10 w-32 h-32 bg-yellow-500/10 rounded-full"></div>
+                    
+                    <p id="nomClientDisplay" class="text-2xl font-black uppercase tracking-wider text-yellow-500 mb-1 relative z-10"></p>
                     
                     <div class="my-4 py-4 px-2 border-y border-slate-700">
                         <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Montant total du devis</p>
@@ -83,11 +65,10 @@
                         <i class="fab fa-paypal text-2xl"></i> PayPal / 4X
                     </a>
 
-                    <div class="flex justify-center items-center gap-4 pt-2 opacity-30 grayscale">
-                        <i class="fab fa-cc-visa text-2xl"></i>
-                        <i class="fab fa-cc-mastercard text-2xl"></i>
-                        <i class="fab fa-cc-paypal text-2xl"></i>
-                        <i class="fab fa-apple-pay text-2xl"></i>
+                    <div class="flex justify-center items-center gap-6 pt-4 text-slate-300">
+                        <i class="fas fa-plane text-2xl"></i>
+                        <i class="fas fa-ship text-2xl"></i>
+                        <i class="fas fa-truck text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -95,26 +76,17 @@
 
         <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-2xl font-black shadow-xl hover:scale-[1.02] transition-transform active:scale-95">
             <i class="fab fa-whatsapp text-3xl"></i>
-            <span class="text-lg uppercase tracking-tighter">Assistance WhatsApp Direct</span>
+            <span class="text-lg uppercase tracking-tighter">Assistance WhatsApp</span>
         </a>
     </div>
 
-    <footer class="bg-white mt-12 p-10 text-center border-t border-slate-200 text-slate-400 text-[10px] uppercase tracking-[0.3em] font-bold">
+    <footer class="bg-white/80 backdrop-blur-sm mt-12 p-10 text-center border-t border-slate-100 text-slate-400 text-[10px] uppercase tracking-[0.3em] font-bold">
         <p>© 2026 Guyane Sourcing Direct | VILOSA</p>
     </footer>
 
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
         
-        const formDevis = document.getElementById('devisForm');
-        formDevis.onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(formDevis);
-            await fetch(formDevis.action, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
-            formDevis.classList.add('hidden');
-            document.getElementById('successMessage').classList.remove('hidden');
-        };
-
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
@@ -153,7 +125,7 @@
                         const s = document.getElementById('statut');
                         const statutTexte = col[3]?.replace(/"/g, '').trim();
                         s.innerText = statutTexte;
-                        s.style.backgroundColor = statutTexte.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
+                        s.style.backgroundColor = statutTexte.toLowerCase().includes('payé') ? '#059669' : '#D97706';
                         
                         document.getElementById('zonePaiement').classList.remove('hidden');
 
@@ -174,7 +146,7 @@
                         break;
                     }
                 }
-                if (!trouve) alert("Dossier introuvable. Vérifiez l'orthographe de votre NOM et le N° de Devis.");
+                if (!trouve) alert("Dossier introuvable. Vérifiez votre NOM et le N° de Devis.");
             } catch (e) { alert("Erreur de connexion au serveur."); }
         }
     </script>
