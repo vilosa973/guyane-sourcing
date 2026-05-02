@@ -24,7 +24,9 @@
                 <input type="text" id="nomRecherche" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="VOTRE NOM (SANS M. OU MME)" class="w-full p-4 border-2 border-gray-200 rounded-xl font-bold text-gray-700 uppercase outline-none focus:border-orange-500">
                 <div class="flex space-x-2">
                     <input type="text" id="numDevis" onkeypress="if(event.key === 'Enter') chercherDossier()" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-gray-200 rounded-xl font-black text-blue-700 uppercase outline-none focus:border-orange-500">
-                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md transition hover:bg-orange-600"><i class="fas fa-search text-2xl"></i></button>
+                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-xl shadow-md transition hover:bg-orange-600">
+                        <i class="fas fa-search text-2xl"></i>
+                    </button>
                 </div>
             </div>
             
@@ -55,7 +57,15 @@
                 </div>
             </div>
         </section>
+
+        <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-green-500 text-white p-5 rounded-3xl font-black shadow-2xl transition transform hover:scale-105">
+            <i class="fab fa-whatsapp text-4xl"></i><span class="text-xl uppercase">WhatsApp Direct</span>
+        </a>
     </div>
+
+    <footer class="bg-white mt-12 p-8 text-center border-t border-gray-200 text-gray-400 text-xs uppercase tracking-widest font-bold">
+        <p>Guyane Sourcing Direct | Responsable : VILOSA</p>
+    </footer>
 
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
@@ -83,10 +93,12 @@
                     const civiliteTableau = col[1]?.replace(/"/g, '').trim() || "";
                     const nomTableau = col[2]?.replace(/"/g, '').trim().toUpperCase();
 
+                    // Vérification Nom + ID
                     if(idTableau === idSaisi && nomTableau === nomSaisi) {
                         trouve = true;
                         res.classList.remove('hidden');
                         
+                        // Affichage Civilité (Col B) + Nom (Col C)
                         document.getElementById('nomClientDisplay').innerText = civiliteTableau + " " + col[2]?.replace(/"/g, '').trim();
                         
                         // Statut en D (index 3)
@@ -103,7 +115,7 @@
                             bStripe.classList.remove('hidden'); bStripe.classList.add('flex');
                         } else { bStripe.classList.add('hidden'); bStripe.classList.remove('flex'); }
 
-                        // Détails en F (index 5)
+                        // DÉTAILS en F (index 5)
                         const detail = col[5]?.replace(/"/g, '').trim() || "Pièces Auto";
                         document.getElementById('detailDevis').innerText = "Dossier n° " + idSaisi + " - " + detail;
 
@@ -115,7 +127,7 @@
                             bPaypal.classList.remove('hidden'); bPaypal.classList.add('flex');
                         } else { bPaypal.classList.add('hidden'); bPaypal.classList.remove('flex'); }
 
-                        // Montant en H (index 7)
+                        // MONTANT en H (index 7)
                         const montant = col[7]?.replace(/"/g, '').trim() || "0";
                         document.getElementById('montantDisplay').innerText = montant + " €";
                         
@@ -123,7 +135,7 @@
                         break;
                     }
                 }
-                if (!trouve) alert("Aucun dossier trouvé. Vérifiez votre NOM et votre N° de devis.");
+                if (!trouve) alert("Aucun dossier trouvé. Vérifiez l'orthographe du NOM (sans civilite) et le N° de devis.");
             } catch (e) { alert("Erreur de connexion."); }
         }
     </script>
