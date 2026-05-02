@@ -8,14 +8,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-image: url('Fond.jpg'); /* C'est ici que le lien se fait */
+            /* On utilise .jpg comme tu l'as confirmé */
+            background-image: url('Fond.jpg'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
             background-color: #f1f5f9;
         }
-        section { backdrop-filter: blur(4px); }
+        /* Transparence pour voir ton beau fond d'écran */
+        section { 
+            backdrop-filter: blur(8px); 
+            background-color: rgba(255, 255, 255, 0.7) !important;
+        }
     </style>
 </head>
 <body class="font-sans flex flex-col min-h-screen">
@@ -27,8 +32,8 @@
 
     <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full">
 
-        <section class="bg-white/80 rounded-3xl shadow-lg p-6 border border-white/20">
-            <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
+        <section class="rounded-3xl shadow-lg p-6 border border-white/20">
+            <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center border-b-2 border-blue-700 pb-2">
                 <i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis
             </h2>
             <form id="devisForm" action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
@@ -39,20 +44,20 @@
                 </div>
                 <input type="tel" name="telephone" placeholder="Téléphone" required class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600">
                 <input type="email" name="email" placeholder="Email" required class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600">
-                <textarea name="besoin" placeholder="Détails..." rows="2" required class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-600"></textarea>
-                <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Envoyer</button>
+                <textarea name="besoin" placeholder="Détaillez votre besoin..." rows="2" required class="w-full p-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-600"></textarea>
+                <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-blue-800 transition-all">Envoyer ma demande</button>
             </form>
         </section>
 
-        <section class="bg-white/90 rounded-3xl shadow-xl p-6 border-2 border-orange-500">
+        <section class="rounded-3xl shadow-xl p-6 border-2 border-orange-500">
             <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
                 <i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivi Sécurisé
             </h2>
             <div class="space-y-3">
                 <input type="text" id="nomRecherche" placeholder="VOTRE NOM" class="w-full p-4 border-2 border-slate-100 rounded-2xl font-bold uppercase outline-none focus:border-orange-500">
                 <div class="flex space-x-2">
-                    <input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 border-2 border-slate-100 rounded-2xl font-black text-blue-700 uppercase text-center outline-none focus:border-orange-500">
-                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg">
+                    <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 border-2 border-slate-100 rounded-2xl font-black text-blue-700 uppercase text-center outline-none focus:border-orange-500">
+                    <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
                         <i class="fas fa-search text-xl"></i>
                     </button>
                 </div>
@@ -64,25 +69,23 @@
                     <div class="my-4 py-4 border-y border-slate-800">
                         <p id="montantDisplay" class="text-5xl font-black text-white"></p>
                     </div>
-                    <p id="detailDevis" class="text-[10px] font-bold text-slate-500 uppercase mb-4"></p>
                     <div id="statut" class="inline-block px-5 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner"></div>
                 </div>
-                
                 <div id="zonePaiement" class="hidden mt-6 space-y-4">
-                    <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                        <i class="fas fa-credit-card"></i> Payer par Carte
-                    </a>
-                    <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                        <i class="fab fa-paypal"></i> PayPal / 4X
-                    </a>
+                    <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">Payer par Carte</a>
+                    <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">PayPal / 4X</a>
                 </div>
             </div>
         </section>
 
         <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-2xl font-black shadow-xl">
-            <i class="fab fa-whatsapp text-3xl"></i><span class="text-xl uppercase">WhatsApp</span>
+            <i class="fab fa-whatsapp text-3xl"></i><span class="text-xl uppercase">WhatsApp Direct</span>
         </a>
     </div>
+
+    <footer class="bg-white/80 p-8 text-center border-t border-slate-200 text-slate-400 text-[10px] uppercase font-bold tracking-widest">
+        © 2026 Guyane Sourcing Direct | VILOSA
+    </footer>
 
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
@@ -103,7 +106,6 @@
                         res.classList.remove('hidden');
                         document.getElementById('nomClientDisplay').innerText = col[1]?.replace(/"/g, '').trim() + " " + col[2]?.replace(/"/g, '').trim();
                         document.getElementById('montantDisplay').innerText = col[7]?.replace(/"/g, '').trim() + " €";
-                        document.getElementById('detailDevis').innerText = "Réf : " + idSaisi + " • " + col[5]?.replace(/"/g, '').trim();
                         const s = document.getElementById('statut');
                         s.innerText = col[3]?.replace(/"/g, '').trim();
                         s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
@@ -115,8 +117,8 @@
                         break;
                     }
                 }
-                if (!trouve) alert("Introuvable.");
-            } catch (e) { alert("Erreur."); }
+                if (!trouve) alert("Dossier introuvable.");
+            } catch (e) { alert("Erreur de connexion."); }
         }
     </script>
 </body>
