@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSD Admin | Calculateur de Marge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-white font-sans p-4">
+
+    <div class="max-w-xl mx-auto space-y-6">
+        <header class="text-center py-6">
+            <h1 class="text-2xl font-black text-emerald-400 uppercase tracking-tighter">Guyane Sourcing Admin</h1>
+            <p class="text-slate-400 text-xs">Calculateur de marge & Sourcing</p>
+        </header>
+
+        <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Lien de la pièce (Source)</label>
+                    <input type="url" id="lienPiece" placeholder="Coller le lien Oscaro/Auto-doc..." class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm text-emerald-300">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Prix d'achat (€)</label>
+                        <input type="number" id="prixAchat" oninput="calculer()" placeholder="0.00" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500 font-bold text-xl">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Marge (%)</label>
+                        <input type="number" id="marge" value="18" oninput="calculer()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-xl text-center">
+                    </div>
+                </div>
+
+                <div class="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-3xl p-6 text-center">
+                    <p class="text-emerald-500 text-[10px] font-black uppercase mb-1">Prix de vente conseillé (+18%)</p>
+                    <p id="prixFinal" class="text-5xl font-black text-emerald-400">0.00 €</p>
+                    <p id="gain" class="text-slate-400 text-xs mt-2 font-bold italic">Bénéfice : 0.00 €</p>
+                </div>
+
+                <button onclick="partagerWhatsApp()" class="w-full bg-[#25D366] text-slate-900 py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                    <i class="fab fa-whatsapp text-2xl"></i> Partager le devis
+                </button>
+            </div>
+        </div>
+
+        <p class="text-center text-[10px] text-slate-600 uppercase font-bold">Outil réservé à Guyane Sourcing Direct</p>
+    </div>
+
+    <script>
+        function calculer() {
+            const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
+            const margeRatio = parseFloat(document.getElementById('marge').value) / 100;
+            
+            const final = achat * (1 + margeRatio);
+            const benef = final - achat;
+
+            document.getElementById('prixFinal').innerText = final.toFixed(2) + " €";
+            document.getElementById('gain').innerText = "Bénéfice : " + benef.toFixed(2) + " €";
+        }
+
+        function partagerWhatsApp() {
+            const lien = document.getElementById('lienPiece').value;
+            const prix = document.getElementById('prixFinal').innerText;
+            
+            const message = `Bonjour, voici le devis de Guyane Sourcing Direct pour votre pièce :
+            
+Prix final : *${prix}*
+
+Lien de la pièce : ${lien ? lien : 'Disponible sur demande'}
+
+Nous restons à votre disposition pour valider la commande.`;
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
