@@ -3,78 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GSD Admin | Calculateur de Marge</title>
+    <title>GSD Admin | Éditeur de Devis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .bg-gsd { background-color: #0f172a; }
+        .accent-gsd { color: #10b981; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white font-sans p-4">
+<body class="bg-gsd text-white font-sans p-4 pb-20">
 
-    <div class="max-w-xl mx-auto space-y-6">
-        <header class="text-center py-6">
-            <h1 class="text-2xl font-black text-emerald-400 uppercase tracking-tighter">Guyane Sourcing Admin</h1>
-            <p class="text-slate-400 text-xs">Calculateur de marge & Sourcing</p>
+    <div class="max-w-2xl mx-auto space-y-6">
+        <header class="text-center py-4">
+            <h1 class="text-2xl font-black text-emerald-400 uppercase tracking-tighter">GSD | Logiciel Devis</h1>
+            <p class="text-slate-400 text-xs">Édition & Archivage interne</p>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Lien de la pièce (Source)</label>
-                    <input type="url" id="lienPiece" placeholder="Coller le lien Oscaro/Auto-doc..." class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm text-emerald-300">
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Lien de la pièce (Sourcing)</label>
+                    <input type="url" id="lienPiece" placeholder="Lien Oscaro, Auto-doc, etc..." class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Prix d'achat (€)</label>
-                        <input type="number" id="prixAchat" oninput="calculer()" placeholder="0.00" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500 font-bold text-xl">
+                        <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="0.00" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl font-bold text-xl outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Marge (%)</label>
-                        <input type="number" id="marge" value="18" oninput="calculer()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-xl text-center">
+                        <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Frais de Port (GSD)</label>
+                        <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold outline-none">
+                            <option value="30">Petit Colis (30€)</option>
+                            <option value="150">Moyen Colis (150€)</option>
+                            <option value="0">À Définir (Gros)</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-3xl p-6 text-center">
-                    <p class="text-emerald-500 text-[10px] font-black uppercase mb-1">Prix de vente conseillé (+18%)</p>
-                    <p id="prixFinal" class="text-5xl font-black text-emerald-400">0.00 €</p>
-                    <p id="gain" class="text-slate-400 text-xs mt-2 font-bold italic">Bénéfice : 0.00 €</p>
+                <div id="apercuDevis" class="bg-white text-slate-900 rounded-2xl p-6 shadow-inner border-t-8 border-emerald-600">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-black text-sm uppercase">Devis Client</h3>
+                            <p class="text-[10px] text-slate-500 uppercase">Guyane Sourcing Direct</p>
+                        </div>
+                        <img src="Logo.jpg" class="h-8 opacity-50">
+                    </div>
+                    
+                    <div class="border-y border-slate-100 py-4 my-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span>Prix de la pièce :</span>
+                            <span id="displayVente" class="font-bold">0.00 €</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Livraison (Est.) :</span>
+                            <span id="displayPort" class="font-bold">30.00 €</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-black uppercase">Total à régler :</span>
+                        <span id="displayTotal" class="text-3xl font-black text-emerald-600">0.00 €</span>
+                    </div>
                 </div>
 
-                <button onclick="partagerWhatsApp()" class="w-full bg-[#25D366] text-slate-900 py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-transform">
-                    <i class="fab fa-whatsapp text-2xl"></i> Partager le devis
-                </button>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="enregistrerDevis()" class="bg-slate-700 text-white py-4 rounded-2xl font-black uppercase text-xs hover:bg-slate-600">
+                        <i class="fas fa-save mr-2"></i> Enregistrer
+                    </button>
+                    <button onclick="partagerWhatsApp()" class="bg-[#25D366] text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </button>
+                </div>
             </div>
         </div>
 
-        <p class="text-center text-[10px] text-slate-600 uppercase font-bold">Outil réservé à Guyane Sourcing Direct</p>
+        <div class="space-y-4">
+            <h2 class="text-sm font-black uppercase text-slate-500 ml-2">Derniers devis enregistrés</h2>
+            <div id="historique" class="space-y-3">
+                </div>
+            <button onclick="effacerHistorique()" class="text-[10px] text-red-400 uppercase font-bold opacity-50">Effacer l'historique</button>
+        </div>
     </div>
 
     <script>
-        function calculer() {
+        function calculerDevis() {
             const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
-            const margeRatio = parseFloat(document.getElementById('marge').value) / 100;
+            const port = parseFloat(document.getElementById('fraisPort').value);
             
-            const final = achat * (1 + margeRatio);
-            const benef = final - achat;
+            const prixVenteGSD = achat * 1.18;
+            const total = prixVenteGSD + port;
 
-            document.getElementById('prixFinal').innerText = final.toFixed(2) + " €";
-            document.getElementById('gain').innerText = "Bénéfice : " + benef.toFixed(2) + " €";
+            document.getElementById('displayVente').innerText = prixVenteGSD.toFixed(2) + " €";
+            document.getElementById('displayPort').innerText = port === 0 ? "À DÉFINIR" : port.toFixed(2) + " €";
+            document.getElementById('displayTotal').innerText = total.toFixed(2) + " €";
+        }
+
+        function enregistrerDevis() {
+            const achat = document.getElementById('prixAchat').value;
+            if(!achat) return alert("Saisis un prix avant d'enregistrer !");
+
+            const devis = {
+                date: new Date().toLocaleDateString('fr-FR'),
+                total: document.getElementById('displayTotal').innerText,
+                lien: document.getElementById('lienPiece').value
+            };
+
+            let historique = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
+            historique.unshift(devis);
+            localStorage.setItem('gsd_devis', JSON.stringify(historique.slice(0, 10))); // Garde les 10 derniers
+            afficherHistorique();
+        }
+
+        function afficherHistorique() {
+            const container = document.getElementById('historique');
+            const historique = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
+            
+            container.innerHTML = historique.map(d => `
+                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-500 uppercase">${d.date}</p>
+                        <p class="font-black text-emerald-400 text-lg">${d.total}</p>
+                    </div>
+                    ${d.lien ? `<a href="${d.lien}" target="_blank" class="bg-slate-700 p-3 rounded-xl text-xs"><i class="fas fa-link"></i></a>` : ''}
+                </div>
+            `).join('');
         }
 
         function partagerWhatsApp() {
+            const total = document.getElementById('displayTotal').innerText;
             const lien = document.getElementById('lienPiece').value;
-            const prix = document.getElementById('prixFinal').innerText;
+            const port = document.getElementById('displayPort').innerText;
             
-            const message = `Bonjour, voici le devis de Guyane Sourcing Direct pour votre pièce :
-            
-Prix final : *${prix}*
+            const message = `*GUYANE SOURCING DIRECT - DEVIS*\n\n` +
+                            `Prix de la pièce : ${document.getElementById('displayVente').innerText}\n` +
+                            `Frais de port : ${port}\n` +
+                            `--------------------------\n` +
+                            `*TOTAL À RÉGLER : ${total}*\n\n` +
+                            `Lien source : ${lien ? lien : 'Consultable en agence'}\n\n` +
+                            `Validez votre commande sur notre site officiel !`;
 
-Lien de la pièce : ${lien ? lien : 'Disponible sur demande'}
-
-Nous restons à votre disposition pour valider la commande.`;
-
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
+
+        function effacerHistorique() {
+            if(confirm("Effacer tous les devis enregistrés ?")) {
+                localStorage.removeItem('gsd_devis');
+                afficherHistorique();
+            }
+        }
+
+        // Charger l'historique au démarrage
+        afficherHistorique();
     </script>
 </body>
 </html>
