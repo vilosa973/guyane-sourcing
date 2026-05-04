@@ -50,6 +50,7 @@
                     <div>
                         <h2 class="font-black text-xl uppercase text-slate-800">Devis Officiel</h2>
                         <p class="text-[12px] font-bold text-emerald-600 uppercase">Guyane Sourcing Direct</p>
+                        <p class="text-[10px] font-black text-slate-400 mt-1">N° <span id="numDevisDisplay">20260001</span></p>
                     </div>
                     <div class="text-right text-[10px] text-slate-400 uppercase font-bold">
                         Date: <span id="dateDevis">--/--/----</span>
@@ -99,6 +100,14 @@
     </div>
 
     <script>
+        // Gestion du numéro de devis automatique
+        function obtenirProchainNumero() {
+            let dernierNum = localStorage.getItem('gsd_last_id') || 0;
+            let prochainNum = parseInt(dernierNum) + 1;
+            // Format 2026 + 4 chiffres (ex: 20260001)
+            return "2026" + prochainNum.toString().padStart(4, '0');
+        }
+
         function calculerDevis() {
             const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
             const port = parseFloat(document.getElementById('fraisPort').value);
@@ -113,15 +122,15 @@
             document.getElementById('displayTotal').innerText = total.toFixed(2) + " €";
         }
 
-        // FONCTION PDF
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
             const total = document.getElementById('displayTotal').innerText;
+            const num = document.getElementById('numDevisDisplay').innerText;
             if(total === "0.00 €") return alert("Calculez un montant avant de générer le PDF !");
             
             const options = {
                 margin: 0.5,
-                filename: 'Devis_GSD_' + new Date().getTime() + '.pdf',
+                filename: 'Devis_GSD_' + num + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -131,10 +140,12 @@
 
         function enregistrerDevis() {
             const total = document.getElementById('displayTotal').innerText;
+            const num = document.getElementById('numDevisDisplay').innerText;
             if(total === "0.00 €") return alert("Rien à enregistrer !");
 
             const devis = {
                 id: Date.now(),
+                num: num,
                 date: new Date().toLocaleDateString('fr-FR'),
                 total: total,
                 lien: document.getElementById('lienPiece').value
@@ -143,6 +154,14 @@
             let historique = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             historique.unshift(devis);
             localStorage.setItem('gsd_devis', JSON.stringify(historique.slice(0, 20))); 
+            
+            // Incrémenter le compteur pour le prochain
+            let dernierNumSéquentiel = parseInt(localStorage.getItem('gsd_last_id') || 0);
+            localStorage.setItem('gsd_last_id', dernierNumSéquentiel + 1);
+            
+            // Mettre à jour l'affichage pour le prochain devis
+            document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
+            
             afficherHistorique();
         }
 
@@ -160,7 +179,7 @@
             container.innerHTML = historique.map(d => `
                 <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
                     <div>
-                        <p class="text-[10px] font-black text-slate-500 uppercase">${d.date}</p>
+                        <p class="text-[10px] font-black text-slate-500 uppercase">${d.date} - N° ${d.num}</p>
                         <p class="font-black text-emerald-400 text-lg">${d.total}</p>
                     </div>
                     <div class="flex gap-2">
@@ -173,12 +192,10 @@
 
         function partagerWhatsApp() {
             const total = document.getElementById('displayTotal').innerText;
-            const port = document.getElementById('displayPort').innerText;
+            const num = document.getElementById('numDevisDisplay').innerText;
             const message = `*GUYANE SOURCING DIRECT*\n\n` +
-                            `Votre devis est prêt :\n` +
-                            `• Pièce : ${document.getElementById('displayVente').innerText}\n` +
-                            `• Port : ${port}\n` +
-                            `*TOTAL : ${total}*\n\n` +
+                            `Votre devis n° ${num} est prêt :\n` +
+                            `• Total : *${total}*\n\n` +
                             `Suivez votre commande ici : https://vilosa973.github.io/guyane-sourcing/`;
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
@@ -186,11 +203,18 @@
         function effacerHistorique() {
             if(confirm("Supprimer tous les devis de la liste ?")) {
                 localStorage.removeItem('gsd_devis');
+                localStorage.setItem('gsd_last_id', 0); // Reset le compteur
+                document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
                 afficherHistorique();
             }
         }
 
-        afficherHistorique();
+        // Initialisation à l'ouverture
+        window.onload = function() {
+            document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
+            document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
+            afficherHistorique();
+        };
     </script>
 </body>
 </html>
