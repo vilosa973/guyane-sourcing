@@ -9,17 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .bg-gsd { background-color: #0f172a; }
-        /* CORRECTIF TOTAL PAGE BLANCHE */
+        /* Style pour éviter les bugs PDF sur mobile */
         #devis-a-imprimer {
-            color: #000000 !important;
-            background-color: #ffffff !important;
-            box-sizing: border-box;
+            color: #000 !important;
+            background: #fff !important;
+            width: 750px; /* Largeur fixe pour la capture pour éviter le vide */
+            margin: 0;
+            padding: 40px;
         }
-        #devis-a-imprimer * {
-            color: #000000 !important;
-            background-color: transparent !important;
-        }
-        .pdf-accent { color: #059669 !important; }
     </style>
 </head>
 <body class="bg-gsd text-white font-sans p-4 pb-20">
@@ -27,17 +24,17 @@
     <div class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase tracking-tighter">GSD | Logiciel Devis</h1>
-            <p class="text-slate-400 text-xs">Sauvegarde Drive & Sourcing</p>
+            <p class="text-slate-400 text-xs">Correction Export PDF</p>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input type="text" id="nomClient" placeholder="Nom du client" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
-                <input type="text" id="adresseClient" placeholder="Adresse du client" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
+                <input type="text" id="nomClient" placeholder="Nom du client" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+                <input type="text" id="adresseClient" placeholder="Adresse du client" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
             </div>
             
             <div class="flex gap-2">
-                <input type="url" id="lienPiece" placeholder="Lien de la pièce..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+                <input type="url" id="lienPiece" placeholder="Lien de la pièce..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm">
                 <button onclick="document.getElementById('lienPiece').value=''" class="bg-red-500/20 text-red-500 px-4 rounded-2xl"><i class="fas fa-trash"></i></button>
             </div>
 
@@ -50,65 +47,66 @@
                 </select>
             </div>
 
-            <div id="devis-a-imprimer" class="bg-white p-8 rounded-sm shadow-inner min-h-[600px] border border-gray-100">
-                <div class="flex justify-between items-start border-b-2 border-gray-100 pb-4 mb-6">
-                    <div>
-                        <img src="Logo.jpg" class="h-12 mb-2" style="max-height: 50px;">
-                        <p class="text-[10px] font-black uppercase pdf-accent">Guyane Sourcing Direct</p>
+            <div class="overflow-hidden h-0 w-0 opacity-0 pointer-events-none">
+                <div id="devis-a-imprimer">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px;">
+                        <div>
+                            <img src="Logo.jpg" style="height: 60px; margin-bottom: 10px;">
+                            <p style="font-size: 14px; font-weight: 900; color: #059669; text-transform: uppercase; margin: 0;">Guyane Sourcing Direct</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h2 style="font-size: 24px; font-weight: 900; margin: 0;">DEVIS</h2>
+                            <p style="font-size: 14px; color: #666; margin: 5px 0;">N° <span id="numDevisDisplay">20260001</span></p>
+                            <p style="font-size: 12px; color: #999; margin: 0;">Date : <span id="dateDevis">--/--/----</span></p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <h2 class="text-xl font-black">DEVIS</h2>
-                        <p class="text-xs font-bold text-gray-400">N° <span id="numDevisDisplay">20260001</span></p>
-                        <p class="text-[9px] text-gray-400">Date : <span id="dateDevis">--/--/----</span></p>
+
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 40px;">
+                        <div style="width: 300px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                            <p style="font-size: 10px; color: #999; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">Destinataire :</p>
+                            <p id="clientNomPdf" style="font-weight: bold; font-size: 14px; margin: 0; text-transform: uppercase;">--</p>
+                            <p id="clientAdPdf" style="font-size: 12px; color: #666; font-style: italic; margin-top: 5px;">--</p>
+                        </div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+                        <thead>
+                            <tr style="background: #f1f1f1;">
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: left; font-size: 12px; text-transform: uppercase;">Désignation</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center; font-size: 12px; text-transform: uppercase; width: 150px;">Total TTC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 15px; border: 1px solid #ddd; font-size: 13px;">Fourniture de pièces automobiles (Sourcing)</td>
+                                <td id="displayVente" style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: bold; font-size: 13px;">0.00 €</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px; border: 1px solid #ddd; font-size: 13px;">Logistique et expédition Guyane</td>
+                                <td id="displayPort" style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: bold; font-size: 13px;">30.00 €</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <div style="text-align: right; border-top: 4px solid #059669; padding-top: 10px; padding-left: 20px; padding-right: 20px;">
+                            <p style="font-size: 10px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0;">Total Net à régler</p>
+                            <p id="displayTotal" style="font-size: 32px; font-weight: 900; color: #059669; margin: 0;">0.00 €</p>
+                        </div>
                     </div>
                 </div>
-
-                <div class="flex justify-end mb-8">
-                    <div class="w-1/2 p-3 bg-gray-50 rounded border border-gray-100">
-                        <p class="text-[8px] font-bold text-gray-400 uppercase">Destinataire :</p>
-                        <p id="clientNomPdf" class="font-bold text-xs uppercase">--</p>
-                        <p id="clientAdPdf" class="text-[9px] text-gray-500 italic">--</p>
-                    </div>
-                </div>
-
-                <table class="w-full text-left border-collapse mb-10">
-                    <thead class="bg-gray-100 text-[9px] uppercase font-bold">
-                        <tr>
-                            <th class="p-2 border border-gray-200">Désignation</th>
-                            <th class="p-2 border border-gray-200 text-center w-24">Total TTC</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-[10px]">
-                        <tr><td class="p-3 border border-gray-200">Fourniture de pièces automobiles</td><td id="displayVente" class="p-3 border border-gray-200 text-center font-bold">0.00 €</td></tr>
-                        <tr><td class="p-3 border border-gray-200">Logistique et expédition Guyane</td><td id="displayPort" class="p-3 border border-gray-200 text-center font-bold">30.00 €</td></tr>
-                    </tbody>
-                </table>
-
-                <div class="flex justify-end">
-                    <div class="text-right border-t-4 border-emerald-500 pt-2 px-4">
-                        <p class="text-[8px] font-bold uppercase text-gray-400">Total Net à payer</p>
-                        <p id="displayTotal" class="text-2xl font-black pdf-accent">0.00 €</p>
-                    </div>
-                </div>
-            </div>
+             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <button onclick="genererPDF()" class="bg-blue-600 p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95"><i class="fas fa-file-pdf"></i> TÉLÉCHARGER PDF</button>
-                <button onclick="enregistrerDevis()" class="bg-slate-700 p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 active:scale-95"><i class="fas fa-cloud-upload-alt"></i> ENREGISTRER & DRIVE</button>
-                <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 active:scale-95"><i class="fab fa-whatsapp"></i> WHATSAPP</button>
+                <button onclick="genererPDF()" class="bg-blue-600 p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2"><i class="fas fa-file-pdf"></i> TÉLÉCHARGER PDF</button>
+                <button onclick="enregistrerDevis()" class="bg-slate-700 p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2"><i class="fas fa-save"></i> ENREGISTRER</button>
+                <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> WHATSAPP</button>
             </div>
         </div>
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
-            <div class="flex justify-between items-center mb-4 text-xs font-bold uppercase text-slate-500 tracking-widest">
-                <span>Historique & Cloud</span>
-                <div class="flex gap-2">
-                    <button onclick="exporterDonnees()" class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full border border-emerald-500/20">Sauvegarde Drive</button>
-                    <label class="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full border border-blue-500/20 cursor-pointer">Importer <input type="file" onchange="importerDonnees(this)" class="hidden"></label>
-                </div>
-            </div>
-            <div id="historique" class="space-y-2 mb-4"></div>
-            <button onclick="effacerHistorique()" class="text-[9px] text-red-500 font-bold opacity-50 uppercase">Effacer la liste</button>
+            <div id="historique" class="space-y-2 mb-4 text-xs"></div>
+            <button onclick="exporterDonnees()" class="w-full bg-emerald-500/10 text-emerald-500 p-3 rounded-xl font-bold text-[10px] uppercase">Exporter Sauvegarde .json</button>
         </div>
     </div>
 
@@ -121,10 +119,12 @@
         function calculerDevis() {
             const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
             const port = parseFloat(document.getElementById('fraisPort').value);
-            const nom = document.getElementById('nomClient').value || "NOM DU CLIENT";
-            const adr = document.getElementById('adresseClient').value || "ADRESSE DU CLIENT";
+            const nom = document.getElementById('nomClient').value || "Client";
+            const adr = document.getElementById('adresseClient').value || "Guyane";
+            
             const vente = achat * 1.18;
             const total = vente + port;
+
             document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('clientNomPdf').innerText = nom.toUpperCase();
             document.getElementById('clientAdPdf').innerText = adr.toUpperCase();
@@ -136,20 +136,21 @@
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
             const num = document.getElementById('numDevisDisplay').innerText;
+            
             const options = {
                 margin: 0,
                 filename: 'DEVIS_GSD_' + num + '.pdf',
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'pt', format: [750, 850], orientation: 'portrait' }
             };
+            
             html2pdf().set(options).from(element).save();
         }
 
         function enregistrerDevis() {
             const total = document.getElementById('displayTotal').innerText;
-            if(total === "0.00 €") return alert("Remplissez le devis d'abord.");
-            
+            if(total === "0.00 €") return;
             const devis = {
                 id: Date.now(),
                 num: document.getElementById('numDevisDisplay').innerText,
@@ -158,52 +159,28 @@
                 date: document.getElementById('dateDevis').innerText,
                 lien: document.getElementById('lienPiece').value
             };
-
             let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             h.unshift(devis);
             localStorage.setItem('gsd_devis', JSON.stringify(h));
             localStorage.setItem('gsd_last_id', parseInt(localStorage.getItem('gsd_last_id') || 0) + 1);
-            
-            // On propose l'exportation Drive immédiatement après l'enregistrement
-            if(confirm("Devis enregistré ! Voulez-vous créer une sauvegarde sur votre Google Drive ?")) {
-                exporterDonnees();
-            }
             location.reload();
         }
 
         function afficherHistorique() {
-            const container = document.getElementById('historique');
             const h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            container.innerHTML = h.map(d => `
-                <div class="bg-slate-900/50 p-3 rounded-2xl border border-slate-700 flex justify-between items-center text-xs">
-                    <div><span class="text-[8px] font-bold text-slate-500">${d.num}</span><p class="font-bold text-emerald-400">${d.total}</p><p class="text-[8px] uppercase text-slate-400">${d.client}</p></div>
-                    <div class="flex gap-2">
-                        ${d.lien ? `<a href="${d.lien}" target="_blank" class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-blue-400"><i class="fas fa-link"></i></a>` : ''}
-                        <button onclick="supprimerUn(${d.id})" class="w-8 h-8 bg-slate-700 rounded-lg text-red-500"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('historique').innerHTML = h.map(d => `
+                <div class="bg-slate-900/50 p-3 rounded-2xl border border-slate-700 flex justify-between items-center">
+                    <div><span class="text-[8px] text-slate-500">${d.num}</span><p class="font-bold text-emerald-400">${d.total}</p></div>
+                    <button onclick="supprimerUn(${d.id})" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
         }
 
         function exporterDonnees() {
             const data = { devis: localStorage.getItem('gsd_devis'), last_id: localStorage.getItem('gsd_last_id') };
-            const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = "SAVE_GSD_" + new Date().getTime() + ".json";
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}));
+            a.download = "SAVE_GSD.json";
             a.click();
-            // Sur Android/iPhone, cela ouvre le menu de partage pour choisir "Google Drive"
-        }
-
-        function importerDonnees(input) {
-            const reader = new FileReader();
-            reader.onload = function(){
-                const data = JSON.parse(reader.result);
-                localStorage.setItem('gsd_devis', data.devis);
-                localStorage.setItem('gsd_last_id', data.last_id);
-                location.reload();
-            };
-            reader.readAsText(input.files[0]);
         }
 
         function supprimerUn(id) {
@@ -213,11 +190,9 @@
         }
 
         function partagerWhatsApp() {
-            const msg = `*GUYANE SOURCING DIRECT*\nDevis n° ${document.getElementById('numDevisDisplay').innerText}\nTotal : *${document.getElementById('displayTotal').innerText}*`;
+            const msg = `*GSD*\nDevis n° ${document.getElementById('numDevisDisplay').innerText}\nTotal : *${document.getElementById('displayTotal').innerText}*`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
-
-        function effacerHistorique() { if(confirm("Effacer tout ?")) { localStorage.clear(); location.reload(); } }
 
         window.onload = function() {
             document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
