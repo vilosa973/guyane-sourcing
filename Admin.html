@@ -9,110 +9,131 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .bg-gsd { background-color: #0f172a; }
-        /* Style pour l'aperçu et le PDF */
+        /* Style pour l'affichage écran et la capture PDF */
         #devis-a-imprimer {
-            color: #000 !important;
-            background: #fff !important;
+            color: #000000 !important;
+            background-color: #ffffff !important;
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
-            padding: 30px;
-            border-radius: 8px;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        #devis-a-imprimer * { color: #000 !important; }
+        #devis-a-imprimer * { color: #000000 !important; }
+        .pdf-accent { color: #059669 !important; }
     </style>
 </head>
 <body class="bg-gsd text-white font-sans p-4 pb-20">
 
     <div class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
-            <h1 class="text-2xl font-black text-emerald-400 uppercase tracking-tighter">GSD | Logiciel Devis</h1>
-            <p class="text-slate-400 text-xs">Édition & Archivage</p>
+            <h1 class="text-3xl font-black text-emerald-400 uppercase tracking-tighter italic">GSD | LOGICIEL ADMIN</h1>
+            <p class="text-slate-400 text-[10px] uppercase tracking-widest">Guyane Sourcing Direct - Version Pro</p>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input type="text" id="nomClient" placeholder="Nom du client" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
-                <input type="text" id="adresseClient" placeholder="Adresse (Optionnel)" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+                <input type="text" id="nomClient" placeholder="Nom du client" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
+                <input type="text" id="adresseClient" placeholder="Adresse / Ville" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
             </div>
             
             <div class="flex gap-2">
-                <input type="url" id="lienPiece" placeholder="Lien de la pièce..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm">
-                <button onclick="document.getElementById('lienPiece').value=''" class="bg-red-500/20 text-red-500 px-4 rounded-2xl"><i class="fas fa-trash"></i></button>
+                <input type="url" id="lienPiece" placeholder="Lien de la pièce (Sourcing)..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+                <button onclick="document.getElementById('lienPiece').value=''" class="bg-red-500/20 text-red-500 px-4 rounded-2xl hover:bg-red-500/40 transition">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="Prix d'achat (€)" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl font-bold text-xl outline-none text-emerald-400">
-                <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold outline-none text-white text-sm">
+                <div class="relative">
+                    <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="Prix Achat" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl font-bold text-xl outline-none text-emerald-400">
+                    <span class="absolute right-4 top-5 text-slate-600 font-bold">€</span>
+                </div>
+                <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-sm outline-none">
                     <option value="30">Petit Colis (30€)</option>
                     <option value="150">Moyen Colis (150€)</option>
                     <option value="0">À Définir (Gros)</option>
                 </select>
             </div>
 
-            <div class="grid grid-cols-1 gap-2">
-                <button onclick="genererPDF()" class="bg-blue-600 p-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-lg">
-                    <i class="fas fa-file-pdf text-lg"></i> TÉLÉCHARGER LE PDF
+            <div class="grid grid-cols-1 gap-2 pt-2">
+                <button onclick="genererPDF()" class="bg-blue-600 p-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                    <i class="fas fa-file-pdf text-xl"></i> TÉLÉCHARGER LE PDF
                 </button>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="enregistrerDevis()" class="bg-slate-700 p-4 rounded-2xl font-bold text-xs uppercase">Enregistrer</button>
-                    <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs uppercase text-slate-900">WhatsApp</button>
+                    <button onclick="enregistrerDevis()" class="bg-slate-700 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter">Enregistrer</button>
+                    <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-slate-900">Partager WhatsApp</button>
                 </div>
             </div>
         </div>
 
-        <div id="devis-a-imprimer" class="shadow-2xl">
-            <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #059669; padding-bottom: 20px; margin-bottom: 30px;">
+        <div id="devis-a-imprimer">
+            <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #059669; padding-bottom: 20px; margin-bottom: 30px;">
                 <div>
-                    <img src="Logo.jpg" style="height: 50px; margin-bottom: 10px;">
-                    <p style="font-size: 12px; font-weight: 900; color: #059669; text-transform: uppercase; margin: 0;">Guyane Sourcing Direct</p>
+                    <img src="Logo.jpg" style="height: 60px; margin-bottom: 10px;">
+                    <p style="font-size: 14px; font-weight: 900; color: #059669; text-transform: uppercase; margin: 0;">Guyane Sourcing Direct</p>
+                    <p style="font-size: 10px; color: #666; margin: 0;">Sourcing & Logistique Automobile</p>
                 </div>
                 <div style="text-align: right;">
-                    <h2 style="font-size: 20px; font-weight: 900; margin: 0;">DEVIS</h2>
-                    <p style="font-size: 12px; color: #666; margin: 0;">N° <span id="numDevisDisplay">20260001</span></p>
-                    <p style="font-size: 10px; color: #999; margin: 0;">Date : <span id="dateDevis">--/--/----</span></p>
+                    <h2 style="font-size: 26px; font-weight: 900; margin: 0; letter-spacing: -1px;">DEVIS</h2>
+                    <p style="font-size: 14px; font-weight: bold; color: #333; margin: 5px 0;">N° <span id="numDevisDisplay">20260001</span></p>
+                    <p style="font-size: 11px; color: #999; margin: 0;">Édité le <span id="dateDevis">--/--/----</span></p>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
-                <div style="width: 250px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                    <p style="font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">Client :</p>
-                    <p id="clientNomPdf" style="font-weight: bold; font-size: 13px; margin: 0;">--</p>
-                    <p id="clientAdPdf" style="font-size: 11px; color: #64748b; margin-top: 2px;">--</p>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 40px;">
+                <div style="width: 280px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+                    <p style="font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 8px;">Destinataire :</p>
+                    <p id="clientNomPdf" style="font-weight: 900; font-size: 15px; margin: 0; text-transform: uppercase; color: #1e293b;">--</p>
+                    <p id="clientAdPdf" style="font-size: 12px; color: #64748b; margin-top: 4px; font-style: italic;">--</p>
                 </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
                 <thead>
                     <tr style="background: #f1f5f9;">
-                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: left; font-size: 11px; text-transform: uppercase;">Désignation</th>
-                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: center; font-size: 11px; text-transform: uppercase; width: 120px;">Prix TTC</th>
+                        <th style="padding: 12px; border: 1px solid #e2e8f0; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Désignation des prestations</th>
+                        <th style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; font-size: 11px; text-transform: uppercase; width: 140px;">Montant TTC</th>
                     </tr>
                 </thead>
-                <tbody style="font-size: 12px;">
+                <tbody style="font-size: 13px;">
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #e2e8f0;">Fourniture de pièces automobiles (Sourcing)</td>
-                        <td id="displayVente" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; font-weight: bold;">0.00 €</td>
+                        <td style="padding: 15px; border: 1px solid #e2e8f0; font-weight: 500;">Fourniture de pièces détachées automobiles (Sourcing)</td>
+                        <td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #e2e8f0;">Logistique et expédition Guyane</td>
-                        <td id="displayPort" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; font-weight: bold;">30.00 €</td>
+                        <td style="padding: 15px; border: 1px solid #e2e8f0; font-weight: 500;">Services logistiques et expédition Guyane</td>
+                        <td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td>
                     </tr>
                 </tbody>
             </table>
 
             <div style="display: flex; justify-content: flex-end;">
-                <div style="text-align: right; border-top: 3px solid #059669; padding-top: 10px; min-width: 200px;">
-                    <p style="font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; margin: 0;">Total à régler</p>
-                    <p id="displayTotal" style="font-size: 26px; font-weight: 900; color: #059669; margin: 0;">0.00 €</p>
+                <div style="text-align: right; border-top: 5px solid #059669; padding-top: 15px; min-width: 250px;">
+                    <p style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin: 0;">Net à régler</p>
+                    <p id="displayTotal" style="font-size: 34px; font-weight: 900; color: #059669; margin: 0;">0.00 €</p>
+                    <p style="font-size: 9px; color: #94a3b8; margin-top: 5px;">TVA non applicable, art. 293 B du CGI</p>
                 </div>
+            </div>
+            
+            <div style="margin-top: 50px; text-align: center; border-top: 1px solid #eee; pt: 20px;">
+                <p style="font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px;">Guyane Sourcing Direct • VILOSA Joakim • Sourcing Pro</p>
             </div>
         </div>
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
-            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Historique des devis</h2>
-            <div id="historique" class="space-y-2 mb-4 text-xs"></div>
-            <button onclick="exporterDonnees()" class="w-full bg-emerald-500/10 text-emerald-500 p-3 rounded-xl font-bold text-[10px] uppercase border border-emerald-500/20">Exporter Sauvegarde (.json)</button>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Historique & Sauvegarde</h2>
+                <div class="flex gap-2">
+                    <button onclick="exporterDonnees()" class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-bold border border-emerald-500/20">Exporter</button>
+                    <label class="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-500/20 cursor-pointer">
+                        Importer <input type="file" onchange="importerDonnees(this)" class="hidden">
+                    </label>
+                </div>
+            </div>
+            <div id="historique" class="space-y-2 mb-4"></div>
+            <button onclick="effacerHistorique()" class="text-[9px] text-red-500 font-bold opacity-50 uppercase hover:opacity-100 transition">Effacer toute la base</button>
         </div>
     </div>
 
@@ -142,14 +163,15 @@
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
             const num = document.getElementById('numDevisDisplay').innerText;
+            const client = document.getElementById('nomClient').value || "Client";
             
-            if(parseFloat(document.getElementById('prixAchat').value) <= 0) {
-                return alert("Veuillez saisir un prix d'achat d'abord.");
+            if(parseFloat(document.getElementById('displayTotal').innerText) === 0) {
+                return alert("Veuillez saisir un prix d'achat.");
             }
 
             const options = {
                 margin: 10,
-                filename: 'DEVIS_GSD_' + num + '.pdf',
+                filename: 'DEVIS_GSD_' + num + '_' + client + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -161,50 +183,89 @@
         function enregistrerDevis() {
             const total = document.getElementById('displayTotal').innerText;
             if(total === "0.00 €") return;
+            
             const devis = {
                 id: Date.now(),
                 num: document.getElementById('numDevisDisplay').innerText,
                 client: document.getElementById('nomClient').value || 'Client',
                 total: total,
-                date: document.getElementById('dateDevis').innerText
+                date: document.getElementById('dateDevis').innerText,
+                lien: document.getElementById('lienPiece').value
             };
+
             let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             h.unshift(devis);
             localStorage.setItem('gsd_devis', JSON.stringify(h));
             localStorage.setItem('gsd_last_id', parseInt(localStorage.getItem('gsd_last_id') || 0) + 1);
+            
+            alert("Devis enregistré dans l'historique !");
             location.reload();
         }
 
         function afficherHistorique() {
+            const container = document.getElementById('historique');
             const h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            document.getElementById('historique').innerHTML = h.map(d => `
+            
+            container.innerHTML = h.map(d => `
                 <div class="bg-slate-900/50 p-3 rounded-2xl border border-slate-700 flex justify-between items-center group">
-                    <div>
-                        <span class="text-[8px] text-slate-500 font-bold uppercase">${d.num} | ${d.date}</span>
-                        <p class="font-bold text-emerald-400">${d.total}</p>
-                        <p class="text-[9px] text-slate-400 uppercase">${d.client}</p>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[8px] font-black bg-slate-800 px-2 py-0.5 rounded text-slate-500 uppercase">${d.num}</span>
+                            <span class="text-[8px] text-slate-600 font-bold">${d.date}</span>
+                        </div>
+                        <p class="font-black text-emerald-400 text-sm">${d.total}</p>
+                        <p class="text-[9px] text-slate-400 uppercase font-bold">${d.client}</p>
                     </div>
-                    <button onclick="supprimerUn(${d.id})" class="text-red-500 p-2 hover:bg-red-500/10 rounded-full transition"><i class="fas fa-trash"></i></button>
-                </div>`).join('');
+                    <div class="flex gap-2 ml-4">
+                        ${d.lien ? `<a href="${d.lien}" target="_blank" class="w-9 h-9 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center hover:bg-blue-500/20 transition"><i class="fas fa-link text-xs"></i></a>` : ''}
+                        <button onclick="supprimerUn(${d.id})" class="w-9 h-9 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500/20 transition"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function supprimerUn(id) {
-            let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            localStorage.setItem('gsd_devis', JSON.stringify(h.filter(x => x.id !== id)));
-            afficherHistorique();
+            if(confirm("Supprimer ce devis de l'historique ?")) {
+                let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
+                localStorage.setItem('gsd_devis', JSON.stringify(h.filter(x => x.id !== id)));
+                afficherHistorique();
+            }
         }
 
         function exporterDonnees() {
             const data = { devis: localStorage.getItem('gsd_devis'), last_id: localStorage.getItem('gsd_last_id') };
+            const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}));
-            a.download = "SAVE_GSD.json";
+            a.href = url;
+            a.download = "SAUVEGARDE_GSD_" + new Date().toLocaleDateString().replace(/\//g, '-') + ".json";
             a.click();
         }
 
+        function importerDonnees(input) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const data = JSON.parse(reader.result);
+                localStorage.setItem('gsd_devis', data.devis);
+                localStorage.setItem('gsd_last_id', data.last_id);
+                alert("Données importées avec succès !");
+                location.reload();
+            };
+            reader.readAsText(input.files[0]);
+        }
+
         function partagerWhatsApp() {
-            const msg = `*GUYANE SOURCING DIRECT*\n\nVotre devis n°${document.getElementById('numDevisDisplay').innerText} est prêt.\n\nTotal : *${document.getElementById('displayTotal').innerText}*\n\nSuivez votre commande : https://vilosa973.github.io/guyane-sourcing/`;
+            const total = document.getElementById('displayTotal').innerText;
+            const num = document.getElementById('numDevisDisplay').innerText;
+            const msg = `*GUYANE SOURCING DIRECT*\n\nVotre devis n°${num} est prêt.\n\nTotal : *${total}*\n\nSuivez votre commande : https://vilosa973.github.io/guyane-sourcing/`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function effacerHistorique() {
+            if(confirm("Attention ! Cela supprimera tout l'historique et remettra le compteur à zéro. Confirmer ?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
 
         window.onload = function() {
