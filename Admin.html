@@ -16,12 +16,12 @@
     <div class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase tracking-tighter">GSD | Logiciel Devis</h1>
-            <p class="text-slate-400 text-xs">Outil de Gestion Interne</p>
+            <p class="text-slate-400 text-xs">Édition & Archivage interne</p>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700 space-y-4">
             <div>
-                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Lien de la pièce</label>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Lien de la pièce (Sourcing)</label>
                 <div class="flex gap-2">
                     <input type="url" id="lienPiece" placeholder="Coller le lien ici..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
                     <button onclick="document.getElementById('lienPiece').value=''" class="bg-red-500/20 text-red-500 px-4 rounded-2xl hover:bg-red-500/40 transition">
@@ -36,11 +36,11 @@
                     <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="0.00" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl font-bold text-xl outline-none">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Livraison</label>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Frais de Port (GSD)</label>
                     <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold outline-none">
-                        <option value="30">Petit (30€)</option>
-                        <option value="150">Moyen (150€)</option>
-                        <option value="0">À Définir</option>
+                        <option value="30">Petit Colis (30€)</option>
+                        <option value="150">Moyen Colis (150€)</option>
+                        <option value="0">À Définir (Gros)</option>
                     </select>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                 <div class="flex justify-between items-start border-b-2 border-slate-100 pb-4 mb-6">
                     <div>
                         <h2 class="font-black text-xl uppercase text-slate-800">Devis Officiel</h2>
-                        <p class="text-[12px] font-bold text-emerald-600">GUYANE SOURCING DIRECT</p>
+                        <p class="text-[12px] font-bold text-emerald-600 uppercase">Guyane Sourcing Direct</p>
                     </div>
                     <div class="text-right text-[10px] text-slate-400 uppercase font-bold">
                         Date: <span id="dateDevis">--/--/----</span>
@@ -57,9 +57,9 @@
                 </div>
                 
                 <div class="space-y-4 mb-8">
-                    <div class="flex justify-between text-sm border-b border-slate-50 pb-2">
-                        <span class="text-slate-500 font-bold uppercase text-[10px]">Description</span>
-                        <span class="text-slate-500 font-bold uppercase text-[10px]">Montant</span>
+                    <div class="flex justify-between text-[10px] font-black uppercase text-slate-400 border-b pb-2">
+                        <span>Désignation</span>
+                        <span>Montant</span>
                     </div>
                     <div class="flex justify-between font-bold">
                         <span>Pièce détachée (Sourcing)</span>
@@ -71,7 +71,7 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl flex justify-between items-center">
+                <div class="bg-slate-50 p-4 rounded-xl flex justify-between items-center border-2 border-emerald-100">
                     <span class="font-black uppercase text-sm">Total Net à payer :</span>
                     <span id="displayTotal" class="text-3xl font-black text-emerald-600">0.00 €</span>
                 </div>
@@ -79,22 +79,22 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <button onclick="genererPDF()" class="bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2">
-                    <i class="fas fa-file-pdf"></i> Télécharger PDF
+                <button onclick="genererPDF()" class="bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 hover:bg-blue-700">
+                    <i class="fas fa-file-pdf text-lg"></i> PDF
                 </button>
-                <button onclick="enregistrerDevis()" class="bg-slate-700 text-white py-4 rounded-2xl font-black uppercase text-xs">
+                <button onclick="enregistrerDevis()" class="bg-slate-700 text-white py-4 rounded-2xl font-black uppercase text-xs hover:bg-slate-600">
                     <i class="fas fa-save mr-2"></i> Enregistrer
                 </button>
-                <button onclick="partagerWhatsApp()" class="bg-[#25D366] text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
+                <button onclick="partagerWhatsApp()" class="bg-[#25D366] text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 hover:bg-[#1eb954]">
+                    <i class="fab fa-whatsapp text-lg"></i> WhatsApp
                 </button>
             </div>
         </div>
 
         <div class="space-y-4">
-            <h2 class="text-sm font-black uppercase text-slate-500 ml-2">Historique des calculs</h2>
+            <h2 class="text-sm font-black uppercase text-slate-500 ml-2">Derniers devis enregistrés</h2>
             <div id="historique" class="space-y-3"></div>
-            <button onclick="effacerHistorique()" class="text-[10px] text-red-400 uppercase font-bold opacity-50 ml-2">Tout effacer</button>
+            <button onclick="effacerHistorique()" class="text-[10px] text-red-400 uppercase font-bold opacity-50 ml-2">Effacer tout l'historique</button>
         </div>
     </div>
 
@@ -113,10 +113,14 @@
             document.getElementById('displayTotal').innerText = total.toFixed(2) + " €";
         }
 
+        // FONCTION PDF
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
+            const total = document.getElementById('displayTotal').innerText;
+            if(total === "0.00 €") return alert("Calculez un montant avant de générer le PDF !");
+            
             const options = {
-                margin: 1,
+                margin: 0.5,
                 filename: 'Devis_GSD_' + new Date().getTime() + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
@@ -127,7 +131,7 @@
 
         function enregistrerDevis() {
             const total = document.getElementById('displayTotal').innerText;
-            if(total === "0.00 €") return alert("Aucun montant à enregistrer !");
+            if(total === "0.00 €") return alert("Rien à enregistrer !");
 
             const devis = {
                 id: Date.now(),
@@ -138,7 +142,7 @@
 
             let historique = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             historique.unshift(devis);
-            localStorage.setItem('gsd_devis', JSON.stringify(historique));
+            localStorage.setItem('gsd_devis', JSON.stringify(historique.slice(0, 20))); 
             afficherHistorique();
         }
 
@@ -169,12 +173,21 @@
 
         function partagerWhatsApp() {
             const total = document.getElementById('displayTotal').innerText;
-            const message = `*GUYANE SOURCING DIRECT*\n\nVotre devis est prêt.\nMontant Total : *${total}*\n\nSuivez votre commande ici : https://vilosa973.github.io/guyane-sourcing/`;
+            const port = document.getElementById('displayPort').innerText;
+            const message = `*GUYANE SOURCING DIRECT*\n\n` +
+                            `Votre devis est prêt :\n` +
+                            `• Pièce : ${document.getElementById('displayVente').innerText}\n` +
+                            `• Port : ${port}\n` +
+                            `*TOTAL : ${total}*\n\n` +
+                            `Suivez votre commande ici : https://vilosa973.github.io/guyane-sourcing/`;
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
         function effacerHistorique() {
-            if(confirm("Tout effacer ?")) { localStorage.removeItem('gsd_devis'); afficherHistorique(); }
+            if(confirm("Supprimer tous les devis de la liste ?")) {
+                localStorage.removeItem('gsd_devis');
+                afficherHistorique();
+            }
         }
 
         afficherHistorique();
