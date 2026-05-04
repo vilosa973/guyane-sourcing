@@ -24,7 +24,7 @@
                 <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-2">Lien de la pièce (Sourcing)</label>
                 <div class="flex gap-2">
                     <input type="url" id="lienPiece" placeholder="Coller le lien ici..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
-                    <button onclick="document.getElementById('lienPiece').value=''" class="bg-red-500/20 text-red-500 px-4 rounded-2xl hover:bg-red-500/40 transition">
+                    <button onclick="document.getElementById('lienPiece').value=''" class="bg-red-500/20 text-red-500 px-4 rounded-2xl hover:bg-red-500/40 transition flex items-center justify-center w-12">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -62,11 +62,11 @@
                         <span>Désignation</span>
                         <span>Montant</span>
                     </div>
-                    <div class="flex justify-between font-bold">
+                    <div class="flex justify-between font-bold text-sm">
                         <span>Pièce détachée (Sourcing)</span>
                         <span id="displayVente">0.00 €</span>
                     </div>
-                    <div class="flex justify-between font-bold">
+                    <div class="flex justify-between font-bold text-sm">
                         <span>Frais d'expédition</span>
                         <span id="displayPort">30.00 €</span>
                     </div>
@@ -81,30 +81,31 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <button onclick="genererPDF()" class="bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 hover:bg-blue-700">
-                    <i class="fas fa-file-pdf text-lg"></i> PDF
+                    <i class="fas fa-file-pdf"></i> PDF
                 </button>
                 <button onclick="enregistrerDevis()" class="bg-slate-700 text-white py-4 rounded-2xl font-black uppercase text-xs hover:bg-slate-600">
                     <i class="fas fa-save mr-2"></i> Enregistrer
                 </button>
-                <button onclick="partagerWhatsApp()" class="bg-[#25D366] text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 hover:bg-[#1eb954]">
-                    <i class="fab fa-whatsapp text-lg"></i> WhatsApp
+                <button onclick="partagerWhatsApp()" class="bg-[#25D366] text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
             </div>
         </div>
 
         <div class="space-y-4">
-            <h2 class="text-sm font-black uppercase text-slate-500 ml-2">Derniers devis enregistrés</h2>
-            <div id="historique" class="space-y-3"></div>
+            <h2 class="text-sm font-black uppercase text-slate-500 ml-2 flex items-center">
+                <i class="fas fa-history mr-2"></i> Historique des devis
+            </h2>
+            <div id="historique" class="space-y-2">
+                </div>
             <button onclick="effacerHistorique()" class="text-[10px] text-red-400 uppercase font-bold opacity-50 ml-2">Effacer tout l'historique</button>
         </div>
     </div>
 
     <script>
-        // Gestion du numéro de devis automatique
         function obtenirProchainNumero() {
             let dernierNum = localStorage.getItem('gsd_last_id') || 0;
             let prochainNum = parseInt(dernierNum) + 1;
-            // Format 2026 + 4 chiffres (ex: 20260001)
             return "2026" + prochainNum.toString().padStart(4, '0');
         }
 
@@ -126,7 +127,7 @@
             const element = document.getElementById('devis-a-imprimer');
             const total = document.getElementById('displayTotal').innerText;
             const num = document.getElementById('numDevisDisplay').innerText;
-            if(total === "0.00 €") return alert("Calculez un montant avant de générer le PDF !");
+            if(total === "0.00 €") return alert("Calculez un montant d'abord !");
             
             const options = {
                 margin: 0.5,
@@ -141,27 +142,25 @@
         function enregistrerDevis() {
             const total = document.getElementById('displayTotal').innerText;
             const num = document.getElementById('numDevisDisplay').innerText;
+            const date = document.getElementById('dateDevis').innerText;
             if(total === "0.00 €") return alert("Rien à enregistrer !");
 
             const devis = {
                 id: Date.now(),
                 num: num,
-                date: new Date().toLocaleDateString('fr-FR'),
+                date: date,
                 total: total,
                 lien: document.getElementById('lienPiece').value
             };
 
             let historique = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             historique.unshift(devis);
-            localStorage.setItem('gsd_devis', JSON.stringify(historique.slice(0, 20))); 
+            localStorage.setItem('gsd_devis', JSON.stringify(historique.slice(0, 50))); 
             
-            // Incrémenter le compteur pour le prochain
-            let dernierNumSéquentiel = parseInt(localStorage.getItem('gsd_last_id') || 0);
-            localStorage.setItem('gsd_last_id', dernierNumSéquentiel + 1);
+            let dernierNumSeq = parseInt(localStorage.getItem('gsd_last_id') || 0);
+            localStorage.setItem('gsd_last_id', dernierNumSeq + 1);
             
-            // Mettre à jour l'affichage pour le prochain devis
             document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
-            
             afficherHistorique();
         }
 
@@ -177,14 +176,24 @@
             const historique = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             
             container.innerHTML = historique.map(d => `
-                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] font-black text-slate-500 uppercase">${d.date} - N° ${d.num}</p>
-                        <p class="font-black text-emerald-400 text-lg">${d.total}</p>
+                <div class="bg-slate-800/60 p-3 rounded-2xl border border-slate-700 flex justify-between items-center group">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                             <span class="text-[9px] font-black bg-slate-900 px-2 py-0.5 rounded text-slate-400">${d.num}</span>
+                             <span class="text-[9px] text-slate-500 font-bold">${d.date}</span>
+                        </div>
+                        <p class="font-black text-emerald-400">${d.total}</p>
                     </div>
-                    <div class="flex gap-2">
-                        ${d.lien ? `<a href="${d.lien}" target="_blank" class="bg-slate-700 p-3 rounded-xl text-xs text-blue-400"><i class="fas fa-external-link-alt"></i></a>` : ''}
-                        <button onclick="supprimerUnDevis(${d.id})" class="bg-slate-700 p-3 rounded-xl text-xs text-red-400"><i class="fas fa-trash"></i></button>
+                    
+                    <div class="flex gap-2 ml-4">
+                        ${d.lien ? `
+                            <a href="${d.lien}" target="_blank" class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center hover:bg-blue-500/20 transition" title="Voir le lien source">
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        ` : ''}
+                        <button onclick="supprimerUnDevis(${d.id})" class="w-10 h-10 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500/20 transition" title="Supprimer ce devis">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -193,23 +202,19 @@
         function partagerWhatsApp() {
             const total = document.getElementById('displayTotal').innerText;
             const num = document.getElementById('numDevisDisplay').innerText;
-            const message = `*GUYANE SOURCING DIRECT*\n\n` +
-                            `Votre devis n° ${num} est prêt :\n` +
-                            `• Total : *${total}*\n\n` +
-                            `Suivez votre commande ici : https://vilosa973.github.io/guyane-sourcing/`;
+            const message = `*GUYANE SOURCING DIRECT*\n\nVotre devis n° ${num} est prêt :\n• Total : *${total}*\n\nSuivez votre commande ici : https://vilosa973.github.io/guyane-sourcing/`;
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
         function effacerHistorique() {
-            if(confirm("Supprimer tous les devis de la liste ?")) {
+            if(confirm("Supprimer TOUT l'historique et remettre le compteur à zéro ?")) {
                 localStorage.removeItem('gsd_devis');
-                localStorage.setItem('gsd_last_id', 0); // Reset le compteur
+                localStorage.setItem('gsd_last_id', 0);
                 document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
                 afficherHistorique();
             }
         }
 
-        // Initialisation à l'ouverture
         window.onload = function() {
             document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
