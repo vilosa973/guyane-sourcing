@@ -22,11 +22,31 @@
         }
         #devis-a-imprimer * { color: #000000 !important; }
         .pdf-accent { color: #059669 !important; }
+        
+        /* Masquer le contenu par défaut pour la sécurité */
+        #content-admin { display: none; }
     </style>
 </head>
 <body class="bg-gsd text-white font-sans p-4 pb-20">
 
-    <div class="max-w-2xl mx-auto space-y-6">
+    <script>
+        (function() {
+            const mdpAttendu = "Martinique972";
+            let saisie = prompt("ACCÈS ADMINISTRATEUR GSD\nVeuillez saisir le mot de passe :");
+            
+            if (saisie === mdpAttendu) {
+                // Si correct, on affiche le contenu après le chargement du DOM
+                document.addEventListener("DOMContentLoaded", function() {
+                    document.getElementById('content-admin').style.display = 'block';
+                });
+            } else {
+                alert("Accès refusé. Retour au site client.");
+                window.location.href = "index.html";
+            }
+        })();
+    </script>
+
+    <div id="content-admin" class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
             <h1 class="text-3xl font-black text-emerald-400 uppercase tracking-tighter italic">GSD | LOGICIEL ADMIN</h1>
             <p class="text-slate-400 text-[10px] uppercase tracking-widest">Guyane Sourcing Direct - Version Pro</p>
@@ -206,6 +226,7 @@
             const container = document.getElementById('historique');
             const h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             
+            if(!container) return;
             container.innerHTML = h.map(d => `
                 <div class="bg-slate-900/50 p-3 rounded-2xl border border-slate-700 flex justify-between items-center group">
                     <div class="flex-1">
@@ -269,6 +290,7 @@
         }
 
         window.onload = function() {
+            // Ces fonctions ne s'exécutent que si le mot de passe a été validé (puisqu'elles sont dans le DOM caché)
             document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
             calculerDevis();
             afficherHistorique();
