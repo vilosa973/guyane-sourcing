@@ -74,7 +74,7 @@
                     <i class="fas fa-file-pdf text-xl"></i> TÉLÉCHARGER LE PDF
                 </button>
                 <div class="grid grid-cols-2 gap-2">
-                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter">Enregistrer & Archiver</button>
+                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-white">Enregistrer & Archiver</button>
                     <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-slate-900">WhatsApp</button>
                 </div>
             </div>
@@ -106,18 +106,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Fourniture de pièces détachées automobiles</td><td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td></tr>
-                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td><td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td></tr>
+                    <tr>
+                        <td style="padding: 15px; border: 1px solid #e2e8f0;">Fourniture de pièces détachées automobiles</td>
+                        <td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td>
+                        <td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td>
+                    </tr>
                 </tbody>
             </table>
             <div style="text-align: right; border-top: 5px solid #059669; padding-top: 15px;">
                 <p style="font-size: 34px; font-weight: 900; color: #059669; margin: 0;" id="displayTotal">0.00 €</p>
             </div>
         </div>
+
+        <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
+            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4">Historique Local</h2>
+            <div id="historique" class="space-y-2 mb-4"></div>
+            <button onclick="effacerHistorique()" class="text-xs text-red-500 font-bold">Effacer tout</button>
+        </div>
     </div>
 
     <script>
-        // URL MISE À JOUR PAR JOAKIM
+        // LIEN GOOGLE SCRIPT MIS À JOUR (VERSION 4 - SHEET1)
         const URL_SCRIPT_GOOGLE = "https://script.google.com/macros/s/AKfycbyUj2sCtrHAo4srmKgBq02AATES5OqgdlPmFuRoW6MHh0zEV6TuP2DBSeGpZqT0cx8/exec";
 
         function obtenirProchainNumero() {
@@ -148,19 +160,31 @@
             const lien = document.getElementById('lienPiece').value;
             
             if(!nom || total === "0.00 €") return alert("Nom et Montant obligatoires !");
-            btn.innerText = "Envoi en cours..."; btn.disabled = true;
 
-            const donnees = { id: idDevis, prenom: prenom, nom: nom.toUpperCase(), site: lien, montant: total };
+            btn.innerText = "Envoi en cours...";
+            btn.disabled = true;
+
+            const donnees = {
+                id: idDevis,
+                prenom: prenom,
+                nom: nom.toUpperCase(),
+                site: lien,
+                montant: total
+            };
 
             try {
+                // ENVOI VERS GOOGLE SHEETS
                 await fetch(URL_SCRIPT_GOOGLE, {
                     method: "POST",
                     mode: "no-cors",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(donnees)
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Erreur d'envoi :", e); 
+            }
 
+            // SAUVEGARDE LOCALE
             let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
             h.unshift({ ...donnees, date: new Date().toLocaleDateString('fr-FR') });
             localStorage.setItem('gsd_devis', JSON.stringify(h));
@@ -172,8 +196,29 @@
 
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
-            const options = { margin: 10, filename: 'DEVIS_GSD_' + document.getElementById('numDevisDisplay').innerText + '.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            const options = {
+                margin: 10,
+                filename: 'DEVIS_GSD_' + document.getElementById('numDevisDisplay').innerText + '.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
             html2pdf().set(options).from(element).save();
+        }
+
+        function afficherHistorique() {
+            const container = document.getElementById('historique');
+            const h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
+            if(container) {
+                container.innerHTML = h.map(d => `
+                    <div class="bg-slate-900/50 p-3 rounded-2xl border border-slate-700 flex justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-500">${d.id} - ${d.date}</p>
+                            <p class="font-bold text-emerald-400">${d.prenom} ${d.nom}</p>
+                        </div>
+                        <p class="font-black">${d.montant}</p>
+                    </div>
+                `).join('');
+            }
         }
 
         function partagerWhatsApp() {
@@ -181,8 +226,19 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        function effacerHistorique() {
+            if(confirm("Supprimer l'historique local ?")) {
+                localStorage.removeItem('gsd_devis');
+                location.reload();
+            }
+        }
+
+        // AU CHARGEMENT DE LA PAGE
         window.onload = function() {
-            document.getElementById('numDevisDisplay').innerText = obtenirProchainNumero();
+            const num = obtenirProchainNumero();
+            document.getElementById('numDevisDisplay').innerText = num;
+            calculerDevis();
+            afficherHistorique();
         };
     </script>
 </body>
