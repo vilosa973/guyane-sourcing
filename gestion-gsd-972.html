@@ -123,7 +123,7 @@
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xs font-bold text-slate-500 uppercase italic">Liste des Devis Cloud</h2>
+                <h2 class="text-xs font-bold text-slate-500 uppercase">Historique Cloud (Google Sheets)</h2>
                 <button onclick="chargerCloud()" class="text-[10px] bg-emerald-600 px-3 py-1 rounded-full font-bold">ACTUALISER</button>
             </div>
             <div id="historique" class="space-y-3 mb-4"></div>
@@ -136,11 +136,7 @@
 
         function genererNumeroUnique() {
             const d = new Date();
-            return "GSD" + d.getFullYear().toString().substr(-2) + 
-                   (d.getMonth()+1).toString().padStart(2,'0') + 
-                   d.getDate().toString().padStart(2,'0') + "-" +
-                   d.getHours().toString().padStart(2,'0') + 
-                   d.getMinutes().toString().padStart(2,'0');
+            return "GSD" + d.getFullYear().toString().substr(-2) + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0');
         }
 
         let idDevisActuel = genererNumeroUnique();
@@ -150,13 +146,11 @@
             const port = parseFloat(document.getElementById('fraisPort').value);
             const prenom = document.getElementById('prenomClient').value || "";
             const nom = document.getElementById('nomClient').value || "";
-            const adresse = document.getElementById('adresseClient').value || "";
             const vente = achat * 1.18;
             const total = vente + port;
-            
             document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('clientNomPdf').innerText = prenom + " " + nom.toUpperCase();
-            document.getElementById('clientAdPdf').innerText = adresse;
+            document.getElementById('clientAdPdf').innerText = document.getElementById('adresseClient').value;
             document.getElementById('displayVente').innerText = vente.toFixed(2) + " €";
             document.getElementById('displayPort').innerText = port.toFixed(2) + " €";
             document.getElementById('displayTotal').innerText = total.toFixed(2) + " €";
@@ -167,11 +161,9 @@
             const total = document.getElementById('displayTotal').innerText;
             const prenom = document.getElementById('prenomClient').value;
             const nom = document.getElementById('nomClient').value;
-            
-            if(!nom || total === "0.00 €") return alert("Nom et Montant obligatoires !");
+            if(!nom || total === "0.00 €") return alert("Nom obligatoire !");
             btn.innerText = "⏳ Envoi...";
             btn.disabled = true;
-
             const donnees = {
                 id: idDevisActuel,
                 prenom: prenom,
@@ -184,86 +176,61 @@
                 statut: "ACTIF",
                 date: new Date().toLocaleDateString('fr-FR')
             };
-
             try {
                 await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Enregistré ! Attendez 2 sec que l'Excel se mette à jour.");
-                setTimeout(() => location.reload(), 2000);
-            } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerText = "Réessayer"; }
+                alert("Enregistré !");
+                location.reload();
+            } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; }
         }
 
-        // --- FONCTION DE CHARGEMENT RÉPARÉE ---
         async function chargerCloud() {
             const container = document.getElementById('historique');
-            container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse'>Connexion Google Sheets...</p>";
-            
+            container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse'>Lecture Google Sheets...</p>";
             try {
-                const res = await fetch(URL_CSV + "?cache=" + Date.now());
+                const res = await fetch(URL_CSV + "?cache=" + Math.random());
                 const data = await res.text();
-                const lignes = data.split('\n');
-                
-                // On détecte si c'est une virgule ou un point-virgule
-                const separateur = data.includes(';') ? ';' : ',';
-                
-                // On ignore la ligne 1 (titres) et on filtre les lignes vides
-                const devis = lignes.slice(1).filter(l => l.trim().length > 5).reverse();
-                
+                const lignes = data.split('\n').filter(l => l.trim().length > 5);
+                const devis = lignes.slice(1).reverse();
                 let html = "";
                 devis.forEach(l => {
-                    // Regex pour gérer les virgules à l'intérieur des guillemets
-                    const col = separateur === ',' ? l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : l.split(';');
-                    
+                    const col = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if(col.length < 3) return;
-
-                    // Ajustement des colonnes selon ta photo [15702.jpg]
-                    const id = col[0]?.replace(/"/g,'').trim();
+                    const id = col[0].replace(/"/g,'').trim();
                     const prenom = col[1]?.replace(/"/g,'').trim() || "";
-                    const nom = col[2]?.replace(/"/g,'').trim() || "SANS NOM";
-                    const statut = col[3]?.replace(/"/g,'').toUpperCase().trim() || "";
+                    const nom = col[2]?.replace(/"/g,'').trim() || "INCONNU";
                     const mt = col[7]?.replace(/"/g,'').trim() || "0";
-
+                    const statut = col[3]?.replace(/"/g,'').toUpperCase().trim() || "";
                     if(statut === "ANNULÉ") return;
-
                     html += `
-                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
-                            <div class="flex-1">
-                                <p class="text-[10px] text-slate-500 font-bold tracking-widest">${id}</p>
-                                <p class="font-black text-emerald-400 uppercase">${prenom} ${nom}</p>
-                                <p class="text-white font-black text-lg">${mt} €</p>
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center mb-2">
+                            <div>
+                                <p class="text-[9px] text-slate-500">${id}</p>
+                                <p class="font-bold text-emerald-400 uppercase">${prenom} ${nom}</p>
+                                <p class="font-black text-white text-lg">${mt} €</p>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-12 w-12 rounded-xl flex items-center justify-center shadow-lg active:scale-90">
-                                    <i class="fas fa-edit text-white"></i>
-                                </button>
-                                <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/30 h-12 w-12 rounded-xl flex items-center justify-center border border-red-600/50 active:scale-90">
-                                    <i class="fas fa-trash text-red-500"></i>
-                                </button>
+                                <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-11 w-11 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-edit"></i></button>
+                                <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-11 w-11 rounded-xl flex items-center justify-center border border-red-600/30"><i class="fas fa-trash text-red-500"></i></button>
                             </div>
                         </div>
                     `;
                 });
-                container.innerHTML = html || "<p class='text-xs text-slate-500 text-center'>Aucun devis trouvé dans ton Excel.</p>";
-            } catch(e) { 
-                container.innerHTML = "<p class='text-xs text-red-500'>Erreur réseau. Vérifie le partage de ton Google Sheets.</p>"; 
-            }
+                container.innerHTML = html || "Aucun devis actif.";
+            } catch(e) { container.innerHTML = "Erreur de connexion Cloud."; }
         }
 
         async function recupererCloud(idCherche) {
-            const res = await fetch(URL_CSV);
+            const res = await fetch(URL_CSV + "?cache=" + Math.random());
             const data = await res.text();
             const lignes = data.split('\n');
-            const separateur = data.includes(';') ? ';' : ',';
-            
             for(let i=1; i<lignes.length; i++) {
-                const c = separateur === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
-                if(c[0]?.replace(/"/g,'').trim() === idCherche) {
-                    document.getElementById('prenomClient').value = c[1]?.replace(/"/g,'').trim();
-                    document.getElementById('nomClient').value = c[2]?.replace(/"/g,'').trim();
-                    document.getElementById('adresseClient').value = c[9]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('lienPiece').value = c[10]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('prixAchat').value = c[5]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('fraisPort').value = c[6]?.replace(/"/g,'').trim() || "30";
-                    
+                const c = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if(c[0].replace(/"/g,'').trim() === idCherche) {
+                    document.getElementById('prenomClient').value = c[1].replace(/"/g,'').trim();
+                    document.getElementById('nomClient').value = c[2].replace(/"/g,'').trim();
+                    document.getElementById('adresseClient').value = c[8]?.replace(/"/g,'').trim() || "";
+                    document.getElementById('lienPiece').value = c[9]?.replace(/"/g,'').trim() || "";
+                    document.getElementById('prixAchat').value = c[4]?.replace(/"/g,'').trim() || "";
                     idDevisActuel = idCherche;
                     document.getElementById('numDevisDisplay').innerText = idCherche;
                     calculerDevis();
@@ -276,11 +243,8 @@
         async function annulerCloud(id, nom) {
             if(!confirm(`ANNULER le devis de ${nom} ?`)) return;
             const donnees = { id: id, nom: nom, statut: "ANNULÉ", montant: "0 €" };
-            try {
-                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Annulé !");
-                location.reload();
-            } catch(e) { alert("Erreur"); }
+            await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
+            location.reload();
         }
 
         function genererPDF() {
@@ -296,7 +260,7 @@
         window.onload = function() {
             document.getElementById('numDevisDisplay').innerText = idDevisActuel;
             calculerDevis();
-            chargerCloud(); // Se lance tout seul au démarrage
+            setTimeout(chargerCloud, 1000);
         };
     </script>
 </body>
