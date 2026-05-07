@@ -65,7 +65,7 @@
                 <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-sm outline-none">
                     <option value="30">Petit Colis (30€)</option>
                     <option value="150">Moyen Colis (150€)</option>
-                    <option value="0">À Définir (Gros)</option>
+                    <option value="450">Gros / Bâche (450€)</option>
                 </select>
             </div>
 
@@ -88,7 +88,7 @@
                 </div>
                 <div style="text-align: right;">
                     <h2 style="font-size: 26px; font-weight: 900; margin: 0;">DEVIS</h2>
-                    <p style="font-size: 14px; font-weight: bold; color: #333; margin: 5px 0;">N° <span id="numDevisDisplay">20260001</span></p>
+                    <p style="font-size: 14px; font-weight: bold; color: #333; margin: 5px 0;">N° <span id="numDevisDisplay">CHARGE...</span></p>
                     <p style="font-size: 11px; color: #999; margin: 0;">Édité le <span id="dateDevis">--/--/----</span></p>
                 </div>
             </div>
@@ -129,13 +129,22 @@
     </div>
 
     <script>
-        // LIEN GOOGLE SCRIPT MIS À JOUR (VERSION 4 - SHEET1)
-        const URL_SCRIPT_GOOGLE = "https://script.google.com/macros/s/AKfycbyUj2sCtrHAo4srmKgBq02AATES5OqgdlPmFuRoW6MHh0zEV6TuP2DBSeGpZqT0cx8/exec";
+        // --- CONFIGURATION ZAPIER ---
+        const URL_ZAPIER = "https://hooks.zapier.com/hooks/catch/27518535/4ythe0i/";
 
-        function obtenirProchainNumero() {
-            let dernierNum = localStorage.getItem('gsd_last_id') || 0;
-            return "2026" + (parseInt(dernierNum) + 1).toString().padStart(4, '0');
+        // --- GÉNÉRATION DU NUMÉRO UNIQUE (Anti-Doublons) ---
+        function genererNumeroUnique() {
+            const d = new Date();
+            const dateStr = d.getFullYear().toString().substr(-2) + 
+                          (d.getMonth()+1).toString().padStart(2,'0') + 
+                          d.getDate().toString().padStart(2,'0');
+            const timeStr = d.getHours().toString().padStart(2,'0') + 
+                          d.getMinutes().toString().padStart(2,'0') +
+                          d.getSeconds().toString().padStart(2,'0');
+            return "GSD" + dateStr + "-" + timeStr;
         }
+
+        let idDevisActuel = genererNumeroUnique();
 
         function calculerDevis() {
             const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
@@ -154,43 +163,41 @@
         async function enregistrerDevis() {
             const btn = document.getElementById('btnEnregistrer');
             const total = document.getElementById('displayTotal').innerText;
-            const idDevis = document.getElementById('numDevisDisplay').innerText;
             const prenom = document.getElementById('prenomClient').value;
             const nom = document.getElementById('nomClient').value;
             const lien = document.getElementById('lienPiece').value;
             
             if(!nom || total === "0.00 €") return alert("Nom et Montant obligatoires !");
 
-            btn.innerText = "Envoi en cours...";
+            btn.innerText = "Envoi...";
             btn.disabled = true;
 
             const donnees = {
-                id: idDevis,
+                id: idDevisActuel,
                 prenom: prenom,
                 nom: nom.toUpperCase(),
                 site: lien,
-                montant: total
+                montant: total,
+                date: new Date().toLocaleDateString('fr-FR')
             };
 
             try {
-                // ENVOI VERS GOOGLE SHEETS
-                await fetch(URL_SCRIPT_GOOGLE, {
+                // ENVOI VERS ZAPIER
+                await fetch(URL_ZAPIER, {
                     method: "POST",
                     mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(donnees)
                 });
             } catch (e) { 
-                console.error("Erreur d'envoi :", e); 
+                console.error("Erreur :", e); 
             }
 
-            // SAUVEGARDE LOCALE
+            // SAUVEGARDE HISTORIQUE LOCAL
             let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            h.unshift({ ...donnees, date: new Date().toLocaleDateString('fr-FR') });
+            h.unshift(donnees);
             localStorage.setItem('gsd_devis', JSON.stringify(h));
-            localStorage.setItem('gsd_last_id', parseInt(localStorage.getItem('gsd_last_id') || 0) + 1);
             
-            alert("Succès ! Devis n°" + idDevis + " envoyé au tableau.");
+            alert("Succès ! Devis n°" + idDevisActuel + " archivé.");
             location.reload();
         }
 
@@ -198,7 +205,7 @@
             const element = document.getElementById('devis-a-imprimer');
             const options = {
                 margin: 10,
-                filename: 'DEVIS_GSD_' + document.getElementById('numDevisDisplay').innerText + '.pdf',
+                filename: 'DEVIS_' + idDevisActuel + '.pdf',
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
@@ -212,8 +219,8 @@
                 container.innerHTML = h.map(d => `
                     <div class="bg-slate-900/50 p-3 rounded-2xl border border-slate-700 flex justify-between">
                         <div>
-                            <p class="text-[10px] text-slate-500">${d.id} - ${d.date}</p>
-                            <p class="font-bold text-emerald-400">${d.prenom} ${d.nom}</p>
+                            <p class="text-[10px] text-slate-500">${d.id}</p>
+                            <p class="font-bold text-emerald-400">${d.nom}</p>
                         </div>
                         <p class="font-black">${d.montant}</p>
                     </div>
@@ -222,21 +229,19 @@
         }
 
         function partagerWhatsApp() {
-            const msg = `*GSD*\nVotre devis n°${document.getElementById('numDevisDisplay').innerText} est prêt.\nTotal : *${document.getElementById('displayTotal').innerText}*`;
+            const msg = `*GSD*\nVotre devis n°${idDevisActuel} est prêt.\nTotal : *${document.getElementById('displayTotal').innerText}*`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function effacerHistorique() {
-            if(confirm("Supprimer l'historique local ?")) {
+            if(confirm("Effacer tout l'historique ?")) {
                 localStorage.removeItem('gsd_devis');
                 location.reload();
             }
         }
 
-        // AU CHARGEMENT DE LA PAGE
         window.onload = function() {
-            const num = obtenirProchainNumero();
-            document.getElementById('numDevisDisplay').innerText = num;
+            document.getElementById('numDevisDisplay').innerText = idDevisActuel;
             calculerDevis();
             afficherHistorique();
         };
