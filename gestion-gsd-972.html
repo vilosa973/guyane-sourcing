@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GSD Admin | Logiciel Pro</title>
+    <title>GSD Admin | Version Finale Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -33,8 +33,7 @@
 
     <div id="content-admin" class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
-            <h1 class="text-3xl font-black text-emerald-400 uppercase tracking-tighter italic">GSD | LOGICIEL ADMIN</h1>
-            <p class="text-[10px] text-slate-500 uppercase tracking-widest">Guyane Sourcing Direct</p>
+            <h1 class="text-3xl font-black text-emerald-400 italic">GSD | LOGICIEL ADMIN</h1>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 space-y-4 shadow-2xl">
@@ -56,7 +55,7 @@
 
             <div class="grid grid-cols-1 gap-2 pt-2">
                 <button onclick="genererPDF()" class="bg-blue-600 p-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition">
-                    <i class="fas fa-file-pdf text-xl"></i> TÉLÉCHARGER LE PDF
+                    <i class="fas fa-file-pdf"></i> TÉLÉCHARGER LE PDF
                 </button>
                 <div class="grid grid-cols-2 gap-2">
                     <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase text-white active:scale-95">Enregistrer</button>
@@ -90,8 +89,8 @@
                         <th style="padding:10px; border:1px solid #ddd; text-align:left;">Désignation</th>
                         <th style="padding:10px; border:1px solid #ddd; text-align:center;">Total TTC</th>
                     </tr>
-                    <tr><td style="padding:15px; border:1px solid #ddd;">Fourniture pièces automobiles</td><td id="displayVente" style="padding:15px; border:1px solid #ddd; text-align:center; font-weight: 900;">0€</td></tr>
-                    <tr><td style="padding:15px; border:1px solid #ddd;">Logistique & Expédition</td><td id="displayPort" style="padding:15px; border:1px solid #ddd; text-align:center; font-weight: 900;">30€</td></tr>
+                    <tr><td style="padding:15px; border:1px solid #ddd;">Fourniture pièces automobiles</td><td id="displayVente" style="padding:15px; border:1px solid #ddd; text-align:center; font-weight:900;">0€</td></tr>
+                    <tr><td style="padding:15px; border:1px solid #ddd;">Logistique & Expédition</td><td id="displayPort" style="padding:15px; border:1px solid #ddd; text-align:center; font-weight:900;">30€</td></tr>
                 </table>
                 <div style="text-align:right; margin-top:20px; border-top:4px solid #059669; padding-top:10px;">
                     <p style="font-size:32px; font-weight:900; color:#059669;" id="displayTotal">0.00 €</p>
@@ -123,78 +122,67 @@
             container.innerHTML = "<p class='text-center text-xs animate-pulse'>🔄 Synchronisation...</p>";
             try {
                 const res = await fetch(URL_CSV + "&cache=" + Date.now());
-                const text = await res.text();
-                const lignes = text.trim().split(/\r?\n/);
+                const data = await res.text();
+                const lignes = data.split('\n');
                 
-                // On saute les titres
-                if(lignes.length <= 1) {
-                    container.innerHTML = "<p class='text-center text-slate-500 text-xs'>Le tableau Excel semble vide.</p>";
-                    return;
-                }
-
+                // --- DÉTECTION DU SÉPARATEUR (CRITIQUE) ---
+                const sep = data.includes(';') ? ';' : ',';
+                
                 let html = "";
-                // On parcourt du plus récent au plus ancien
-                for(let i = lignes.length - 1; i >= 1; i--) {
-                    // Split plus intelligent pour détecter virgule OU point-virgule
-                    let col = lignes[i].includes(';') ? lignes[i].split(';') : lignes[i].split(',');
+                // On commence à 1 pour sauter les titres
+                for(let i = 1; i < lignes.length; i++) {
+                    // Nettoyage des guillemets et split
+                    const col = lignes[i].replace(/"/g, "").split(sep);
                     
-                    // Nettoyage des guillemets et espaces
-                    col = col.map(c => c.replace(/^["']|["']$/g, '').trim());
+                    if (col.length < 5) continue;
 
-                    if (col.length < 3) continue;
-
-                    const id = col[0];
-                    const prenom = col[1] || "";
-                    const nom = col[2] || "NOM INCONNU";
-                    const statut = col[3] ? col[3].toUpperCase() : "ACTIF";
-                    const montant = col[7] || "0.00 €";
+                    const id = col[0].trim();
+                    const prenom = col[1].trim();
+                    const nom = col[2].trim();
+                    const statut = col[3].trim().toUpperCase();
+                    const montant = col[7].trim(); // Colonne H
 
                     if(statut === "ANNULÉ") continue;
 
-                    html += `
+                    html = `
                         <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700 flex justify-between items-center mb-2 shadow-lg">
                             <div>
                                 <p class="text-[9px] text-slate-500 font-bold">${id}</p>
-                                <p class="font-black text-emerald-400 uppercase text-sm leading-tight">${prenom} ${nom}</p>
+                                <p class="font-black text-emerald-400 uppercase text-sm">${prenom} ${nom}</p>
                                 <p class="text-white font-bold text-lg">${montant}</p>
                             </div>
-                            <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90 shadow-md">
+                            <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90">
                                 <i class="fas fa-edit text-white text-xs"></i>
                             </button>
                         </div>
-                    `;
+                    ` + html;
                 }
-                container.innerHTML = html || "<p class='text-center text-slate-500 text-xs'>Aucun devis actif.</p>";
-            } catch(e) { 
-                container.innerHTML = "<p class='text-red-500 text-xs text-center'>Erreur de connexion au tableau.</p>"; 
-            }
+                container.innerHTML = html || "<p class='text-center text-slate-500 text-xs'>Aucun devis trouvé.</p>";
+            } catch(e) { container.innerHTML = "<p class='text-red-500 text-xs text-center'>Erreur de lien Excel.</p>"; }
         }
 
         async function recupererCloud(idCherche) {
-            try {
-                const res = await fetch(URL_CSV + "&cache=" + Date.now());
-                const text = await res.text();
-                const lignes = text.trim().split(/\r?\n/);
-                
-                for(let i = 1; i < lignes.length; i++) {
-                    let c = lignes[i].includes(';') ? lignes[i].split(';') : lignes[i].split(',');
-                    c = c.map(col => col.replace(/^["']|["']$/g, '').trim());
-
-                    if(c[0] === idCherche) {
-                        document.getElementById('prenomClient').value = c[1];
-                        document.getElementById('nomClient').value = c[2];
-                        document.getElementById('prixAchat').value = c[4];
-                        document.getElementById('fraisPort').value = c[5];
-                        document.getElementById('adresseClient').value = c[8] || "";
-                        document.getElementById('lienPiece').value = c[9] || "";
-                        idDevisActuel = idCherche;
-                        document.getElementById('numDevisDisplay').innerText = idCherche;
-                        calculerDevis();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        break;
-                    }
+            const res = await fetch(URL_CSV + "&cache=" + Date.now());
+            const data = await res.text();
+            const sep = data.includes(';') ? ';' : ',';
+            const lignes = data.split('\n');
+            
+            for(let i = 1; i < lignes.length; i++) {
+                const c = lignes[i].replace(/"/g, "").split(sep);
+                if(c[0].trim() === idCherche) {
+                    document.getElementById('prenomClient').value = c[1].trim();
+                    document.getElementById('nomClient').value = c[2].trim();
+                    document.getElementById('prixAchat').value = c[4].trim();
+                    document.getElementById('fraisPort').value = c[5].trim();
+                    document.getElementById('adresseClient').value = c[8]?.trim() || "";
+                    document.getElementById('lienPiece').value = c[9]?.trim() || "";
+                    idDevisActuel = idCherche;
+                    document.getElementById('numDevisDisplay').innerText = idCherche;
+                    calculerDevis();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    break;
                 }
-            } catch(e) { alert("Erreur de récupération."); }
+            }
         }
 
         async function enregistrerDevis() {
@@ -217,8 +205,8 @@
             };
 
             fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
-            .then(() => { alert("Archivé dans le Cloud !"); location.reload(); })
-            .catch(() => { alert("Erreur de sauvegarde."); btn.disabled = false; });
+            .then(() => { alert("Archivé !"); location.reload(); })
+            .catch(() => { alert("Erreur"); btn.disabled = false; });
         }
 
         function genererPDF() {
