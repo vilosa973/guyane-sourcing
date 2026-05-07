@@ -122,14 +122,15 @@
         </div>
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
-            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4">Gestion des Devis (30 derniers jours)</h2>
+            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4">Cloud GSD (Lecture Directe Excel)</h2>
             <div id="historique" class="space-y-3 mb-4"></div>
-            <button onclick="effacerHistorique()" class="text-xs text-red-500 font-bold opacity-50">Réinitialiser tout l'historique</button>
+            <button onclick="chargerCloud()" class="text-[10px] text-slate-500">Actualiser la liste Cloud</button>
         </div>
     </div>
 
     <script>
         const URL_ZAPIER = "https://hooks.zapier.com/hooks/catch/27518535/4ytrv6b/";
+        const URL_CSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
 
         function genererNumeroUnique() {
             const d = new Date();
@@ -137,8 +138,7 @@
                           (d.getMonth()+1).toString().padStart(2,'0') + 
                           d.getDate().toString().padStart(2,'0');
             const timeStr = d.getHours().toString().padStart(2,'0') + 
-                          d.getMinutes().toString().padStart(2,'0') +
-                          d.getSeconds().toString().padStart(2,'0');
+                          d.getMinutes().toString().padStart(2,'0');
             return "GSD" + dateStr + "-" + timeStr;
         }
 
@@ -168,12 +168,9 @@
             const nom = document.getElementById('nomClient').value;
             const adresse = document.getElementById('adresseClient').value;
             const lien = document.getElementById('lienPiece').value;
-            const achat = document.getElementById('prixAchat').value;
-            const port = document.getElementById('fraisPort').value;
             
             if(!nom || total === "0.00 €") return alert("Nom et Montant obligatoires !");
-
-            btn.innerText = "⏳ Archivage...";
+            btn.innerText = "⏳ Envoi...";
             btn.disabled = true;
 
             const donnees = {
@@ -182,92 +179,88 @@
                 nom: nom.toUpperCase(),
                 adresse: adresse,
                 site: lien,
-                achat: achat,
-                port: port,
                 montant: total,
-                date: new Date().toLocaleDateString('fr-FR'),
-                timestamp: Date.now()
+                statut: "EN ATTENTE",
+                date: new Date().toLocaleDateString('fr-FR')
             };
 
             try {
                 await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-            } catch (e) { console.error("Erreur Zapier :", e); }
-
-            let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            h.unshift(donnees);
-            localStorage.setItem('gsd_devis', JSON.stringify(h));
-            
-            alert("Succès ! Devis n°" + idDevisActuel + " archivé.");
-            location.reload();
+                alert("Enregistré !");
+                location.reload();
+            } catch (e) { alert("Erreur"); btn.disabled = false; }
         }
 
-        function afficherHistorique() {
+        async function chargerCloud() {
             const container = document.getElementById('historique');
-            let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            const TRENTE_JOURS = 30 * 24 * 60 * 60 * 1000;
-            const maintenant = Date.now();
+            container.innerHTML = "<p class='text-xs text-slate-600'>Synchronisation Cloud...</p>";
+            try {
+                const res = await fetch(URL_CSV + "?cache=" + Date.now());
+                const data = await res.text();
+                const lignes = data.split('\n').slice(1).reverse();
+                
+                let html = "";
+                lignes.forEach(l => {
+                    const c = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(c.length < 3) return;
+                    const id = c[0].replace(/"/g,'');
+                    const nom = c[2].replace(/"/g,'');
+                    const mt = c[7]?.replace(/"/g,'') || "0";
+                    const statut = c[3]?.replace(/"/g,'').toUpperCase() || "";
 
-            // Filtrage automatique des devis de plus de 30 jours
-            h = h.filter(d => (maintenant - (d.timestamp || 0)) < TRENTE_JOURS);
-            localStorage.setItem('gsd_devis', JSON.stringify(h));
+                    if(statut === "ANNULÉ") return; // On cache les annulés du site admin
 
-            if(container) {
-                container.innerHTML = h.map((d, index) => `
-                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-slate-500">${d.id} • ${d.date}</p>
-                            <p class="font-bold text-emerald-400">${d.nom}</p>
-                            <p class="font-black text-white">${d.montant}</p>
+                    html += `
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-slate-500">${id}</p>
+                                <p class="font-bold text-emerald-400">${nom}</p>
+                                <p class="font-black text-white">${mt} €</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="recupererDevis('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center"><i class="fas fa-edit"></i></button>
+                                <button onclick="annulerDevis('${id}', '${nom}')" class="bg-red-600 h-10 w-10 rounded-xl flex items-center justify-center"><i class="fas fa-trash"></i></button>
+                            </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="reediter(${index})" class="bg-blue-600 h-10 w-10 rounded-xl shadow-lg active:scale-90 transition">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="supprimerDevis(${index})" class="bg-red-600 h-10 w-10 rounded-xl shadow-lg active:scale-90 transition">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
+                    `;
+                });
+                container.innerHTML = html || "<p class='text-xs text-slate-600'>Aucun devis actif.</p>";
+            } catch(e) { container.innerHTML = "Erreur Cloud."; }
         }
 
-        function reediter(index) {
-            const h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-            const d = h[index];
+        async function annulerDevis(id, nom) {
+            if(!confirm(`Voulez-vous ANNULER le devis de ${nom} ?\nLa ligne sera barrée dans Excel et disparaîtra d'ici.`)) return;
             
-            document.getElementById('prenomClient').value = d.prenom;
-            document.getElementById('nomClient').value = d.nom;
-            document.getElementById('adresseClient').value = d.adresse || "";
-            document.getElementById('lienPiece').value = d.site || "";
-            document.getElementById('prixAchat').value = d.achat || "";
-            document.getElementById('fraisPort').value = d.port || "30";
-            
-            idDevisActuel = d.id;
-            document.getElementById('numDevisDisplay').innerText = idDevisActuel;
-            
-            calculerDevis();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const donnees = { id: id, prenom: "ANNULATION", nom: nom, statut: "ANNULÉ", montant: "0" };
+            try {
+                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
+                alert("Annulation envoyée !");
+                location.reload();
+            } catch(e) { alert("Erreur"); }
         }
 
-        function supprimerDevis(index) {
-            if(confirm("Supprimer ce devis de l'affichage ?")) {
-                let h = JSON.parse(localStorage.getItem('gsd_devis') || "[]");
-                h.splice(index, 1);
-                localStorage.setItem('gsd_devis', JSON.stringify(h));
-                afficherHistorique();
+        async function recupererDevis(id) {
+            const res = await fetch(URL_CSV);
+            const data = await res.text();
+            const lignes = data.split('\n');
+            for(let i=1; i<lignes.length; i++) {
+                const c = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if(c[0].replace(/"/g,'') === id) {
+                    document.getElementById('prenomClient').value = c[1].replace(/"/g,'');
+                    document.getElementById('nomClient').value = c[2].replace(/"/g,'');
+                    document.getElementById('adresseClient').value = c[9]?.replace(/"/g,'') || "";
+                    idDevisActuel = id;
+                    document.getElementById('numDevisDisplay').innerText = id;
+                    calculerDevis();
+                    window.scrollTo(0,0);
+                    break;
+                }
             }
         }
 
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
-            const options = {
-                margin: 10,
-                filename: 'DEVIS_' + idDevisActuel + '.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(options).from(element).save();
+            html2pdf().set({ margin: 10, filename: 'DEVIS_'+idDevisActuel+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
         }
 
         function partagerWhatsApp() {
@@ -275,17 +268,10 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function effacerHistorique() {
-            if(confirm("Effacer tout l'historique ?")) {
-                localStorage.removeItem('gsd_devis');
-                location.reload();
-            }
-        }
-
         window.onload = function() {
             document.getElementById('numDevisDisplay').innerText = idDevisActuel;
             calculerDevis();
-            afficherHistorique();
+            chargerCloud();
         };
     </script>
 </body>
