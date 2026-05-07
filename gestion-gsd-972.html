@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GSD Admin | Version Finale Cloud</title>
+    <title>GSD Admin | Logiciel Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .bg-gsd { background-color: #0f172a; }
         #devis-a-imprimer {
-            color: #000 !important; background-color: #fff !important;
+            color: #000000 !important; background-color: #ffffff !important;
             width: 100%; max-width: 800px; margin: 20px auto; padding: 40px;
-            border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: block;
         }
+        #devis-a-imprimer * { color: #000000 !important; }
         #content-admin { display: none; }
     </style>
 </head>
@@ -21,7 +22,7 @@
 
     <script>
         (function() {
-            const mdp = prompt("ACCÈS ADMINISTRATEUR GSD :");
+            const mdp = prompt("ACCÈS ADMIN GSD :");
             if (mdp === "Martinique972") {
                 document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById('content-admin').style.display = 'block';
@@ -36,30 +37,28 @@
             <h1 class="text-3xl font-black text-emerald-400 italic">GSD | LOGICIEL ADMIN</h1>
         </header>
 
-        <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 space-y-4 shadow-2xl">
+        <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 space-y-4">
             <div class="grid grid-cols-2 gap-3">
-                <input type="text" id="prenomClient" placeholder="Prénom" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
-                <input type="text" id="nomClient" placeholder="NOM" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+                <input type="text" id="prenomClient" placeholder="Prénom" class="w-full p-4 bg-slate-900 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+                <input type="text" id="nomClient" placeholder="NOM" class="w-full p-4 bg-slate-900 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
             </div>
-            <input type="text" id="adresseClient" placeholder="Adresse / Ville" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
-            <input type="url" id="lienPiece" placeholder="Lien de la pièce (Sourcing)" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none text-sm">
-            
+            <input type="text" id="adresseClient" placeholder="Adresse" class="w-full p-4 bg-slate-900 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+            <input type="url" id="lienPiece" placeholder="Lien de la pièce" class="w-full p-4 bg-slate-900 rounded-2xl outline-none text-sm">
             <div class="grid grid-cols-2 gap-3">
-                <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="Prix Achat €" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl font-bold text-xl text-emerald-400">
-                <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-sm">
+                <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="Prix Achat €" class="w-full p-4 bg-slate-900 rounded-2xl font-bold text-xl text-emerald-400">
+                <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 rounded-2xl font-bold text-sm">
                     <option value="30">Petit (30€)</option>
                     <option value="150">Moyen (150€)</option>
                     <option value="450">Gros (450€)</option>
                 </select>
             </div>
-
             <div class="grid grid-cols-1 gap-2 pt-2">
-                <button onclick="genererPDF()" class="bg-blue-600 p-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition">
+                <button onclick="genererPDF()" class="bg-blue-600 p-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
                     <i class="fas fa-file-pdf"></i> TÉLÉCHARGER LE PDF
                 </button>
                 <div class="grid grid-cols-2 gap-2">
-                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase text-white active:scale-95">Enregistrer</button>
-                    <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs uppercase text-slate-900 active:scale-95">WhatsApp</button>
+                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase text-white">Enregistrer & Archiver</button>
+                    <button onclick="partagerWhatsApp()" class="bg-[#25D366] p-4 rounded-2xl font-bold text-xs uppercase text-slate-900">WhatsApp</button>
                 </div>
             </div>
         </div>
@@ -67,33 +66,39 @@
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xs font-bold text-slate-500 uppercase italic">Liste des Devis Cloud</h2>
-                <button onclick="chargerCloud()" class="text-[10px] bg-emerald-600 px-3 py-1 rounded-full font-bold uppercase">Actualiser</button>
+                <button onclick="chargerCloud()" class="text-[10px] bg-emerald-600 px-3 py-1 rounded-full font-bold">ACTUALISER</button>
             </div>
-            <div id="historique" class="space-y-3 mb-4"></div>
+            <div id="historique" class="space-y-3"></div>
         </div>
 
-        <div style="overflow:hidden; height:0; opacity:0">
+        <div style="overflow: hidden; height: 0; opacity: 0;">
             <div id="devis-a-imprimer">
-                <div style="display:flex; justify-content:space-between; border-bottom:3px solid #059669; padding-bottom:20px;">
-                    <div><img src="Logo.jpg" style="height:60px;"><p style="font-weight:900; color:#059669;">Guyane Sourcing Direct</p></div>
-                    <div style="text-align:right;"><h2>DEVIS</h2><p>N° <span id="numDevisDisplay">...</span></p></div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #059669; padding-bottom: 20px;">
+                    <div><img src="Logo.jpg" style="height: 60px;"><p style="font-weight: 900; color: #059669;">Guyane Sourcing Direct</p></div>
+                    <div style="text-align: right;"><h2>DEVIS</h2><p>N° <span id="numDevisDisplay">...</span></p></div>
                 </div>
-                <div style="margin:30px 0; text-align:right;">
-                    <div style="background:#f8fafc; padding:15px; display:inline-block; border-radius:10px; text-align:left;">
-                        <p id="clientNomPdf" style="font-weight:900; text-transform:uppercase;">--</p>
-                        <p id="clientAdPdf" style="font-size:12px; font-style:italic;">--</p>
+                <div style="margin: 30px 0; text-align: right;">
+                    <div style="background: #f8fafc; padding: 15px; display: inline-block; border-radius: 10px; text-align: left;">
+                        <p id="clientNomPdf" style="font-weight: 900;">--</p>
+                        <p id="clientAdPdf" style="font-size: 12px; font-style: italic;">--</p>
                     </div>
                 </div>
-                <table style="width:100%; border-collapse:collapse;">
-                    <tr style="background:#f1f5f9;">
-                        <th style="padding:10px; border:1px solid #ddd; text-align:left;">Désignation</th>
-                        <th style="padding:10px; border:1px solid #ddd; text-align:center;">Total TTC</th>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #f1f5f9;">
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Prestation</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Total</th>
                     </tr>
-                    <tr><td style="padding:15px; border:1px solid #ddd;">Fourniture pièces automobiles</td><td id="displayVente" style="padding:15px; border:1px solid #ddd; text-align:center; font-weight:900;">0€</td></tr>
-                    <tr><td style="padding:15px; border:1px solid #ddd;">Logistique & Expédition</td><td id="displayPort" style="padding:15px; border:1px solid #ddd; text-align:center; font-weight:900;">30€</td></tr>
+                    <tr>
+                        <td style="padding: 15px; border: 1px solid #ddd;">Pièces automobiles</td>
+                        <td id="displayVente" style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: 900;">0€</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px; border: 1px solid #ddd;">Logistique Guyane</td>
+                        <td id="displayPort" style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: 900;">30€</td>
+                    </tr>
                 </table>
-                <div style="text-align:right; margin-top:20px; border-top:4px solid #059669; padding-top:10px;">
-                    <p style="font-size:32px; font-weight:900; color:#059669;" id="displayTotal">0.00 €</p>
+                <div style="text-align: right; margin-top: 20px; border-top: 4px solid #059669;">
+                    <p style="font-size: 30px; font-weight: 900; color: #059669;" id="displayTotal">0.00 €</p>
                 </div>
             </div>
         </div>
@@ -110,6 +115,7 @@
             const port = parseFloat(document.getElementById('fraisPort').value);
             const vente = (achat * 1.18).toFixed(2);
             const total = (parseFloat(vente) + port).toFixed(2);
+            
             document.getElementById('clientNomPdf').innerText = document.getElementById('prenomClient').value + " " + document.getElementById('nomClient').value.toUpperCase();
             document.getElementById('clientAdPdf').innerText = document.getElementById('adresseClient').value;
             document.getElementById('displayVente').innerText = vente + " €";
@@ -119,79 +125,57 @@
 
         async function chargerCloud() {
             const container = document.getElementById('historique');
-            container.innerHTML = "<p class='text-center text-xs animate-pulse'>🔄 Synchronisation...</p>";
+            container.innerHTML = "<p class='text-center animate-pulse'>Recherche...</p>";
+            
             try {
-                const res = await fetch(URL_CSV + "&cache=" + Date.now());
-                const data = await res.text();
-                const lignes = data.split('\n');
-                
-                // --- DÉTECTION DU SÉPARATEUR (CRITIQUE) ---
-                const sep = data.includes(';') ? ';' : ',';
+                const response = await fetch(URL_CSV + "?t=" + Date.now());
+                const rawData = await response.text();
+                const lignes = rawData.split("\n");
                 
                 let html = "";
-                // On commence à 1 pour sauter les titres
+                // On commence à i=1 pour sauter l'entête
                 for(let i = 1; i < lignes.length; i++) {
-                    // Nettoyage des guillemets et split
-                    const col = lignes[i].replace(/"/g, "").split(sep);
+                    // Nettoyage des guillemets et split par virgule
+                    const col = lignes[i].replace(/"/g, "").split(",");
                     
-                    if (col.length < 5) continue;
+                    if (col.length < 5) continue; 
 
-                    const id = col[0].trim();
-                    const prenom = col[1].trim();
-                    const nom = col[2].trim();
-                    const statut = col[3].trim().toUpperCase();
-                    const montant = col[7].trim(); // Colonne H
+                    const id = col[0];
+                    const prenom = col[1];
+                    const nom = col[2];
+                    const statut = col[3] ? col[3].trim().toUpperCase() : "";
+                    const montant = col[7] || "0";
 
                     if(statut === "ANNULÉ") continue;
 
-                    html = `
-                        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700 flex justify-between items-center mb-2 shadow-lg">
+                    html += `
+                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 flex justify-between items-center">
                             <div>
                                 <p class="text-[9px] text-slate-500 font-bold">${id}</p>
                                 <p class="font-black text-emerald-400 uppercase text-sm">${prenom} ${nom}</p>
-                                <p class="text-white font-bold text-lg">${montant}</p>
+                                <p class="text-white font-black text-lg">${montant}</p>
                             </div>
-                            <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90">
-                                <i class="fas fa-edit text-white text-xs"></i>
+                            <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-edit text-xs"></i>
                             </button>
                         </div>
-                    ` + html;
+                    `;
                 }
-                container.innerHTML = html || "<p class='text-center text-slate-500 text-xs'>Aucun devis trouvé.</p>";
-            } catch(e) { container.innerHTML = "<p class='text-red-500 text-xs text-center'>Erreur de lien Excel.</p>"; }
-        }
-
-        async function recupererCloud(idCherche) {
-            const res = await fetch(URL_CSV + "&cache=" + Date.now());
-            const data = await res.text();
-            const sep = data.includes(';') ? ';' : ',';
-            const lignes = data.split('\n');
-            
-            for(let i = 1; i < lignes.length; i++) {
-                const c = lignes[i].replace(/"/g, "").split(sep);
-                if(c[0].trim() === idCherche) {
-                    document.getElementById('prenomClient').value = c[1].trim();
-                    document.getElementById('nomClient').value = c[2].trim();
-                    document.getElementById('prixAchat').value = c[4].trim();
-                    document.getElementById('fraisPort').value = c[5].trim();
-                    document.getElementById('adresseClient').value = c[8]?.trim() || "";
-                    document.getElementById('lienPiece').value = c[9]?.trim() || "";
-                    idDevisActuel = idCherche;
-                    document.getElementById('numDevisDisplay').innerText = idCherche;
-                    calculerDevis();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    break;
-                }
+                container.innerHTML = html || "<p class='text-center text-slate-500'>Aucun devis trouvé dans l'Excel.</p>";
+            } catch (e) {
+                container.innerHTML = "<p class='text-red-500'>Erreur Cloud.</p>";
             }
         }
 
         async function enregistrerDevis() {
             const btn = document.getElementById('btnEnregistrer');
             const total = document.getElementById('displayTotal').innerText;
-            if(total === "30.00 €") return alert("Entrez un prix d'achat.");
-            btn.innerText = "ENVOI..."; btn.disabled = true;
+            if(total === "30.00 €") return alert("Saisissez un prix d'achat.");
             
-            const payload = {
+            btn.innerText = "ENVOI...";
+            btn.disabled = true;
+
+            const donnees = {
                 id: idDevisActuel,
                 prenom: document.getElementById('prenomClient').value,
                 nom: document.getElementById('nomClient').value.toUpperCase(),
@@ -204,14 +188,37 @@
                 date: new Date().toLocaleDateString('fr-FR')
             };
 
-            fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
-            .then(() => { alert("Archivé !"); location.reload(); })
+            fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) })
+            .then(() => { alert("Enregistré !"); location.reload(); })
             .catch(() => { alert("Erreur"); btn.disabled = false; });
         }
 
+        async function recupererCloud(idCherche) {
+            const response = await fetch(URL_CSV);
+            const rawData = await response.text();
+            const lignes = rawData.split("\n");
+            
+            for(let i = 1; i < lignes.length; i++) {
+                const c = lignes[i].replace(/"/g, "").split(",");
+                if(c[0].trim() === idCherche) {
+                    document.getElementById('prenomClient').value = c[1];
+                    document.getElementById('nomClient').value = c[2];
+                    document.getElementById('prixAchat').value = c[4];
+                    document.getElementById('fraisPort').value = c[5];
+                    document.getElementById('adresseClient').value = c[8] || "";
+                    document.getElementById('lienPiece').value = c[9] || "";
+                    idDevisActuel = idCherche;
+                    document.getElementById('numDevisDisplay').innerText = idCherche;
+                    calculerDevis();
+                    window.scrollTo(0,0);
+                    break;
+                }
+            }
+        }
+
         function genererPDF() {
-            const element = document.getElementById('devis-a-imprimer');
-            html2pdf().set({ margin: 10, filename: 'Devis_'+idDevisActuel+'.pdf', html2canvas: { scale: 2 } }).from(element).save();
+            const el = document.getElementById('devis-a-imprimer');
+            html2pdf().set({ margin: 10, filename: 'Devis_'+idDevisActuel+'.pdf', html2canvas: { scale: 2 } }).from(el).save();
         }
 
         function partagerWhatsApp() {
