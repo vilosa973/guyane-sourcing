@@ -123,7 +123,7 @@
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xs font-bold text-slate-500 uppercase">Historique Cloud (Google Sheets)</h2>
+                <h2 class="text-xs font-bold text-slate-500 uppercase italic">Liste des Devis Cloud</h2>
                 <button onclick="chargerCloud()" class="text-[10px] bg-emerald-600 px-3 py-1 rounded-full font-bold">ACTUALISER</button>
             </div>
             <div id="historique" class="space-y-3 mb-4"></div>
@@ -132,11 +132,16 @@
 
     <script>
         const URL_ZAPIER = "https://hooks.zapier.com/hooks/catch/27518535/4ytrv6b/";
-        const URL_CSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
+        // LIEN MISE À JOUR AVEC TON NOUVEAU TABLEAU
+        const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
 
         function genererNumeroUnique() {
             const d = new Date();
-            return "GSD" + d.getFullYear().toString().substr(-2) + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0');
+            return "GSD" + d.getFullYear().toString().substr(-2) + 
+                   (d.getMonth()+1).toString().padStart(2,'0') + 
+                   d.getDate().toString().padStart(2,'0') + "-" +
+                   d.getHours().toString().padStart(2,'0') + 
+                   d.getMinutes().toString().padStart(2,'0');
         }
 
         let idDevisActuel = genererNumeroUnique();
@@ -146,11 +151,13 @@
             const port = parseFloat(document.getElementById('fraisPort').value);
             const prenom = document.getElementById('prenomClient').value || "";
             const nom = document.getElementById('nomClient').value || "";
+            const adresse = document.getElementById('adresseClient').value || "";
             const vente = achat * 1.18;
             const total = vente + port;
+            
             document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('clientNomPdf').innerText = prenom + " " + nom.toUpperCase();
-            document.getElementById('clientAdPdf').innerText = document.getElementById('adresseClient').value;
+            document.getElementById('clientAdPdf').innerText = adresse;
             document.getElementById('displayVente').innerText = vente.toFixed(2) + " €";
             document.getElementById('displayPort').innerText = port.toFixed(2) + " €";
             document.getElementById('displayTotal').innerText = total.toFixed(2) + " €";
@@ -161,9 +168,11 @@
             const total = document.getElementById('displayTotal').innerText;
             const prenom = document.getElementById('prenomClient').value;
             const nom = document.getElementById('nomClient').value;
-            if(!nom || total === "0.00 €") return alert("Nom obligatoire !");
+            
+            if(!nom || total === "0.00 €") return alert("Nom et Montant obligatoires !");
             btn.innerText = "⏳ Envoi...";
             btn.disabled = true;
+
             const donnees = {
                 id: idDevisActuel,
                 prenom: prenom,
@@ -176,61 +185,81 @@
                 statut: "ACTIF",
                 date: new Date().toLocaleDateString('fr-FR')
             };
+
             try {
                 await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Enregistré !");
-                location.reload();
-            } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; }
+                alert("Devis n°" + idDevisActuel + " archivé dans Excel !");
+                setTimeout(() => location.reload(), 1500);
+            } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerText = "Réessayer"; }
         }
 
         async function chargerCloud() {
             const container = document.getElementById('historique');
-            container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse'>Lecture Google Sheets...</p>";
+            container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse'>Connexion Cloud...</p>";
+            
             try {
-                const res = await fetch(URL_CSV + "?cache=" + Math.random());
+                // cache=Date.now() force Google à envoyer les dernières données
+                const res = await fetch(URL_CSV + "?cache=" + Date.now());
                 const data = await res.text();
-                const lignes = data.split('\n').filter(l => l.trim().length > 5);
-                const devis = lignes.slice(1).reverse();
+                const lignes = data.split('\n');
+                
+                // On détecte le séparateur (virgule par défaut)
+                const devis = lignes.slice(1).filter(l => l.trim().length > 5).reverse();
+                
                 let html = "";
                 devis.forEach(l => {
                     const col = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
                     if(col.length < 3) return;
-                    const id = col[0].replace(/"/g,'').trim();
+
+                    // CALIBRAGE SUR TON TABLEAU RÉEL :
+                    const id = col[0]?.replace(/"/g,'').trim();
                     const prenom = col[1]?.replace(/"/g,'').trim() || "";
-                    const nom = col[2]?.replace(/"/g,'').trim() || "INCONNU";
-                    const mt = col[7]?.replace(/"/g,'').trim() || "0";
-                    const statut = col[3]?.replace(/"/g,'').toUpperCase().trim() || "";
+                    const nom = col[2]?.replace(/"/g,'').trim() || "---";
+                    const statut = col[3]?.replace(/"/g,'').toUpperCase().trim() || "ACTIF";
+                    const mt = col[7]?.replace(/"/g,'').trim() || "0"; // Colonne H
+
                     if(statut === "ANNULÉ") return;
+
                     html += `
                         <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center mb-2">
-                            <div>
-                                <p class="text-[9px] text-slate-500">${id}</p>
-                                <p class="font-bold text-emerald-400 uppercase">${prenom} ${nom}</p>
-                                <p class="font-black text-white text-lg">${mt} €</p>
+                            <div class="flex-1">
+                                <p class="text-[10px] text-slate-500 font-bold tracking-widest">${id}</p>
+                                <p class="font-black text-emerald-400 uppercase leading-none">${prenom} ${nom}</p>
+                                <p class="text-white font-black text-lg">${mt} €</p>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-11 w-11 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-edit"></i></button>
-                                <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-11 w-11 rounded-xl flex items-center justify-center border border-red-600/30"><i class="fas fa-trash text-red-500"></i></button>
+                                <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg active:scale-90">
+                                    <i class="fas fa-edit text-white text-xs"></i>
+                                </button>
+                                <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30 active:scale-90">
+                                    <i class="fas fa-trash text-red-500 text-xs"></i>
+                                </button>
                             </div>
                         </div>
                     `;
                 });
-                container.innerHTML = html || "Aucun devis actif.";
-            } catch(e) { container.innerHTML = "Erreur de connexion Cloud."; }
+                container.innerHTML = html || "<p class='text-xs text-slate-500 text-center'>Aucun devis trouvé.</p>";
+            } catch(e) { 
+                container.innerHTML = "<p class='text-xs text-red-500'>Erreur réseau. Vérifiez le partage de l'Excel.</p>"; 
+            }
         }
 
         async function recupererCloud(idCherche) {
-            const res = await fetch(URL_CSV + "?cache=" + Math.random());
+            const res = await fetch(URL_CSV + "?cache=" + Date.now());
             const data = await res.text();
             const lignes = data.split('\n');
+            
             for(let i=1; i<lignes.length; i++) {
                 const c = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                if(c[0].replace(/"/g,'').trim() === idCherche) {
-                    document.getElementById('prenomClient').value = c[1].replace(/"/g,'').trim();
-                    document.getElementById('nomClient').value = c[2].replace(/"/g,'').trim();
-                    document.getElementById('adresseClient').value = c[8]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('lienPiece').value = c[9]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('prixAchat').value = c[4]?.replace(/"/g,'').trim() || "";
+                if(c[0]?.replace(/"/g,'').trim() === idCherche) {
+                    document.getElementById('prenomClient').value = c[1]?.replace(/"/g,'').trim();
+                    document.getElementById('nomClient').value = c[2]?.replace(/"/g,'').trim();
+                    document.getElementById('adresseClient').value = c[8]?.replace(/"/g,'').trim() || ""; // I
+                    document.getElementById('lienPiece').value = c[9]?.replace(/"/g,'').trim() || ""; // J
+                    document.getElementById('prixAchat').value = c[4]?.replace(/"/g,'').trim() || ""; // E
+                    document.getElementById('fraisPort').value = c[5]?.replace(/"/g,'').trim() || "30"; // F
+                    
                     idDevisActuel = idCherche;
                     document.getElementById('numDevisDisplay').innerText = idCherche;
                     calculerDevis();
@@ -243,8 +272,11 @@
         async function annulerCloud(id, nom) {
             if(!confirm(`ANNULER le devis de ${nom} ?`)) return;
             const donnees = { id: id, nom: nom, statut: "ANNULÉ", montant: "0 €" };
-            await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-            location.reload();
+            try {
+                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
+                alert("Annulation envoyée.");
+                location.reload();
+            } catch(e) { alert("Erreur"); }
         }
 
         function genererPDF() {
@@ -260,7 +292,7 @@
         window.onload = function() {
             document.getElementById('numDevisDisplay').innerText = idDevisActuel;
             calculerDevis();
-            setTimeout(chargerCloud, 1000);
+            chargerCloud();
         };
     </script>
 </body>
