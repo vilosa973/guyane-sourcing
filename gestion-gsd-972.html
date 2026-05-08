@@ -1,151 +1,244 @@
-<script>
-    const URL_ZAPIER = "https://hooks.zapier.com/hooks/catch/27518535/4ytrv6b/";
-    const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSD Admin | Logiciel Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .bg-gsd { background-color: #0f172a; }
+        #devis-a-imprimer {
+            color: #000000 !important; background-color: #ffffff !important;
+            width: 100%; max-width: 800px; margin: 20px auto; padding: 40px;
+            border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        #devis-a-imprimer * { color: #000000 !important; }
+        #content-admin { display: none; }
+        input, select { background-color: #0f172a !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
+    </style>
+</head>
+<body class="bg-gsd text-white font-sans p-4 pb-20">
 
-    function genererNumeroUnique() {
-        const d = new Date();
-        return "GSD" + d.getFullYear().toString().substr(-2) + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0');
-    }
+    <script>
+        (function() {
+            const mdpAttendu = "Martinique972";
+            let saisie = prompt("ACCÈS ADMINISTRATEUR GSD\nVeuillez saisir le mot de passe :");
+            if (saisie === mdpAttendu) {
+                document.addEventListener("DOMContentLoaded", function() {
+                    document.getElementById('content-admin').style.display = 'block';
+                });
+            } else { alert("Accès refusé."); window.location.href = "index.html"; }
+        })();
+    </script>
 
-    let idDevisActuel = genererNumeroUnique();
+    <div id="content-admin" class="max-w-2xl mx-auto space-y-6">
+        <header class="text-center py-4">
+            <h1 class="text-3xl font-black text-emerald-400 uppercase tracking-tighter italic">GSD | LOGICIEL ADMIN</h1>
+            <p class="text-slate-400 text-[10px] uppercase tracking-widest">Guyane Sourcing Direct - Version Pro</p>
+        </header>
 
-    function calculerDevis() {
-        const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
-        const port = parseFloat(document.getElementById('fraisPort').value);
-        const civilite = document.getElementById('civiliteClient').value;
-        const prenom = document.getElementById('prenomClient').value || "";
-        const nom = document.getElementById('nomClient').value || "";
-        const adresse = document.getElementById('adresseClient').value || "";
-        const vente = (achat * 1.18).toFixed(2);
-        const total = (parseFloat(vente) + port).toFixed(2);
-        document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
-        document.getElementById('clientNomPdf').innerText = civilite + " " + prenom + " " + nom.toUpperCase();
-        document.getElementById('clientAdPdf').innerText = adresse;
-        document.getElementById('displayVente').innerText = vente + " €";
-        document.getElementById('displayPort').innerText = port.toFixed(2) + " €";
-        document.getElementById('displayTotal').innerText = total + " €";
-    }
+        <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700 space-y-4">
+            <div class="flex gap-2">
+                <select id="civiliteClient" onchange="calculerDevis()" class="w-1/3 p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+                    <option value="Monsieur">Monsieur</option>
+                    <option value="Madame">Madame</option>
+                </select>
+                <input type="text" id="nomClient" placeholder="NOM DU CLIENT" class="w-2/3 p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm uppercase" oninput="calculerDevis()">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" id="prenomClient" placeholder="Prénom" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
+                <input type="email" id="emailClient" placeholder="Adresse Mail client" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+            </div>
+            <input type="text" id="objetDevis" placeholder="Désignation des pièces (ex: Cardans, Alternateur...)" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
+            
+            <input type="text" id="adresseClient" placeholder="Lieu de livraison (Ville)" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div class="relative">
+                    <input type="number" id="prixAchat" oninput="calculerDevis()" placeholder="Prix Achat" class="w-full p-4 rounded-2xl font-bold text-xl outline-none text-emerald-400">
+                    <span class="absolute right-4 top-5 text-slate-600 font-bold">€</span>
+                </div>
+                <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-sm outline-none">
+                    <option value="30">Petit Colis (30€)</option>
+                    <option value="150">Moyen Colis (150€)</option>
+                    <option value="450">Gros / Bâche (450€)</option>
+                </select>
+            </div>
 
-    async function enregistrerDevis() {
-        const btn = document.getElementById('btnEnregistrer');
-        const total = document.getElementById('displayTotal').innerText;
-        if(total === "30.00 €" || total === "0.00 €") return alert("Veuillez saisir un prix d'achat.");
-        btn.innerText = "⏳ Envoi..."; btn.disabled = true;
-        const donnees = { id: idDevisActuel, civilite: document.getElementById('civiliteClient').value, prenom: document.getElementById('prenomClient').value, nom: document.getElementById('nomClient').value.toUpperCase(), email: document.getElementById('emailClient').value, adresse: document.getElementById('adresseClient').value, site: document.getElementById('lienPiece').value, achat: document.getElementById('prixAchat').value, port: document.getElementById('fraisPort').value, montant: total, statut: "ACTIF", date: new Date().toLocaleDateString('fr-FR') };
-        try { await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); alert("Devis enregistré !"); setTimeout(() => location.reload(), 1000); } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; }
-    }
+            <div class="grid grid-cols-1 gap-2 pt-2">
+                <button onclick="genererPDF()" class="bg-blue-600 p-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                    <i class="fas fa-file-pdf text-xl"></i> TÉLÉCHARGER LE PDF
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-white">1. Enregistrer Cloud</button>
+                    <button id="btnMail" onclick="envoyerMail()" class="bg-indigo-600 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-white">2. Envoyer par Mail</button>
+                </div>
+            </div>
+        </div>
 
-    async function chargerCloud() {
-        const container = document.getElementById('historique');
-        container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse text-center py-4'>Synchronisation Cloud...</p>";
-        try {
+        <div id="devis-a-imprimer">
+            <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #059669; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <img src="Logo.jpg" style="height: 60px; margin-bottom: 10px;">
+                    <p style="font-size: 14px; font-weight: 900; color: #059669; text-transform: uppercase; margin: 0;">Guyane Sourcing Direct</p>
+                </div>
+                <div style="text-align: right;">
+                    <h2 style="font-size: 26px; font-weight: 900; margin: 0;">DEVIS</h2>
+                    <p style="font-size: 14px; font-weight: bold; color: #333; margin: 5px 0;">N° <span id="numDevisDisplay">...</span></p>
+                    <p style="font-size: 11px; color: #999; margin: 0;">Le <span id="dateDevis">--/--/----</span></p>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 40px;">
+                <div style="width: 280px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+                    <p id="clientNomPdf" style="font-weight: 900; font-size: 15px; margin: 0; text-transform: uppercase; color: #1e293b;">--</p>
+                    <p id="clientAdPdf" style="font-size: 12px; color: #64748b; margin-top: 4px; font-style: italic;">--</p>
+                </div>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+                <thead>
+                    <tr style="background: #f1f5f9;"><th style="padding: 12px; border: 1px solid #e2e8f0; text-align: left;">Prestations</th><th style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; width: 140px;">Montant TTC</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Fourniture de pièces détachées automobiles</td><td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td></tr>
+                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td><td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td></tr>
+                </tbody>
+            </table>
+            <div style="text-align: right; border-top: 5px solid #059669; padding-top: 15px;"><p style="font-size: 34px; font-weight: 900; color: #059669; margin: 0;" id="displayTotal">0.00 €</p></div>
+        </div>
+
+        <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
+            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Archives Cloud</h2>
+            <div id="historique" class="space-y-3 mb-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const URL_ZAPIER = "https://hooks.zapier.com/hooks/catch/27518535/4ytrv6b/";
+        const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
+
+        function genererNumeroUnique() {
+            const d = new Date();
+            return "GSD" + d.getFullYear().toString().substr(-2) + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0');
+        }
+
+        let idDevisActuel = genererNumeroUnique();
+
+        function calculerDevis() {
+            const achat = parseFloat(document.getElementById('prixAchat').value) || 0;
+            const port = parseFloat(document.getElementById('fraisPort').value);
+            const civilite = document.getElementById('civiliteClient').value;
+            const prenom = document.getElementById('prenomClient').value || "";
+            const nom = document.getElementById('nomClient').value || "";
+            const vente = (achat * 1.18).toFixed(2);
+            const total = (parseFloat(vente) + port).toFixed(2);
+            document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
+            document.getElementById('clientNomPdf').innerText = civilite + " " + prenom + " " + nom.toUpperCase();
+            document.getElementById('clientAdPdf').innerText = document.getElementById('adresseClient').value;
+            document.getElementById('displayVente').innerText = vente + " €";
+            document.getElementById('displayPort').innerText = port.toFixed(2) + " €";
+            document.getElementById('displayTotal').innerText = total + " €";
+        }
+
+        async function enregistrerDevis() {
+            const btn = document.getElementById('btnEnregistrer');
+            btn.innerText = "⏳ Envoi..."; btn.disabled = true;
+            const donnees = { 
+                id: idDevisActuel, 
+                civilite: document.getElementById('civiliteClient').value, 
+                prenom: document.getElementById('prenomClient').value, 
+                nom: document.getElementById('nomClient').value.toUpperCase(), 
+                email: document.getElementById('emailClient').value, 
+                objet: document.getElementById('objetDevis').value, // On envoie l'objet à l'excel
+                achat: document.getElementById('prixAchat').value, 
+                port: document.getElementById('fraisPort').value, 
+                montant: document.getElementById('displayTotal').innerText, 
+                statut: "ACTIF", 
+                date: new Date().toLocaleDateString('fr-FR') 
+            };
+            try { await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); alert("Devis enregistré dans le tableau !"); chargerCloud(); btn.innerText = "1. Enregistrer Cloud"; btn.disabled = false; } catch (e) { alert("Erreur"); btn.disabled = false; }
+        }
+
+        async function envoyerMail() {
+            const email = document.getElementById('emailClient').value;
+            const objetPiece = document.getElementById('objetDevis').value || "votre demande";
+            const nom = document.getElementById('nomClient').value;
+            const civilite = document.getElementById('civiliteClient').value;
+            const btn = document.getElementById('btnMail');
+
+            if(!email || !nom) return alert("Nom et Email obligatoires !");
+            btn.innerText = "⏳ Envoi mail..."; btn.disabled = true;
+
+            const donnees = { 
+                action: "ENVOI_MAIL_CLIENT",
+                id: idDevisActuel, 
+                civilite: civilite, 
+                nom: nom.toUpperCase(), 
+                email: email, 
+                objet_pieces: objetPiece, // Le client recevra le nom de SA pièce ici
+                message: `Bonjour ${civilite} ${nom.toUpperCase()},\n\nSuite à votre demande, veuillez trouver ci-joint votre devis ${idDevisActuel} lié à votre demande de ${objetPiece}.\n\nEn vous souhaitant une bonne réception.`
+            };
+
+            try { 
+                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); 
+                alert(`Le mail pour ${objetPiece} a été envoyé à ${email}`); 
+                btn.innerText = "✅ Mail Envoyé";
+                setTimeout(() => { btn.innerText = "2. Envoyer par Mail"; btn.disabled = false; }, 2000);
+            } catch (e) { alert("Erreur"); btn.disabled = false; }
+        }
+
+        async function chargerCloud() {
+            const container = document.getElementById('historique');
+            container.innerHTML = "<p class='text-xs text-center py-4 opacity-50'>Mise à jour...</p>";
+            try {
+                const res = await fetch(URL_CSV + "?v=" + Date.now());
+                const data = await res.text();
+                const lignes = data.split('\n');
+                const sep = data.includes(';') ? ';' : ',';
+                const devisLignes = lignes.slice(1).filter(l => l.trim().split(sep).length > 3).reverse();
+                let html = "";
+                devisLignes.forEach(l => {
+                    const col = sep === ',' ? l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : l.split(';');
+                    const id = col[0]?.replace(/"/g,'').trim();
+                    const civilite = col[1]?.replace(/"/g,'').trim() || "";
+                    const nom = col[2]?.replace(/"/g,'').trim() || "";
+                    const mt = col[8]?.replace(/"/g,'').trim() || "0 €";
+                    if(!id || col[4]?.includes("ANNULÉ")) return;
+                    html += `<div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center mb-2 shadow-lg">
+                        <div class="flex-1"><p class="text-[9px] text-slate-500 font-bold">${id}</p>
+                        <p class="font-black text-emerald-400 uppercase text-sm leading-none mb-1">${civilite} ${nom}</p>
+                        <p class="text-white font-black text-lg">${mt}</p></div>
+                        <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-edit text-white text-xs"></i></button>
+                    </div>`;
+                });
+                container.innerHTML = html || "Aucun devis.";
+            } catch(e) { container.innerHTML = "Erreur Cloud."; }
+        }
+
+        async function recupererCloud(idCherche) {
             const res = await fetch(URL_CSV + "?v=" + Date.now());
             const data = await res.text();
             const lignes = data.split('\n');
-            
-            let html = "";
-            // On commence à i=1 pour sauter l'en-tête, on filtre les lignes vides
-            for (let i = 1; i < lignes.length; i++) {
-                if (!lignes[i].trim()) continue;
-
-                // On utilise une regex robuste pour séparer par virgule sans casser les liens URL
-                const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                
-                const id = col[0]?.replace(/"/g,'').trim();
-                const civilite = col[1]?.replace(/"/g,'').trim() || "";
-                const nom = col[2]?.replace(/"/g,'').trim() || "";
-                const prenom = col[3]?.replace(/"/g,'').trim() || "";
-                const statut = col[4]?.replace(/"/g,'').toUpperCase().trim() || "ACTIF";
-                const total = col[8]?.replace(/"/g,'').trim() || "0 €";
-
-                if (!id || statut === "ANNULÉ") continue;
-
-                html = `<div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center text-left mb-2 shadow-lg">
-                    <div class="flex-1"><p class="text-[9px] text-slate-500 font-bold">${id} | ${statut}</p>
-                    <p class="font-black text-emerald-400 uppercase text-sm leading-none mb-1">${civilite} ${prenom} ${nom}</p>
-                    <p class="text-white font-black text-lg">${total}</p></div>
-                    <div class="flex gap-2">
-                        <button onclick="extrairePdfDirect('${id}')" title="Extraire PDF" class="bg-emerald-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-file-download text-white text-xs"></i></button>
-                        <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-edit text-white text-xs"></i></button>
-                        <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30"><i class="fas fa-trash text-red-500 text-xs"></i></button>
-                    </div>
-                </div>` + html; // On ajoute en haut de liste
-            }
-            container.innerHTML = html || "<p class='text-xs text-slate-500 text-center'>Aucun devis trouvé.</p>";
-        } catch(e) { 
-            console.error(e);
-            container.innerHTML = "<p class='text-xs text-red-500 text-center'>Erreur de chargement. Vérifiez la publication du tableau.</p>"; 
-        }
-    }
-
-    async function extrairePdfDirect(idCherche) {
-        const res = await fetch(URL_CSV + "?v=" + Date.now());
-        const data = await res.text();
-        const lignes = data.split('\n');
-        for(let i=1; i<lignes.length; i++) {
-            const c = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            if(c[0]?.replace(/"/g,'').trim() === idCherche) {
-                const civilite = c[1]?.replace(/"/g,'').trim();
-                const nom = c[2]?.replace(/"/g,'').trim();
-                const prenom = c[3]?.replace(/"/g,'').trim();
-                const achatOrig = parseFloat(c[5]?.replace(/"/g,'')) || 0;
-                const portOrig = parseFloat(c[6]?.replace(/"/g,'')) || 0;
-                const adresse = c[10]?.replace(/"/g,'').trim() || "";
-                const vente = (achatOrig * 1.18).toFixed(2);
-                const total = (parseFloat(vente) + portOrig).toFixed(2);
-                document.getElementById('numDevisDisplay').innerText = idCherche;
-                document.getElementById('clientNomPdf').innerText = civilite + " " + prenom + " " + nom.toUpperCase();
-                document.getElementById('clientAdPdf').innerText = adresse;
-                document.getElementById('displayVente').innerText = vente + " €";
-                document.getElementById('displayPort').innerText = portOrig.toFixed(2) + " €";
-                document.getElementById('displayTotal').innerText = total + " €";
-                const element = document.getElementById('devis-a-imprimer');
-                html2pdf().set({ margin: 10, filename: 'DEVIS_'+idCherche+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
-                break;
+            const sep = data.includes(';') ? ';' : ',';
+            for(let i=1; i<lignes.length; i++) {
+                const c = sep === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
+                if(c[0]?.replace(/"/g,'').trim() === idCherche) {
+                    document.getElementById('civiliteClient').value = c[1]?.replace(/"/g,'').trim() || "Monsieur";
+                    document.getElementById('nomClient').value = c[2]?.replace(/"/g,'').trim();
+                    document.getElementById('prenomClient').value = c[3]?.replace(/"/g,'').trim();
+                    document.getElementById('prixAchat').value = c[5]?.replace(/"/g,'').trim() || "";
+                    document.getElementById('objetDevis').value = c[11]?.replace(/"/g,'').trim() || ""; // Récupère le nom de la pièce
+                    idDevisActuel = idCherche;
+                    document.getElementById('numDevisDisplay').innerText = idCherche;
+                    calculerDevis();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    break;
+                }
             }
         }
-    }
 
-    async function recupererCloud(idCherche) {
-        const res = await fetch(URL_CSV + "?v=" + Date.now());
-        const data = await res.text();
-        const lignes = data.split('\n');
-        for(let i=1; i<lignes.length; i++) {
-            const c = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            if(c[0]?.replace(/"/g,'').trim() === idCherche) {
-                document.getElementById('civiliteClient').value = c[1]?.replace(/"/g,'').trim() || "Monsieur";
-                document.getElementById('nomClient').value = c[2]?.replace(/"/g,'').trim();
-                document.getElementById('prenomClient').value = c[3]?.replace(/"/g,'').trim();
-                document.getElementById('prixAchat').value = c[5]?.replace(/"/g,'').trim() || "";
-                document.getElementById('adresseClient').value = c[10]?.replace(/"/g,'').trim() || "";
-                idDevisActuel = idCherche;
-                document.getElementById('numDevisDisplay').innerText = idCherche;
-                calculerDevis();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                break;
-            }
-        }
-    }
-
-    async function annulerCloud(id, nom) {
-        if(!confirm(`Masquer définitivement le devis de ${nom} du site ?`)) return;
-        const donnees = { id: id, nom: nom, statut: "ANNULÉ" };
-        try { await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); alert("Devis retiré."); location.reload(); } catch(e) { alert("Erreur"); }
-    }
-
-    function genererPDF() {
-        const element = document.getElementById('devis-a-imprimer');
-        html2pdf().set({ margin: 10, filename: 'DEVIS_'+idDevisActuel+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
-    }
-
-    function partagerWhatsApp() {
-        const msg = `*GSD*\nVotre devis n°${idDevisActuel} est prêt.\nTotal : *${document.getElementById('displayTotal').innerText}*`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    window.onload = () => { 
-        document.getElementById('numDevisDisplay').innerText = idDevisActuel; 
-        calculerDevis(); 
-        chargerCloud(); 
-    };
-</script>
+        window.onload = () => { document.getElementById('numDevisDisplay').innerText = idDevisActuel; calculerDevis(); chargerCloud(); };
+    </script>
+</body>
+</html>
