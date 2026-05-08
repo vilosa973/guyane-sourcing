@@ -21,12 +21,7 @@
         }
         #devis-a-imprimer * { color: #000000 !important; }
         #content-admin { display: none; }
-        
-        input, select {
-            background-color: #0f172a !important;
-            border: 1px solid #334155 !important;
-            color: #f8fafc !important;
-        }
+        input, select { background-color: #0f172a !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
     </style>
 </head>
 <body class="bg-gsd text-white font-sans p-4 pb-20">
@@ -60,17 +55,12 @@
                 </select>
                 <input type="text" id="nomClient" placeholder="NOM DU CLIENT" class="w-2/3 p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm uppercase" oninput="calculerDevis()">
             </div>
-
             <div class="grid grid-cols-2 gap-3">
                 <input type="text" id="prenomClient" placeholder="Prénom" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
                 <input type="email" id="emailClient" placeholder="Adresse Mail" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
             </div>
-
             <input type="text" id="adresseClient" placeholder="Lieu de livraison (Ville)" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
-            
-            <div class="flex gap-2">
-                <input type="url" id="lienPiece" placeholder="Lien de la pièce (Sourcing)..." class="flex-1 p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
-            </div>
+            <input type="url" id="lienPiece" placeholder="Lien de la pièce (Sourcing)..." class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="relative">
@@ -121,19 +111,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td style="padding: 15px; border: 1px solid #e2e8f0;">Fourniture de pièces détachées automobiles</td>
-                        <td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td>
-                        <td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td>
-                    </tr>
+                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Fourniture de pièces détachées automobiles</td><td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td></tr>
+                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td><td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td></tr>
                 </tbody>
             </table>
-            <div style="text-align: right; border-top: 5px solid #059669; padding-top: 15px;">
-                <p style="font-size: 34px; font-weight: 900; color: #059669; margin: 0;" id="displayTotal">0.00 €</p>
-            </div>
+            <div style="text-align: right; border-top: 5px solid #059669; padding-top: 15px;"><p style="font-size: 34px; font-weight: 900; color: #059669; margin: 0;" id="displayTotal">0.00 €</p></div>
         </div>
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
@@ -151,11 +133,7 @@
 
         function genererNumeroUnique() {
             const d = new Date();
-            return "GSD" + d.getFullYear().toString().substr(-2) + 
-                   (d.getMonth()+1).toString().padStart(2,'0') + 
-                   d.getDate().toString().padStart(2,'0') + "-" +
-                   d.getHours().toString().padStart(2,'0') + 
-                   d.getMinutes().toString().padStart(2,'0');
+            return "GSD" + d.getFullYear().toString().substr(-2) + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0');
         }
 
         let idDevisActuel = genererNumeroUnique();
@@ -169,7 +147,6 @@
             const adresse = document.getElementById('adresseClient').value || "";
             const vente = (achat * 1.18).toFixed(2);
             const total = (parseFloat(vente) + port).toFixed(2);
-            
             document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('clientNomPdf').innerText = civilite + " " + prenom + " " + nom.toUpperCase();
             document.getElementById('clientAdPdf').innerText = adresse;
@@ -182,82 +159,45 @@
             const btn = document.getElementById('btnEnregistrer');
             const total = document.getElementById('displayTotal').innerText;
             if(total === "30.00 €" || total === "0.00 €") return alert("Veuillez saisir un prix d'achat.");
-            
-            btn.innerText = "⏳ Envoi...";
-            btn.disabled = true;
-
-            const donnees = {
-                id: idDevisActuel,
-                civilite: document.getElementById('civiliteClient').value,
-                prenom: document.getElementById('prenomClient').value,
-                nom: document.getElementById('nomClient').value.toUpperCase(),
-                email: document.getElementById('emailClient').value,
-                adresse: document.getElementById('adresseClient').value,
-                site: document.getElementById('lienPiece').value,
-                achat: document.getElementById('prixAchat').value,
-                port: document.getElementById('fraisPort').value,
-                montant: total,
-                statut: "ACTIF",
-                date: new Date().toLocaleDateString('fr-FR')
-            };
-
-            try {
-                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Devis enregistré !");
-                setTimeout(() => location.reload(), 1000);
-            } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; }
+            btn.innerText = "⏳ Envoi..."; btn.disabled = true;
+            const donnees = { id: idDevisActuel, civilite: document.getElementById('civiliteClient').value, prenom: document.getElementById('prenomClient').value, nom: document.getElementById('nomClient').value.toUpperCase(), email: document.getElementById('emailClient').value, adresse: document.getElementById('adresseClient').value, site: document.getElementById('lienPiece').value, achat: document.getElementById('prixAchat').value, port: document.getElementById('fraisPort').value, montant: total, statut: "ACTIF", date: new Date().toLocaleDateString('fr-FR') };
+            try { await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); alert("Devis enregistré !"); setTimeout(() => location.reload(), 1000); } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; }
         }
 
         async function chargerCloud() {
             const container = document.getElementById('historique');
             container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse text-center py-4'>Synchronisation Cloud...</p>";
-            
             try {
+                // AJOUT DU TIMESTAMP (?v=) POUR FORCER LA MISE A JOUR
                 const res = await fetch(URL_CSV + "?v=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split('\n');
                 const sep = data.includes(';') ? ';' : ',';
-                const devisLignes = lignes.slice(1).filter(l => l.trim().length > 10).reverse();
-                
+                // On filtre mieux les lignes vides
+                const devisLignes = lignes.slice(1).filter(l => l.trim().split(sep).length > 3).reverse();
                 let html = "";
                 devisLignes.forEach(l => {
                     const col = sep === ',' ? l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : l.split(';');
-                    if(col.length < 5) return;
-
                     const id = col[0]?.replace(/"/g,'').trim();
                     const civilite = col[1]?.replace(/"/g,'').trim() || "";
                     const nom = col[2]?.replace(/"/g,'').trim() || "";
                     const prenom = col[3]?.replace(/"/g,'').trim() || "";
                     const statut = col[4]?.replace(/"/g,'').toUpperCase().trim() || "ACTIF";
                     const total = col[8]?.replace(/"/g,'').trim() || "0 €";
-
-                    if(statut === "ANNULÉ") return;
-
-                    html += `
-                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center text-left mb-2 shadow-lg">
-                            <div class="flex-1">
-                                <p class="text-[9px] text-slate-500 font-bold">${id} | ${statut}</p>
-                                <p class="font-black text-emerald-400 uppercase text-sm leading-none mb-1">${civilite} ${prenom} ${nom}</p>
-                                <p class="text-white font-black text-lg">${total}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="extrairePdfDirect('${id}')" title="Extraire PDF" class="bg-emerald-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90 shadow-lg">
-                                    <i class="fas fa-file-download text-white text-xs"></i>
-                                </button>
-                                <button onclick="recupererCloud('${id}')" title="Éditer" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90 shadow-lg">
-                                    <i class="fas fa-edit text-white text-xs"></i>
-                                </button>
-                                <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30 active:scale-90">
-                                    <i class="fas fa-trash text-red-500 text-xs"></i>
-                                </button>
-                            </div>
+                    if(statut === "ANNULÉ" || !id) return;
+                    html += `<div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center text-left mb-2 shadow-lg">
+                        <div class="flex-1"><p class="text-[9px] text-slate-500 font-bold">${id} | ${statut}</p>
+                        <p class="font-black text-emerald-400 uppercase text-sm leading-none mb-1">${civilite} ${prenom} ${nom}</p>
+                        <p class="text-white font-black text-lg">${total}</p></div>
+                        <div class="flex gap-2">
+                            <button onclick="extrairePdfDirect('${id}')" title="Extraire PDF" class="bg-emerald-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-file-download text-white text-xs"></i></button>
+                            <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-edit text-white text-xs"></i></button>
+                            <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30"><i class="fas fa-trash text-red-500 text-xs"></i></button>
                         </div>
-                    `;
+                    </div>`;
                 });
-                container.innerHTML = html || "<p class='text-xs text-slate-500 text-center'>Aucun devis actif.</p>";
-            } catch(e) { 
-                container.innerHTML = "<p class='text-xs text-red-500 text-center'>Erreur Cloud.</p>"; 
-            }
+                container.innerHTML = html || "<p class='text-xs text-slate-500 text-center'>Aucun devis trouvé.</p>";
+            } catch(e) { container.innerHTML = "<p class='text-xs text-red-500 text-center'>Erreur de chargement.</p>"; }
         }
 
         async function extrairePdfDirect(idCherche) {
@@ -265,37 +205,25 @@
             const data = await res.text();
             const lignes = data.split('\n');
             const sep = data.includes(';') ? ';' : ',';
-            
             for(let i=1; i<lignes.length; i++) {
                 const c = sep === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
                 if(c[0]?.replace(/"/g,'').trim() === idCherche) {
-                    
                     const civilite = c[1]?.replace(/"/g,'').trim();
                     const nom = c[2]?.replace(/"/g,'').trim();
                     const prenom = c[3]?.replace(/"/g,'').trim();
                     const achatOrig = parseFloat(c[5]?.replace(/"/g,'')) || 0;
                     const portOrig = parseFloat(c[6]?.replace(/"/g,'')) || 0;
                     const adresse = c[10]?.replace(/"/g,'').trim() || "";
-
                     const vente = (achatOrig * 1.18).toFixed(2);
                     const total = (parseFloat(vente) + portOrig).toFixed(2);
-
-                    // Mise à jour du modèle PDF invisible
                     document.getElementById('numDevisDisplay').innerText = idCherche;
                     document.getElementById('clientNomPdf').innerText = civilite + " " + prenom + " " + nom.toUpperCase();
                     document.getElementById('clientAdPdf').innerText = adresse;
                     document.getElementById('displayVente').innerText = vente + " €";
                     document.getElementById('displayPort').innerText = portOrig.toFixed(2) + " €";
                     document.getElementById('displayTotal').innerText = total + " €";
-                    
-                    // Lancer l'impression
                     const element = document.getElementById('devis-a-imprimer');
-                    html2pdf().set({ 
-                        margin: 10, 
-                        filename: 'DEVIS_'+idCherche+'.pdf', 
-                        html2canvas: { scale: 2 }, 
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-                    }).from(element).save();
+                    html2pdf().set({ margin: 10, filename: 'DEVIS_'+idCherche+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
                     break;
                 }
             }
@@ -306,7 +234,6 @@
             const data = await res.text();
             const lignes = data.split('\n');
             const sep = data.includes(';') ? ';' : ',';
-            
             for(let i=1; i<lignes.length; i++) {
                 const c = sep === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
                 if(c[0]?.replace(/"/g,'').trim() === idCherche) {
@@ -327,21 +254,12 @@
         async function annulerCloud(id, nom) {
             if(!confirm(`Masquer définitivement le devis de ${nom} du site ?`)) return;
             const donnees = { id: id, nom: nom, statut: "ANNULÉ" };
-            try {
-                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Devis retiré.");
-                location.reload();
-            } catch(e) { alert("Erreur"); }
+            try { await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); alert("Devis retiré."); location.reload(); } catch(e) { alert("Erreur"); }
         }
 
         function genererPDF() {
             const element = document.getElementById('devis-a-imprimer');
-            html2pdf().set({ 
-                margin: 10, 
-                filename: 'DEVIS_'+idDevisActuel+'.pdf', 
-                html2canvas: { scale: 2 }, 
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-            }).from(element).save();
+            html2pdf().set({ margin: 10, filename: 'DEVIS_'+idDevisActuel+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
         }
 
         function partagerWhatsApp() {
@@ -349,11 +267,7 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        window.onload = () => {
-            document.getElementById('numDevisDisplay').innerText = idDevisActuel;
-            calculerDevis();
-            chargerCloud();
-        };
+        window.onload = () => { document.getElementById('numDevisDisplay').innerText = idDevisActuel; calculerDevis(); chargerCloud(); };
     </script>
 </body>
 </html>
