@@ -43,7 +43,7 @@
     <div id="content-admin" class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
             <h1 class="text-3xl font-black text-emerald-400 uppercase tracking-tighter italic">GSD | LOGICIEL ADMIN</h1>
-            <p class="text-slate-400 text-[10px] uppercase tracking-widest">Guyane Sourcing Direct - Version Pro</p>
+            <p class="text-slate-400 text-[10px] uppercase tracking-widest text-slate-500">Réédition illimitée & Archivage Cloud</p>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700 space-y-4">
@@ -54,7 +54,7 @@
             <input type="text" id="adresseClient" placeholder="Adresse / Ville" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
             
             <div class="flex gap-2">
-                <input type="url" id="lienPiece" placeholder="Lien de la pièce..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+                <input type="url" id="lienPiece" placeholder="Lien de la pièce (Sourcing)..." class="flex-1 p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 text-sm">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -123,7 +123,7 @@
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xs font-bold text-slate-500 uppercase italic">Liste des Devis Cloud</h2>
+                <h2 class="text-xs font-bold text-slate-500 uppercase italic">Historique Cloud (Excel)</h2>
                 <button onclick="chargerCloud()" class="text-[10px] bg-emerald-600 px-3 py-1 rounded-full font-bold">ACTUALISER</button>
             </div>
             <div id="historique" class="space-y-3 mb-4 text-center"></div>
@@ -165,7 +165,7 @@
         async function enregistrerDevis() {
             const btn = document.getElementById('btnEnregistrer');
             const total = document.getElementById('displayTotal').innerText;
-            if(total === "30.00 €") return alert("Veuillez saisir un prix d'achat.");
+            if(total === "30.00 €" || total === "0.00 €") return alert("Veuillez saisir un prix d'achat.");
             
             btn.innerText = "⏳ Envoi...";
             btn.disabled = true;
@@ -185,41 +185,37 @@
 
             try {
                 await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Devis archivé !");
+                alert("Devis enregistré !");
                 setTimeout(() => location.reload(), 1000);
             } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; }
         }
 
-        // --- FONCTION DE CHARGEMENT ROBUSTE ---
         async function chargerCloud() {
             const container = document.getElementById('historique');
-            container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse'>Chargement des données...</p>";
+            container.innerHTML = "<p class='text-xs text-slate-500 animate-pulse'>Lecture du tableau...</p>";
             
             try {
-                const res = await fetch(URL_CSV + "&cache=" + Date.now());
+                // Utilisation d'un timestamp pour forcer la mise à jour
+                const res = await fetch(URL_CSV + "?v=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split('\n');
-                
-                // DETECTION DU SEPARATEUR (Gère virgule ou point-virgule)
                 const sep = data.includes(';') ? ';' : ',';
                 
-                // On retire l'entête et les lignes vides
+                // On inverse pour avoir les derniers devis en haut
                 const devisLignes = lignes.slice(1).filter(l => l.trim().length > 10).reverse();
                 
                 let html = "";
                 devisLignes.forEach(l => {
-                    // Split intelligent pour les CSV (gère les guillemets)
                     const col = sep === ',' ? l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : l.split(';');
-                    
                     if(col.length < 5) return;
 
-                    // INDEX SELON TON TABLEAU : A=0(ID), B=1(Prenom), C=2(Nom), D=3(Statut), H=7(Total)
                     const id = col[0]?.replace(/"/g,'').trim();
                     const prenom = col[1]?.replace(/"/g,'').trim() || "";
                     const nom = col[2]?.replace(/"/g,'').trim() || "";
                     const statut = col[3]?.replace(/"/g,'').toUpperCase().trim() || "ACTIF";
                     const total = col[7]?.replace(/"/g,'').trim() || "0 €";
 
+                    // FILTRE : On n'affiche pas les devis annulés sur le site
                     if(statut === "ANNULÉ") return;
 
                     html += `
@@ -230,24 +226,24 @@
                                 <p class="text-white font-black text-lg">${total}</p>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="recupererCloud('${id}')" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90 shadow-lg">
+                                <button onclick="recupererCloud('${id}')" title="Rééditer" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center active:scale-90 shadow-lg">
                                     <i class="fas fa-edit text-white text-xs"></i>
                                 </button>
-                                <button onclick="annulerCloud('${id}', '${nom}')" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30 active:scale-90">
+                                <button onclick="annulerCloud('${id}', '${nom}')" title="Annuler" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30 active:scale-90">
                                     <i class="fas fa-trash text-red-500 text-xs"></i>
                                 </button>
                             </div>
                         </div>
                     `;
                 });
-                container.innerHTML = html || "<p class='text-xs text-slate-500'>Aucun devis actif dans le tableau.</p>";
+                container.innerHTML = html || "<p class='text-xs text-slate-500'>Aucun devis actif trouvé.</p>";
             } catch(e) { 
-                container.innerHTML = "<p class='text-xs text-red-500'>Erreur de connexion au Cloud. Vérifiez le partage de l'Excel.</p>"; 
+                container.innerHTML = "<p class='text-xs text-red-500'>Erreur de connexion au Cloud.</p>"; 
             }
         }
 
         async function recupererCloud(idCherche) {
-            const res = await fetch(URL_CSV);
+            const res = await fetch(URL_CSV + "?v=" + Date.now());
             const data = await res.text();
             const lignes = data.split('\n');
             const sep = data.includes(';') ? ';' : ',';
@@ -255,15 +251,19 @@
             for(let i=1; i<lignes.length; i++) {
                 const c = sep === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
                 if(c[0]?.replace(/"/g,'').trim() === idCherche) {
+                    
+                    // ON REMPLIT LES CHAMPS POUR RÉÉDITION
                     document.getElementById('prenomClient').value = c[1]?.replace(/"/g,'').trim();
                     document.getElementById('nomClient').value = c[2]?.replace(/"/g,'').trim();
                     document.getElementById('prixAchat').value = c[4]?.replace(/"/g,'').trim();
                     document.getElementById('fraisPort').value = c[5]?.replace(/"/g,'').trim();
-                    document.getElementById('adresseClient').value = c[8]?.replace(/"/g,'').trim();
-                    document.getElementById('lienPiece').value = c[9]?.replace(/"/g,'').trim();
+                    document.getElementById('adresseClient').value = c[8]?.replace(/"/g,'').trim() || "";
+                    document.getElementById('lienPiece').value = c[9]?.replace(/"/g,'').trim() || "";
                     
+                    // On conserve l'ID d'origine pour que le PDF garde le même numéro
                     idDevisActuel = idCherche;
                     document.getElementById('numDevisDisplay').innerText = idCherche;
+                    
                     calculerDevis();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     break;
@@ -272,13 +272,13 @@
         }
 
         async function annulerCloud(id, nom) {
-            if(!confirm(`Annuler le devis de ${nom} ?`)) return;
+            if(!confirm(`Annuler le devis de ${nom} ?\n(Il sera masqué du site mais conservé dans l'Excel)`)) return;
             const donnees = { id: id, nom: nom, statut: "ANNULÉ", montant: "0 €" };
             try {
                 await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-                alert("Annulé !");
+                alert("Annulation enregistrée.");
                 location.reload();
-            } catch(e) { alert("Erreur"); }
+            } catch(e) { alert("Erreur lors de l'annulation."); }
         }
 
         function genererPDF() {
