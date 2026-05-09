@@ -7,15 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
+        body {
+            background-image: url('Font_Premium.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #1a1a1a;
+        }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
-        section { backdrop-filter: blur(12px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
-        input { background-color: rgba(255, 255, 255, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: #000 !important; font-weight: 700; }
+        section {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        input, textarea, select {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: #000 !important;
+            font-weight: 700;
+        }
+        input::placeholder, textarea::placeholder { color: #374151; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900">
 
     <div class="content-overlay flex flex-col">
+        
         <header class="bg-white/95 p-4 text-center border-b-4 border-green-600 shadow-md sticky top-0 z-50">
             <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-16 mx-auto">
             <p class="text-green-700 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Sourcing • Logistique • Guyane</p>
@@ -34,22 +53,22 @@
                         <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE" class="w-full p-4 rounded-2xl outline-none focus:border-blue-700">
                     </div>
 
-                    <button onclick="rechercheIA()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
+                    <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
                         <i class="fas fa-search"></i> Identifier mon véhicule
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/95 border-2 border-blue-500 shadow-inner">
                         <div id="ai-loading" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin text-blue-700 text-2xl"></i>
-                            <p class="font-bold text-sm mt-2 italic">Recherche technique...</p>
+                            <p class="font-bold text-sm mt-2 italic">Analyse technique...</p>
                         </div>
                         
                         <div id="ai-content" class="hidden">
                             <div class="mb-4 p-4 bg-white rounded-xl border-l-8 border-blue-700 text-left">
-                                <p class="text-[10px] font-black text-blue-700 uppercase mb-1 tracking-widest font-bold">Fiche Technique</p>
-                                <p id="ai-modele-long" class="text-lg font-black text-slate-900 leading-tight uppercase"></p>
+                                <p class="text-[10px] font-black text-blue-700 uppercase mb-1 tracking-widest font-bold">Détails Véhicule</p>
+                                <p id="ai-modele-long" class="text-lg font-black text-slate-900 leading-tight uppercase font-bold"></p>
                                 <p id="ai-moteur-details" class="text-xs font-bold text-slate-600 mt-1"></p>
-                                <p class="text-[9px] text-red-600 mt-2 font-bold uppercase">⚠️ Si le modèle est faux, tapez 'Chevrolet Cruze' (par exemple) dans le champ Plaque.</p>
+                                <p class="text-[9px] text-red-600 mt-2 font-bold uppercase italic">⚠️ Si le modèle est faux, tapez directement votre modèle (ex: Chevrolet Cruze) ci-dessus.</p>
                             </div>
 
                             <img id="ai-photo" src="" alt="Pièce" class="w-full h-48 object-contain rounded-xl mb-4 bg-white shadow-md">
@@ -64,13 +83,26 @@
                     </div>
                 </div>
             </section>
+
+            <form id="hidden-form" action="https://formspree.io/f/meenjkyj" method="POST" class="hidden">
+                <input type="hidden" name="details_ia" id="final-besoin">
+            </form>
+
+            <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform">
+                <i class="fab fa-whatsapp text-4xl"></i>
+                <span class="text-xl uppercase tracking-tighter text-center">Assistance WhatsApp Direct</span>
+            </a>
         </div>
+
+        <footer class="bg-white/80 p-8 text-center mt-10 text-slate-500 text-[10px] uppercase font-bold tracking-[0.3em]">
+            © 2026 Guyane Sourcing Direct | VILOSA
+        </footer>
     </div>
 
     <script>
-        const p1 = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV";
-        const p2 = "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
-        const OPENAI_API_KEY = p1 + p2;
+        const partA = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV";
+        const partB = "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
+        const OPENAI_API_KEY = partA + partB;
 
         async function rechercheIA() {
             const immat = document.getElementById('ai-immat').value;
@@ -94,9 +126,9 @@
                         messages: [
                             { 
                                 role: "system", 
-                                content: "Tu es l'expert technique GSD. Identifie le véhicule précisément. SI TU HÉSITES SUR LA PLAQUE, utilise les modèles les plus courants ou base-toi sur le nom si fourni. RÉGIME DE PRIX : Donne des prix d'achat grossiste Europe réalistes. Un pneu standard coûte entre 40€ et 150€. Ne dépasse JAMAIS 1000€ pour une pièce d'usure. Réponds en JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'MOTEUR CV ESS/DIE', 'prix_achat': 100, 'url_photo': 'lien'}" 
+                                content: "Tu es l'expert technique GSD. Identifie le véhicule (Plaque ou Modèle). Donne le modèle précis et la motorisation détaillée. Pour les prix : donne le prix d'achat grossiste Europe. IMPORTANT : Si la pièce est standard (pneu, filtre, frein), le prix d'achat doit être réaliste (ex: 40€-150€). Ne dépasse jamais 1000€ pour un consommable. Réponds en JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'MOTEUR CV ENERGIE', 'prix_achat': 100, 'url_photo': 'lien'}" 
                             },
-                            { role: "user", content: `Plaque ou Modèle : ${immat}. Pièce : ${piece}` }
+                            { role: "user", content: `Véhicule : ${immat}. Pièce : ${piece}` }
                         ],
                         response_format: { type: "json_object" }
                     })
@@ -105,28 +137,28 @@
                 const data = await response.json();
                 const res = JSON.parse(data.choices[0].message.content);
 
-                // --- SÉCURITÉ PRIX (Anti-Délire) ---
+                // --- SÉCURITÉ PRIX ANTI-DÉLIRE ---
                 let prixAchat = parseFloat(res.prix_achat);
                 if (prixAchat > 1500 && !piece.toLowerCase().includes('moteur')) {
-                    prixAchat = 120; // On remet un prix logique si l'IA craque
+                    prixAchat = 120; // Correction automatique vers un prix logique
                 }
 
                 const prixFinal = (prixAchat * 1.20) + 45;
 
                 document.getElementById('ai-modele-long').innerText = res.modele_long;
-                document.getElementById('ai-moteur-details').innerText = "⚙️ MOTORISATION : " + res.motorisation;
+                document.getElementById('ai-moteur-details').innerText = "⚙️ " + res.motorisation;
                 document.getElementById('ai-photo').src = res.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
-                document.getElementById('ai-piece-nom').innerText = "VOTRE PIÈCE : " + piece;
+                document.getElementById('ai-piece-nom').innerText = "PIÈCE : " + piece;
                 document.getElementById('ai-prix-final').innerText = prixFinal.toFixed(2) + " €";
                 
                 document.getElementById('btn-paiement-direct').onclick = function() {
-                    window.location.href = "https://buy.stripe.com/votre_lien";
+                    window.location.href = `https://buy.stripe.com/votre_lien_gsd?amount=${prixFinal*100}`;
                 };
 
                 loadingZone.classList.add('hidden');
                 contentZone.classList.remove('hidden');
             } catch (e) {
-                alert("L'IA est perdue. Tapez directement 'Chevrolet Cruze' dans le champ Plaque.");
+                alert("L'IA est perdue. Précisez le modèle manuellement.");
                 resultZone.classList.add('hidden');
             }
         }
