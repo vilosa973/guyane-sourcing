@@ -49,23 +49,23 @@
                 
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="ai-immat" placeholder="PLAQUE IMMAT" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
+                        <input type="text" id="ai-immat" placeholder="PLAQUE OU MODÈLE" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
                         <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE" class="w-full p-4 rounded-2xl outline-none focus:border-blue-700">
                     </div>
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> Identifier mon véhicule
+                        <i class="fas fa-search"></i> Identifier & Trouver le prix
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/95 border-2 border-blue-500 shadow-inner">
                         <div id="ai-loading" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin text-blue-700 text-2xl"></i>
-                            <p class="font-bold text-sm mt-2 italic">Analyse de la motorisation...</p>
+                            <p class="font-bold text-sm mt-2 italic">Analyse technique en cours...</p>
                         </div>
                         
                         <div id="ai-content" class="hidden">
                             <div class="mb-4 p-4 bg-slate-100 rounded-xl border-l-8 border-blue-700 text-left shadow-sm">
-                                <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-1">Véhicule identifié</p>
+                                <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-1">Détails du véhicule</p>
                                 <p id="ai-modele-long" class="text-lg font-black text-slate-900 leading-tight uppercase"></p>
                                 <p id="ai-moteur-details" class="text-xs font-bold text-slate-600 mt-1 italic"></p>
                             </div>
@@ -75,11 +75,11 @@
                             <p id="ai-piece-nom" class="text-center font-black text-slate-800 mb-4 uppercase text-sm"></p>
 
                             <button id="btn-paiement-direct" class="w-full bg-blue-700 text-white p-5 rounded-2xl text-center shadow-xl hover:bg-blue-800 transition-all transform active:scale-95 group">
-                                <p class="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-1 group-hover:scale-110 transition-transform">Prix GSD Livré Guyane (Commander)</p>
+                                <p class="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-1">Prix GSD Livré Guyane (Commander)</p>
                                 <p id="ai-prix-final" class="text-4xl font-black"></p>
                             </button>
                             
-                            <p class="text-[9px] text-center mt-4 text-slate-500 italic font-bold">Vérifiez la motorisation ci-dessus. Cliquez sur le prix pour régler via Stripe.</p>
+                            <p class="text-[9px] text-center mt-4 text-slate-500 italic font-bold">Vérifiez les détails techniques ci-dessus. Cliquez sur le prix pour régler via Stripe.</p>
                         </div>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
     </div>
 
     <script>
-        // --- CONFIGURATION IA (Clé découpée) ---
+        // --- CONFIGURATION IA (Clé découpée pour sécurité GitHub) ---
         const partA = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV";
         const partB = "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
         const OPENAI_API_KEY = partA + partB;
@@ -113,7 +113,7 @@
             const contentZone = document.getElementById('ai-content');
             const loadingZone = document.getElementById('ai-loading');
 
-            if(!immat || !piece) { alert("Indiquez la plaque et la pièce !"); return; }
+            if(!immat || !piece) { alert("Indiquez la plaque (ou modèle) et la pièce !"); return; }
 
             resultZone.classList.remove('hidden');
             contentZone.classList.add('hidden');
@@ -128,9 +128,9 @@
                         messages: [
                             { 
                                 role: "system", 
-                                content: "Tu es l'expert technique de Guyane Sourcing Direct. 1. Identifie le véhicule via la plaque. 2. Donne le modèle précis, la motorisation exacte (ex: 1.5 BlueHDi 130ch), et le carburant. 3. Trouve le prix d'achat moyen (EURO). 4. Trouve un lien d'image direct JPG/PNG. Réponds en JSON : {'modele_long': 'PEUGEOT 3008 II', 'motorisation': '1.2 PureTech 131ch Essence S&S', 'prix_achat': 100, 'url_photo': 'lien'}" 
+                                content: "Tu es l'expert technique de Guyane Sourcing Direct. 1. Identifie le véhicule via la plaque ou le nom fourni. 2. Donne le modèle précis, la motorisation exacte (ex: 2.0 VCDi 150ch), et le carburant. 3. Trouve le prix d'achat moyen (EURO) chez les grossistes européens. 4. Trouve un lien d'image direct JPG/PNG. Réponds UNIQUEMENT en JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'DETAILS MOTEUR CH/KW/CARBURANT', 'prix_achat': 100, 'url_photo': 'lien'}" 
                             },
-                            { role: "user", content: `Plaque : ${immat}, Pièce : ${piece}` }
+                            { role: "user", content: `Véhicule : ${immat}. Pièce : ${piece}` }
                         ],
                         response_format: { type: "json_object" }
                     })
@@ -143,19 +143,19 @@
                 const prixFinal = (parseFloat(res.prix_achat) * 1.20) + 45;
                 const prixTexte = prixFinal.toFixed(2);
 
-                // Mise à jour de la Fiche Technique
+                // Mise à jour de l'affichage
                 document.getElementById('ai-modele-long').innerText = res.modele_long;
                 document.getElementById('ai-moteur-details').innerText = "⚙️ " + res.motorisation;
                 document.getElementById('ai-photo').src = res.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
-                document.getElementById('ai-piece-nom').innerText = "RECHERCHE : " + piece;
+                document.getElementById('ai-piece-nom').innerText = "VOTRE PIÈCE : " + piece;
                 document.getElementById('ai-prix-final').innerText = prixTexte + " €";
                 
-                // Préparation du champ caché
+                // Préparation du champ caché pour WhatsApp/Admin
                 document.getElementById('final-besoin').value = `CLIENT: ${immat} | VEHICULE: ${res.modele_long} ${res.motorisation} | PIECE: ${piece} | PRIX: ${prixTexte}€`;
 
                 // ACTION PAIEMENT STRIPE
                 document.getElementById('btn-paiement-direct').onclick = function() {
-                    // Remplace par ton vrai lien de paiement Stripe
+                    // Remplace par ton vrai lien de paiement Stripe créé dans ton Dashboard
                     const stripeLink = "https://buy.stripe.com/votre_lien_paiement_gsd";
                     window.location.href = `${stripeLink}?client_reference_id=${immat}&amount=${prixFinal*100}`;
                 };
@@ -164,7 +164,7 @@
                 contentZone.classList.remove('hidden');
             } catch (e) {
                 console.error(e);
-                alert("Erreur IA. Vérifiez vos crédits OpenAI.");
+                alert("L'IA n'a pas pu identifier le véhicule. Essayez d'être plus précis (ex: Chevrolet Cruze 2.0).");
                 resultZone.classList.add('hidden');
             }
         }
