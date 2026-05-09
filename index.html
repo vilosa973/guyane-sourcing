@@ -22,11 +22,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
-        section:hover {
-            transform: translateY(-3px);
-            background-color: rgba(255, 255, 255, 0.5) !important;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
-        }
         input, textarea, select {
             background-color: rgba(255, 255, 255, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -34,7 +29,6 @@
             font-weight: 700;
         }
         input::placeholder, textarea::placeholder { color: #374151; }
-        .animate-pulse-once { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 1; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900">
@@ -60,83 +54,42 @@
                     </div>
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> Identifier & Trouver le prix
+                        <i class="fas fa-search"></i> Identifier mon véhicule
                     </button>
 
-                    <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/90 border-2 border-blue-500">
+                    <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/95 border-2 border-blue-500 shadow-inner">
                         <div id="ai-loading" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin text-blue-700 text-2xl"></i>
-                            <p class="font-bold text-sm mt-2 italic">Identification du véhicule...</p>
+                            <p class="font-bold text-sm mt-2 italic">Analyse de la motorisation...</p>
                         </div>
                         
                         <div id="ai-content" class="hidden">
-                            <div class="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-200 text-center">
-                                <p id="ai-vehicule-detecte" class="text-blue-800 font-black uppercase text-xs tracking-tighter"></p>
+                            <div class="mb-4 p-4 bg-slate-100 rounded-xl border-l-8 border-blue-700 text-left shadow-sm">
+                                <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-1">Véhicule identifié</p>
+                                <p id="ai-modele-long" class="text-lg font-black text-slate-900 leading-tight uppercase"></p>
+                                <p id="ai-moteur-details" class="text-xs font-bold text-slate-600 mt-1 italic"></p>
                             </div>
 
-                            <img id="ai-photo" src="" alt="Pièce" class="w-full h-48 object-contain rounded-xl mb-4 bg-white shadow-inner">
-                            <p id="ai-description" class="text-sm font-bold text-slate-700 mb-4 text-center"></p>
+                            <img id="ai-photo" src="" alt="Pièce" class="w-full h-48 object-contain rounded-xl mb-4 bg-white shadow-md border-4 border-white">
                             
-                            <button id="btn-paiement-direct" class="w-full bg-blue-700 text-white p-4 rounded-xl text-center shadow-lg hover:bg-blue-800 transition-all transform active:scale-95 group">
-                                <p class="text-[10px] uppercase font-bold tracking-widest group-hover:hidden">Prix GSD Livré Guyane</p>
-                                <p class="text-[10px] uppercase font-bold tracking-widest hidden group-hover:block italic">Ajouter au panier / Régler</p>
+                            <p id="ai-piece-nom" class="text-center font-black text-slate-800 mb-4 uppercase text-sm"></p>
+
+                            <button id="btn-paiement-direct" class="w-full bg-blue-700 text-white p-5 rounded-2xl text-center shadow-xl hover:bg-blue-800 transition-all transform active:scale-95 group">
+                                <p class="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-1 group-hover:scale-110 transition-transform">Prix GSD Livré Guyane (Commander)</p>
                                 <p id="ai-prix-final" class="text-4xl font-black"></p>
                             </button>
                             
-                            <p class="text-[9px] text-center mt-3 text-slate-500 italic font-bold">Cliquez sur le prix pour commander immédiatement.</p>
+                            <p class="text-[9px] text-center mt-4 text-slate-500 italic font-bold">Vérifiez la motorisation ci-dessus. Cliquez sur le prix pour régler via Stripe.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center border-b-2 border-green-600 pb-2">
-                    <i class="fas fa-file-invoice-dollar mr-3 text-green-600"></i> Finaliser manuellement
-                </h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <div class="flex gap-2">
-                        <select name="civilite" required class="w-1/3 p-4 rounded-2xl outline-none">
-                            <option value="" disabled selected>Civilité</option>
-                            <option value="Monsieur">Monsieur</option>
-                            <option value="Madame">Madame</option>
-                        </select>
-                        <input type="text" name="nom" placeholder="Nom complet" required class="w-2/3 p-4 rounded-2xl outline-none">
-                    </div>
-                    <input type="email" name="email" placeholder="Votre Adresse Mail" required class="w-full p-4 rounded-2xl outline-none">
-                    <input type="text" name="lieu_livraison" placeholder="Lieu de livraison" required class="w-full p-4 rounded-2xl outline-none">
-                    <textarea name="besoin" id="final-besoin" placeholder="Détaillez votre besoin ici..." rows="2" required class="w-full p-4 rounded-2xl outline-none"></textarea>
-                    
-                    <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black uppercase shadow-lg hover:bg-green-700 transition-all">
-                        Envoyer la demande
-                    </button>
-                </form>
-            </section>
+            <form id="hidden-form" action="https://formspree.io/f/meenjkyj" method="POST" class="hidden">
+                <input type="hidden" name="details_ia" id="final-besoin">
+            </form>
 
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
-                    <i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client Sécurisé
-                </h2>
-                <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none focus:border-orange-500">
-                    <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none focus:border-orange-500">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
-                            <i class="fas fa-search text-xl"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="resultat" class="hidden mt-6 animate-in fade-in duration-500">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl">
-                        <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
-                        <div class="my-4 py-4 border-y border-slate-800">
-                            <p id="montantDisplay" class="text-5xl font-black text-white"></p>
-                        </div>
-                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner tracking-widest"></div>
-                    </div>
-                </div>
-            </section>
-
-            <a id="whatsapp-link" href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform">
+            <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform">
                 <i class="fab fa-whatsapp text-4xl"></i>
                 <span class="text-xl uppercase tracking-tighter text-center">Assistance WhatsApp Direct</span>
             </a>
@@ -148,7 +101,7 @@
     </div>
 
     <script>
-        // --- CONFIGURATION IA ---
+        // --- CONFIGURATION IA (Clé découpée) ---
         const partA = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV";
         const partB = "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
         const OPENAI_API_KEY = partA + partB;
@@ -175,7 +128,7 @@
                         messages: [
                             { 
                                 role: "system", 
-                                content: "Tu es l'expert de Guyane Sourcing Direct. 1. Identifie précisément le véhicule via la plaque immatriculation française fournie. 2. Trouve le prix d'achat moyen (EURO) en Europe. POUR L'IMAGE : trouve un lien public direct (Unsplash ou Wikimedia) d'une image JPG/PNG de la pièce. Réponds UNIQUEMENT en JSON : {'vehicule_detecte': 'Marque Modèle Année', 'prix_achat': 100, 'description_courte': 'Nom technique', 'url_photo': 'lien_image'}" 
+                                content: "Tu es l'expert technique de Guyane Sourcing Direct. 1. Identifie le véhicule via la plaque. 2. Donne le modèle précis, la motorisation exacte (ex: 1.5 BlueHDi 130ch), et le carburant. 3. Trouve le prix d'achat moyen (EURO). 4. Trouve un lien d'image direct JPG/PNG. Réponds en JSON : {'modele_long': 'PEUGEOT 3008 II', 'motorisation': '1.2 PureTech 131ch Essence S&S', 'prix_achat': 100, 'url_photo': 'lien'}" 
                             },
                             { role: "user", content: `Plaque : ${immat}, Pièce : ${piece}` }
                         ],
@@ -184,62 +137,36 @@
                 });
 
                 const data = await response.json();
-                const reponseIA = JSON.parse(data.choices[0].message.content);
+                const res = JSON.parse(data.choices[0].message.content);
 
-                // --- CALCUL GSD (+20% MARGE + 45€ PORT) ---
-                const prixFinal = (parseFloat(reponseIA.prix_achat) * 1.20) + 45;
-                const prixAffichage = prixFinal.toFixed(2);
+                // --- CALCUL GSD (MARGE 20% + TRANSPORT 45€) ---
+                const prixFinal = (parseFloat(res.prix_achat) * 1.20) + 45;
+                const prixTexte = prixFinal.toFixed(2);
 
-                document.getElementById('ai-vehicule-detecte').innerText = `🚗 Véhicule identifié : ${reponseIA.vehicule_detecte}`;
-                document.getElementById('ai-photo').src = reponseIA.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
-                document.getElementById('ai-description').innerText = reponseIA.description_courte;
-                document.getElementById('ai-prix-final').innerText = prixAffichage + " €";
+                // Mise à jour de la Fiche Technique
+                document.getElementById('ai-modele-long').innerText = res.modele_long;
+                document.getElementById('ai-moteur-details').innerText = "⚙️ " + res.motorisation;
+                document.getElementById('ai-photo').src = res.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
+                document.getElementById('ai-piece-nom').innerText = "RECHERCHE : " + piece;
+                document.getElementById('ai-prix-final').innerText = prixTexte + " €";
                 
-                // Remplissage auto
-                document.getElementById('final-besoin').value = `Commande pour : ${reponseIA.description_courte} (${reponseIA.vehicule_detecte} - ${immat}). Prix : ${prixAffichage}€`;
+                // Préparation du champ caché
+                document.getElementById('final-besoin').value = `CLIENT: ${immat} | VEHICULE: ${res.modele_long} ${res.motorisation} | PIECE: ${piece} | PRIX: ${prixTexte}€`;
 
-                // ACTION PAIEMENT STRIPE (Lien générique à adapter)
+                // ACTION PAIEMENT STRIPE
                 document.getElementById('btn-paiement-direct').onclick = function() {
-                    alert("Redirection vers la passerelle sécurisée Stripe pour le montant de " + prixAffichage + "€");
-                    window.location.href = `https://buy.stripe.com/votre_lien_paiement_gsd?client_reference_id=${immat}&amount=${prixAffichage*100}`;
+                    // Remplace par ton vrai lien de paiement Stripe
+                    const stripeLink = "https://buy.stripe.com/votre_lien_paiement_gsd";
+                    window.location.href = `${stripeLink}?client_reference_id=${immat}&amount=${prixFinal*100}`;
                 };
 
                 loadingZone.classList.add('hidden');
                 contentZone.classList.remove('hidden');
             } catch (e) {
                 console.error(e);
-                alert("Erreur. Vérifiez vos crédits ou la validité de la plaque.");
+                alert("Erreur IA. Vérifiez vos crédits OpenAI.");
                 resultZone.classList.add('hidden');
             }
-        }
-
-        // RECHERCHE CSV CLASSIQUE
-        const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
-        async function chercherDossier() {
-            const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
-            const res = document.getElementById('resultat');
-            if(!nomSaisi || !idSaisi) return;
-            try {
-                const response = await fetch(urlCSV);
-                const data = await response.text();
-                const lignes = data.split('\n');
-                let trouve = false;
-                for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(col[0]?.replace(/"/g, '').trim().toUpperCase() === idSaisi && col[2]?.replace(/"/g, '').trim().toUpperCase() === nomSaisi) {
-                        trouve = true;
-                        res.classList.remove('hidden');
-                        document.getElementById('nomClientDisplay').innerText = col[1]?.replace(/"/g, '').trim() + " " + col[2]?.replace(/"/g, '').trim();
-                        document.getElementById('montantDisplay').innerText = col[7]?.replace(/"/g, '').trim() + " €";
-                        const s = document.getElementById('statut');
-                        s.innerText = col[3]?.replace(/"/g, '').trim();
-                        s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
-                        break;
-                    }
-                }
-                if (!trouve) alert("Dossier introuvable.");
-            } catch (e) { alert("Erreur réseau."); }
         }
     </script>
 </body>
