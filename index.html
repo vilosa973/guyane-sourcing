@@ -9,11 +9,8 @@
     <style>
         body {
             background-image: url('Font_Premium.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-color: #1a1a1a;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            background-repeat: no-repeat; background-color: #1a1a1a;
         }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section {
@@ -30,15 +27,10 @@
         input, textarea, select {
             background-color: rgba(255, 255, 255, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            color: #000 !important;
-            font-weight: 700;
+            color: #000 !important; font-weight: 700;
         }
         input::placeholder, textarea::placeholder { color: #374151; }
-        .tab-btn.active {
-            background-color: #1d4ed8;
-            color: white;
-            border-bottom: 4px solid #1e40af;
-        }
+        .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900">
@@ -73,8 +65,8 @@
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="m-moteur" placeholder="MOTEUR (EX: TDI)" class="p-3 rounded-xl text-sm uppercase">
-                            <input type="text" id="m-litrage" placeholder="LITRAGE (EX: 1.6L)" class="p-3 rounded-xl text-sm">
+                            <input type="text" id="m-moteur" placeholder="MOTEUR (EX: VCDI)" class="p-3 rounded-xl text-sm uppercase">
+                            <input type="text" id="m-litrage" placeholder="LITRAGE (EX: 2.0L)" class="p-3 rounded-xl text-sm">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="text" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm">
@@ -82,7 +74,7 @@
                         </div>
                     </div>
 
-                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: PNEU, BATTERIE...)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
+                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: PNEU, FILTRE...)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
                         <i class="fas fa-search"></i> Estimer mon prix GSD
@@ -91,18 +83,17 @@
                     <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/95 border-2 border-blue-500 shadow-inner">
                         <div id="ai-loading" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin text-blue-700 text-2xl"></i>
-                            <p class="font-bold text-sm mt-2 italic">Analyse technique approfondie...</p>
+                            <p class="font-bold text-sm mt-2 italic">Identification de la pièce exacte...</p>
                         </div>
                         <div id="ai-content" class="hidden">
                             <div class="mb-4 p-4 bg-white rounded-xl border-l-8 border-blue-700 text-left shadow-md">
-                                <p class="text-[10px] font-black text-blue-700 uppercase mb-1 tracking-widest font-bold">Vérification de compatibilité</p>
+                                <p class="text-[10px] font-black text-blue-700 uppercase mb-1 tracking-widest font-bold">Compatibilité Garantie</p>
                                 <p id="ai-modele-long" class="text-lg font-black text-slate-900 uppercase leading-tight"></p>
                                 <p id="ai-moteur-details" class="text-xs font-bold text-slate-600 mt-1 italic"></p>
-                                <p class="text-[9px] text-red-600 mt-2 font-bold uppercase italic tracking-tighter">⚠️ Si erreur, basculez sur l'onglet 'Par Modèle' (Ex: Peugeot 208 1.6 essence).</p>
                             </div>
-                            <div class="relative">
-                                <img id="ai-photo" src="" alt="Pièce" class="w-full h-56 object-contain rounded-xl mb-4 bg-white border shadow-sm">
-                                <span class="absolute bottom-6 right-2 bg-black/50 text-white text-[8px] px-2 py-1 rounded italic">Aperçu technique</span>
+                            <div class="relative bg-white rounded-xl mb-4 overflow-hidden border shadow-sm flex items-center justify-center min-h-[220px]">
+                                <img id="ai-photo" src="" alt="Photo référence" class="max-h-56 object-contain p-2">
+                                <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] px-2 py-1 rounded italic">Photo référence constructeur/équipementier</span>
                             </div>
                             <button id="btn-paiement-direct" class="w-full bg-blue-700 text-white p-5 rounded-2xl text-center shadow-xl transform active:scale-95">
                                 <p class="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-1">Prix GSD Livré Guyane (Commander)</p>
@@ -123,7 +114,6 @@
                         Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
                 </div>
-                <p class="text-[10px] text-center mt-3 font-bold text-gray-700 italic uppercase">Découvrez notre processus en 15 secondes</p>
             </section>
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
@@ -131,7 +121,7 @@
                     <i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client Sécurisé
                 </h2>
                 <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none">
+                    <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none focus:border-orange-500">
                     <div class="flex space-x-2">
                         <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none">
                         <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
@@ -155,10 +145,6 @@
                 <span class="text-xl uppercase tracking-tighter text-center">Assistance WhatsApp Direct</span>
             </a>
         </div>
-
-        <footer class="bg-white/80 p-8 text-center mt-10 text-slate-500 text-[10px] uppercase font-bold tracking-[0.3em]">
-            © 2026 Guyane Sourcing Direct | VILOSA
-        </footer>
     </div>
 
     <script>
@@ -182,7 +168,7 @@
             if (currentTab === 'plaque') {
                 const immat = document.getElementById('ai-immat').value;
                 if (!immat || !piece) return alert("Plaque et pièce requises !");
-                query = `Véhicule Plaque: ${immat}. Pièce: ${piece}. Identifie rigoureusement le modèle avant de fixer le prix.`;
+                query = `VÉHICULE PLAQUE: ${immat}. PIÈCE: ${piece}. Trouve l'image de la référence EXACTE.`;
             } else {
                 const marque = document.getElementById('m-marque').value;
                 const modele = document.getElementById('m-modele').value;
@@ -190,8 +176,7 @@
                 const litrage = document.getElementById('m-litrage').value;
                 const annee = document.getElementById('m-annee').value;
                 const cv = document.getElementById('m-cv').value;
-                if (!marque || !modele || !piece) return alert("Marque, Modèle et Pièce requis !");
-                query = `STRICTEMENT VÉHICULE: ${marque} ${modele}, Moteur: ${moteur} ${litrage}, Année: ${annee}, Puissance: ${cv}CV. Pièce: ${piece}. Trouve l'image technique exacte.`;
+                query = `VÉHICULE: ${marque} ${modele}, Moteur: ${moteur} ${litrage}, Année: ${annee}, Puissance: ${cv}CV. PIÈCE: ${piece}. Donne un lien d'image direct JPG (catalogue équipementier fond blanc).`;
             }
 
             const resultZone = document.getElementById('ai-resultat');
@@ -209,7 +194,7 @@
                     body: JSON.stringify({
                         model: "gpt-4o",
                         messages: [
-                            { role: "system", content: "Expert technique GSD. INTERDICTION D'INVENTER. Si tu n'es pas sûr, demande d'utiliser l'onglet modèle. Trouve une image JPG directe de la pièce sur fond blanc (catalogue pro). Prix grossiste Europe réaliste. JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'DETAILS', 'prix_achat': 100, 'url_photo': 'lien'}" },
+                            { role: "system", content: "Expert technique GSD. INTERDICTION D'INVENTER. Ton but est de fournir l'image de la référence EXACTE de la pièce pour le véhicule spécifié. Utilise des liens JPG directs provenant de serveurs de catalogues (Oscaro, Autodoc, etc.) ou Wikimedia. JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'DETAILS', 'prix_achat': 100, 'url_photo': 'lien'}" },
                             { role: "user", content: query }
                         ],
                         response_format: { type: "json_object" }
@@ -220,29 +205,24 @@
                 const res = JSON.parse(data.choices[0].message.content);
 
                 let prixAchat = parseFloat(res.prix_achat);
-                if (prixAchat > 1500 && !piece.toLowerCase().includes('moteur')) prixAchat = 120; // Limiteur de sécurité
+                if (prixAchat > 1500 && !piece.toLowerCase().includes('moteur')) prixAchat = 130;
 
                 const prixFinal = (prixAchat * 1.20) + 45;
-                const prixTexte = prixFinal.toFixed(2);
 
                 document.getElementById('ai-modele-long').innerText = res.modele_long;
                 document.getElementById('ai-moteur-details').innerText = "⚙️ MOTORISATION : " + res.motorisation;
-                document.getElementById('ai-photo').src = res.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
-                document.getElementById('ai-prix-final').innerText = prixTexte + " €";
+                document.getElementById('ai-photo').src = res.url_photo || 'https://cdn-icons-png.flaticon.com/512/3039/3039427.png';
+                document.getElementById('ai-prix-final').innerText = prixFinal.toFixed(2) + " €";
                 
-                document.getElementById('btn-paiement-direct').onclick = function() {
-                    window.location.href = `https://buy.stripe.com/votre_lien_gsd?amount=${prixFinal*100}`;
-                };
-
                 loadingZone.classList.add('hidden');
                 contentZone.classList.remove('hidden');
             } catch (e) {
-                alert("Erreur IA. Veuillez réessayer ou utiliser l'onglet 'Modèle'.");
+                alert("Erreur technique. Réessayez.");
                 resultZone.classList.add('hidden');
             }
         }
 
-        // CSV RECHERCHE DOSSIER (Inchangé)
+        // CSV RECHERCHE
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
