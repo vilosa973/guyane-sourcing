@@ -29,10 +29,10 @@
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
             color: #000 !important; font-weight: 700;
         }
-        input::placeholder, textarea::placeholder { color: #374151; }
         .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
-        .card-choice { transition: all 0.2s; border: 2px solid transparent; }
-        .card-choice:hover { border-color: #1d4ed8; transform: scale(1.01); }
+        .card-choice { transition: all 0.2s; border: 2px solid transparent; cursor: pointer; }
+        .card-choice:hover { border-color: #1d4ed8; transform: translateY(-2px); }
+        .badge-guarantee { font-size: 0.6rem; padding: 2px 6px; border-radius: 99px; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900">
@@ -54,7 +54,7 @@
 
                 <div class="p-6 space-y-4">
                     <div id="form-plaque" class="space-y-4">
-                        <input type="text" id="ai-immat" placeholder="EX: AB-123-CD" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
+                        <input type="text" id="ai-immat" placeholder="PLAQUE (EX: AB-123-CD)" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
                     </div>
 
                     <div id="form-modele" class="hidden space-y-2">
@@ -63,30 +63,30 @@
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase">
                         </div>
                         <div class="grid grid-cols-3 gap-2">
-                            <input type="text" id="m-moteur" placeholder="MOTEUR" class="p-3 rounded-xl text-xs uppercase">
-                            <input type="text" id="m-litrage" placeholder="LITRAGE" class="p-3 rounded-xl text-xs">
-                            <input type="text" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-xs">
+                            <input type="text" id="m-moteur" placeholder="MOTEUR" class="p-3 rounded-xl text-[10px] uppercase font-bold">
+                            <input type="text" id="m-litrage" placeholder="LITRAGE" class="p-3 rounded-xl text-[10px]">
+                            <input type="text" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-[10px]">
                         </div>
                     </div>
 
-                    <input type="text" id="ai-piece" placeholder="QUELLE PIÈCE ? (EX: ALTERNATEUR)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
+                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: ALTERNATEUR, TURBO...)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> Comparer les offres GSD
+                        <i class="fas fa-search"></i> Sourcing Haute Précision
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="text-center py-8 bg-white/80 rounded-2xl">
-                            <i class="fas fa-spinner fa-spin text-blue-700 text-3xl"></i>
-                            <p class="font-bold mt-2">Expertise GSD en cours...</p>
+                        <div id="ai-loading" class="text-center py-10 bg-white/60 rounded-2xl">
+                            <i class="fas fa-microchip fa-spin text-blue-700 text-4xl"></i>
+                            <p class="font-black mt-4 uppercase text-xs">Identification & Sourcing en cours...</p>
                         </div>
 
                         <div id="ai-content" class="hidden space-y-4">
-                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
-                                <img id="ai-vehicule-img" src="" class="w-20 h-20 object-contain rounded-lg bg-slate-100 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
+                            <div class="bg-white/95 p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
+                                <img id="ai-vehicule-img" src="" class="w-20 h-20 object-contain rounded-xl bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                                 <div>
                                     <p id="ai-modele-long" class="font-black uppercase text-sm leading-tight text-slate-900"></p>
-                                    <p id="ai-moteur-details" class="text-[10px] font-bold text-slate-500 italic"></p>
+                                    <p id="ai-moteur-details" class="text-[10px] font-bold text-blue-700 italic mt-1"></p>
                                 </div>
                             </div>
 
@@ -96,8 +96,11 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-4">
-                <video controls class="w-full rounded-2xl shadow-inner border-4 border-white/30">
+            <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
+                    <i class="fas fa-play-circle mr-3 text-emerald-600"></i> Notre Processus
+                </h2>
+                <video controls class="w-full rounded-2xl">
                     <source src="explication.mp4" type="video/mp4">
                 </video>
             </section>
@@ -119,15 +122,15 @@
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
         }
 
-        const partA = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV";
-        const partB = "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
-        const OPENAI_API_KEY = partA + partB;
+        const pA = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV";
+        const pB = "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
+        const OPENAI_API_KEY = pA + pB;
 
         async function rechercheIA() {
             const piece = document.getElementById('ai-piece').value;
-            let context = currentTab === 'plaque' ? `Plaque: ${document.getElementById('ai-immat').value}` : `${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-moteur').value}`;
+            let query = currentTab === 'plaque' ? `Plaque: ${document.getElementById('ai-immat').value}` : `${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-moteur').value} ${document.getElementById('m-annee').value}`;
             
-            if(!piece || !context) return alert("Remplissez les informations !");
+            if(!piece || !query) return alert("Veuillez remplir les informations.");
 
             document.getElementById('ai-resultat').classList.remove('hidden');
             document.getElementById('ai-loading').classList.remove('hidden');
@@ -141,8 +144,8 @@
                         model: "gpt-4o",
                         messages: [{ 
                             role: "system", 
-                            content: "Tu es l'expert GSD. Identifie le véhicule et la pièce. Propose 3 offres : NEUF (Garantie 24 mois), RECONDITIONNÉ (Garantie 12 mois), OCCASION (Garantie 6 mois). Trouve la référence constructeur réelle (OEM) et une image JPG directe stable. JSON format: {'vehicule':{'nom':'','moteur':'','img':''}, 'offres':[{'type':'NEUF','nom':'','prix':150,'img':'','ref':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','prix':100,'img':'','ref':'','garantie':'12 mois'},{'type':'OCCASION','prix':60,'img':'','ref':'','garantie':'6 mois'}]}" 
-                        }, { role: "user", content: `Cherche ${piece} pour ${context}` }],
+                            content: "Tu es l'expert technique GSD. 1. Identifie le véhicule exact (trouve une image réelle du modèle). 2. Pour la pièce, propose 3 catégories : NEUF, RECONDITIONNÉ, OCCASION. 3. Trouve la RÉFÉRENCE INTERNATIONALE (IAM/EAN/Code Article) exacte pour chaque pièce. 4. Pour chaque pièce, fournis une URL directe d'image réelle (JPG) sans fond publicitaire. JSON format: {'vehicule':{'nom':'','moteur':'','img':''}, 'offres':[{'type':'NEUF','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'12 mois'},{'type':'OCCASION','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'6 mois'}]}" 
+                        }, { role: "user", content: `Trouve ${piece} pour ${query}` }],
                         response_format: { type: "json_object" }
                     })
                 });
@@ -150,34 +153,32 @@
                 const data = await response.json();
                 const res = JSON.parse(data.choices[0].message.content);
 
-                document.getElementById('ai-vehicule-img').src = res.vehicule.img || 'https://cdn-icons-png.flaticon.com/512/3039/3039427.png';
+                // Infos Véhicule
+                document.getElementById('ai-vehicule-img').src = res.vehicule.img;
                 document.getElementById('ai-modele-long').innerText = res.vehicule.nom;
                 document.getElementById('ai-moteur-details').innerText = res.vehicule.moteur;
 
+                // Construction Offres
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix) * 1.20) + 45;
-                    const typeColor = o.type === 'NEUF' ? 'blue-700' : (o.type === 'OCCASION' ? 'emerald-600' : 'orange-500');
-                    const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(res.vehicule.nom + ' ' + o.ref + ' ' + piece)}&tbm=isch`;
+                    const color = o.type === 'NEUF' ? 'bg-blue-700' : (o.type === 'OCCASION' ? 'bg-emerald-600' : 'bg-orange-500');
                     
                     html += `
                         <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4">
-                            <div class="flex flex-col items-center">
-                                <img src="${o.img}" class="w-16 h-16 object-contain bg-slate-50 rounded-lg border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
-                                <a href="${googleSearch}" target="_blank" class="mt-2 text-[7px] text-blue-600 font-bold uppercase underline tracking-tighter">Vérifier Photo Google</a>
-                            </div>
+                            <img src="${o.img}" class="w-20 h-20 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                             <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <span class="text-[8px] font-black uppercase px-2 py-0.5 bg-${typeColor} text-white rounded-md">${o.type}</span>
-                                    <span class="text-[8px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"><i class="fas fa-shield-alt"></i> ${o.garantie}</span>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="badge-guarantee ${color} text-white">${o.type}</span>
+                                    <span class="text-[9px] font-black text-blue-700 uppercase tracking-tighter"><i class="fas fa-shield-alt"></i> Garantie ${o.garantie}</span>
                                 </div>
-                                <p class="text-[11px] font-black mt-1 leading-tight uppercase text-slate-800">${piece}</p>
-                                <p class="text-[9px] text-slate-400 font-bold tracking-tighter">OEM: ${o.ref}</p>
+                                <p class="text-[11px] font-black uppercase text-slate-800 leading-tight">${o.nom}</p>
+                                <p class="text-[8px] text-slate-400 font-bold uppercase mt-1">Réf Internationale: ${o.ref_internationale}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs font-bold text-slate-300 line-through">${(prixFinal*1.15).toFixed(0)}€</p>
+                                <p class="text-[10px] text-slate-300 line-through font-bold">${(prixFinal*1.15).toFixed(0)}€</p>
                                 <p class="text-xl font-black text-slate-900">${prixFinal.toFixed(2)}€</p>
-                                <button onclick="window.location.href='https://buy.stripe.com/votre_lien?amount=${prixFinal*100}'" class="mt-1 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase shadow-md">Choisir</button>
+                                <button onclick="window.location.href='https://buy.stripe.com/votre_lien?amount=${prixFinal*100}'" class="mt-1 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase">Choisir</button>
                             </div>
                         </div>
                     `;
@@ -188,7 +189,7 @@
                 document.getElementById('ai-content').classList.remove('hidden');
 
             } catch (e) {
-                alert("Erreur de recherche. Précisez votre modèle.");
+                alert("Délai de recherche dépassé. Veuillez réessayer avec un modèle précis.");
                 document.getElementById('ai-resultat').classList.add('hidden');
             }
         }
