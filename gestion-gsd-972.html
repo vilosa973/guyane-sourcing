@@ -9,11 +9,8 @@
     <style>
         body {
             background-image: url('Font_Premium.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-color: #1a1a1a;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            background-repeat: no-repeat; background-color: #1a1a1a;
         }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section {
@@ -30,15 +27,9 @@
         input, textarea, select {
             background-color: rgba(255, 255, 255, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            color: #000 !important;
-            font-weight: 700;
+            color: #000 !important; font-weight: 700;
         }
-        input::placeholder, textarea::placeholder { color: #374151; }
-        .tab-btn.active {
-            background-color: #1d4ed8;
-            color: white;
-            border-bottom: 4px solid #1e40af;
-        }
+        .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900">
@@ -69,12 +60,12 @@
 
                     <div id="form-modele" class="hidden space-y-3">
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm">
-                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm">
+                            <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase">
+                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="m-moteur" placeholder="MOTEUR (EX: TDI)" class="p-3 rounded-xl text-sm">
-                            <input type="text" id="m-litrage" placeholder="LITRAGE (EX: 1.6L)" class="p-3 rounded-xl text-sm">
+                            <input type="text" id="m-moteur" placeholder="MOTEUR (EX: VCDI)" class="p-3 rounded-xl text-sm uppercase">
+                            <input type="text" id="m-litrage" placeholder="LITRAGE (EX: 2.0L)" class="p-3 rounded-xl text-sm">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="text" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm">
@@ -82,7 +73,7 @@
                         </div>
                     </div>
 
-                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: PNEU, FREIN...)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500">
+                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: PNEU, BATTERIE...)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
                         <i class="fas fa-search"></i> Estimer mon prix GSD
@@ -91,73 +82,38 @@
                     <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/95 border-2 border-blue-500 shadow-inner">
                         <div id="ai-loading" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin text-blue-700 text-2xl"></i>
-                            <p class="font-bold text-sm mt-2 italic">Analyse technique...</p>
+                            <p class="font-bold text-sm mt-2 italic">Recherche de la photo réelle...</p>
                         </div>
                         <div id="ai-content" class="hidden">
                             <div class="mb-4 p-4 bg-white rounded-xl border-l-8 border-blue-700 text-left shadow-md">
-                                <p class="text-[10px] font-black text-blue-700 uppercase mb-1 tracking-widest">Détails Véhicule</p>
-                                <p id="ai-modele-long" class="text-lg font-black text-slate-900 uppercase"></p>
-                                <p id="ai-moteur-details" class="text-xs font-bold text-slate-600 mt-1"></p>
-                                <p class="text-[9px] text-red-600 mt-2 font-bold uppercase italic tracking-tighter">⚠️ Si erreur, tapez votre modèle (ex: Peugeot 208 1.6 essence) dans l'onglet 'Modèle'.</p>
+                                <p id="ai-modele-long" class="text-lg font-black text-slate-900 uppercase leading-tight"></p>
+                                <p id="ai-moteur-details" class="text-xs font-bold text-slate-600 mt-1 italic"></p>
                             </div>
-                            <img id="ai-photo" src="" alt="Pièce" class="w-full h-56 object-contain rounded-xl mb-4 bg-white border shadow-sm">
+                            
+                            <div class="relative bg-white rounded-xl mb-4 overflow-hidden border shadow-inner flex flex-col items-center justify-center min-h-[220px]">
+                                <img id="ai-photo" src="" alt="Photo pièce" class="max-h-56 object-contain p-2" onerror="this.src='https://placehold.co/400x300?text=Image+en+chargement...'">
+                                <a id="google-check" href="#" target="_blank" class="mt-2 mb-2 text-[10px] bg-slate-200 px-3 py-1 rounded-full font-bold text-slate-700 hover:bg-blue-600 hover:text-white transition-all">
+                                    <i class="fab fa-google mr-1"></i> Cliquer pour voir la pièce sur Google
+                                </a>
+                            </div>
+
                             <button id="btn-paiement-direct" class="w-full bg-blue-700 text-white p-5 rounded-2xl text-center shadow-xl transform active:scale-95">
                                 <p class="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-1">Prix GSD Livré Guyane (Commander)</p>
-                                <p id="ai-prix-final" class="text-4xl font-black"></p>
+                                <p id="ai-prix-final" class="text-4xl font-black font-bold"></p>
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center border-b-2 border-blue-700 pb-2">
-                    <i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis Manuel
+            <section class="rounded-3xl shadow-2xl p-6 border-l-8 border-emerald-500">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center">
+                    <i class="fas fa-play-circle mr-3 text-emerald-600"></i> Comment ça marche ?
                 </h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <input type="hidden" name="details_ia" id="final-besoin">
-                    <div class="flex gap-2">
-                        <select name="civilite" required class="w-1/3 p-4 rounded-2xl outline-none">
-                            <option value="" disabled selected>Civilité</option>
-                            <option value="Monsieur">Monsieur</option>
-                            <option value="Madame">Madame</option>
-                        </select>
-                        <input type="text" name="nom" placeholder="Nom complet" required class="w-2/3 p-4 rounded-2xl outline-none">
-                    </div>
-                    <input type="email" name="email" placeholder="Votre Adresse Mail" required class="w-full p-4 rounded-2xl outline-none">
-                    <textarea name="besoin" placeholder="Détails supplémentaires..." rows="2" class="w-full p-4 rounded-2xl outline-none"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black uppercase shadow-lg hover:bg-blue-800 transition-all">
-                        Envoyer ma demande
-                    </button>
-                </form>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
-                    <i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client Sécurisé
-                </h2>
-                <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none focus:border-orange-500">
-                    <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none focus:border-orange-500">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
-                            <i class="fas fa-search text-xl"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="resultat" class="hidden mt-6">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl">
-                        <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
-                        <div class="my-4 py-4 border-y border-slate-800">
-                            <p id="montantDisplay" class="text-5xl font-black text-white"></p>
-                        </div>
-                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner tracking-widest"></div>
-                    </div>
-                    <div id="zonePaiement" class="hidden mt-6 space-y-4">
-                        <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                            <i class="fas fa-credit-card"></i> Payer par Carte
-                        </a>
-                    </div>
+                <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video flex items-center justify-center border-4 border-white/50">
+                    <video controls class="w-full h-full">
+                        <source src="explication.mp4" type="video/mp4">
+                    </video>
                 </div>
             </section>
 
@@ -166,10 +122,6 @@
                 <span class="text-xl uppercase tracking-tighter text-center">Assistance WhatsApp Direct</span>
             </a>
         </div>
-
-        <footer class="bg-white/80 p-8 text-center mt-10 text-slate-500 text-[10px] uppercase font-bold tracking-[0.3em]">
-            © 2026 Guyane Sourcing Direct | VILOSA
-        </footer>
     </div>
 
     <script>
@@ -193,7 +145,7 @@
             if (currentTab === 'plaque') {
                 const immat = document.getElementById('ai-immat').value;
                 if (!immat || !piece) return alert("Plaque et pièce requises !");
-                query = `Véhicule Plaque: ${immat}. Pièce: ${piece}`;
+                query = `PIECE: ${piece} pour PLAQUE: ${immat}.`;
             } else {
                 const marque = document.getElementById('m-marque').value;
                 const modele = document.getElementById('m-modele').value;
@@ -201,8 +153,7 @@
                 const litrage = document.getElementById('m-litrage').value;
                 const annee = document.getElementById('m-annee').value;
                 const cv = document.getElementById('m-cv').value;
-                if (!marque || !modele || !piece) return alert("Marque, Modèle et Pièce requis !");
-                query = `Véhicule: ${marque} ${modele}, Moteur: ${moteur} ${litrage}, Année: ${annee}, Puissance: ${cv}CV. Pièce: ${piece}`;
+                query = `PIECE: ${piece} pour ${marque} ${modele} ${moteur} ${litrage} ${annee} ${cv}CV.`;
             }
 
             const resultZone = document.getElementById('ai-resultat');
@@ -220,7 +171,7 @@
                     body: JSON.stringify({
                         model: "gpt-4o",
                         messages: [
-                            { role: "system", content: "Expert technique GSD. Identifie le véhicule précisément. Trouve une image catalogue (URL JPG directe) sur fond blanc de la pièce. Prix grossiste Europe. Réponds UNIQUEMENT en JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'DETAILS MOTEUR', 'prix_achat': 100, 'url_photo': 'lien'}" },
+                            { role: "system", content: "Expert technique GSD. Trouve une image JPG directe (Wikimedia ou catalogue public). JSON : {'modele_long': 'MARQUE MODELE', 'motorisation': 'DETAILS', 'prix_achat': 100, 'url_photo': 'lien'}" },
                             { role: "user", content: query }
                         ],
                         response_format: { type: "json_object" }
@@ -231,61 +182,24 @@
                 const res = JSON.parse(data.choices[0].message.content);
 
                 let prixAchat = parseFloat(res.prix_achat);
-                if (prixAchat > 1500 && !piece.toLowerCase().includes('moteur')) prixAchat = 120; // Sécurité anti-hallucination
-
+                if (prixAchat > 1500 && !piece.toLowerCase().includes('moteur')) prixAchat = 135;
                 const prixFinal = (prixAchat * 1.20) + 45;
-                const prixTexte = prixFinal.toFixed(2);
 
                 document.getElementById('ai-modele-long').innerText = res.modele_long;
                 document.getElementById('ai-moteur-details').innerText = "⚙️ MOTORISATION : " + res.motorisation;
-                document.getElementById('ai-photo').src = res.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
-                document.getElementById('ai-prix-final').innerText = prixTexte + " €";
+                document.getElementById('ai-photo').src = res.url_photo;
+                document.getElementById('ai-prix-final').innerText = prixFinal.toFixed(2) + " €";
                 
-                document.getElementById('final-besoin').value = `RECHERCHE IA: ${res.modele_long} - ${piece} - PRIX ESTIMÉ: ${prixTexte}€`;
-
-                document.getElementById('btn-paiement-direct').onclick = function() {
-                    window.location.href = `https://buy.stripe.com/votre_lien_gsd?amount=${prixFinal*100}`;
-                };
-
+                // LIEN GOOGLE VERIFICATION
+                const searchTerms = encodeURIComponent(`${res.modele_long} ${res.motorisation} ${piece} spare part`);
+                document.getElementById('google-check').href = `https://www.google.com/search?q=${searchTerms}&tbm=isch`;
+                
                 loadingZone.classList.add('hidden');
                 contentZone.classList.remove('hidden');
             } catch (e) {
-                alert("L'IA n'est pas certaine. Utilisez l'onglet 'Modèle' pour préciser.");
+                alert("Erreur de recherche.");
                 resultZone.classList.add('hidden');
             }
-        }
-
-        // CSV RECHERCHE DOSSIER (Inchangé)
-        const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
-        async function chercherDossier() {
-            const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
-            const res = document.getElementById('resultat');
-            if(!nomSaisi || !idSaisi) return;
-            try {
-                const response = await fetch(urlCSV);
-                const data = await response.text();
-                const lignes = data.split('\n');
-                let trouve = false;
-                for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(col[0]?.replace(/"/g, '').trim().toUpperCase() === idSaisi && col[2]?.replace(/"/g, '').trim().toUpperCase() === nomSaisi) {
-                        trouve = true;
-                        res.classList.remove('hidden');
-                        document.getElementById('nomClientDisplay').innerText = col[1]?.replace(/"/g, '').trim() + " " + col[2]?.replace(/"/g, '').trim();
-                        document.getElementById('montantDisplay').innerText = col[7]?.replace(/"/g, '').trim() + " €";
-                        const s = document.getElementById('statut');
-                        s.innerText = col[3]?.replace(/"/g, '').trim();
-                        s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
-                        const bStripe = document.getElementById('btnStripe');
-                        const stripeL = col[4]?.replace(/"/g, '').trim();
-                        if(stripeL?.startsWith('http')) { bStripe.href = stripeL; bStripe.classList.remove('hidden'); bStripe.classList.add('flex'); }
-                        document.getElementById('zonePaiement').classList.remove('hidden');
-                        break;
-                    }
-                }
-                if (!trouve) alert("Dossier introuvable.");
-            } catch (e) { alert("Erreur réseau."); }
         }
     </script>
 </body>
