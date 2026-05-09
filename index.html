@@ -50,33 +50,40 @@
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-blue-600">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center border-b-2 border-blue-700 pb-2">
-                    <i class="fas fa-robot mr-3 text-blue-700"></i> Sourcing IA (Prix & Photo)
+                    <i class="fas fa-robot mr-3 text-blue-700"></i> Recherche Intelligente
                 </h2>
                 
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="ai-immat" placeholder="IMMAT / MODÈLE" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
-                        <input type="text" id="ai-piece" placeholder="NOM DE LA PIÈCE" class="w-full p-4 rounded-2xl outline-none focus:border-blue-700">
+                        <input type="text" id="ai-immat" placeholder="PLAQUE IMMAT" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
+                        <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE" class="w-full p-4 rounded-2xl outline-none focus:border-blue-700">
                     </div>
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> Vérifier Disponibilité Europe
+                        <i class="fas fa-search"></i> Identifier & Trouver le prix
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 p-4 rounded-2xl bg-white/90 border-2 border-blue-500">
                         <div id="ai-loading" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin text-blue-700 text-2xl"></i>
-                            <p class="font-bold text-sm mt-2 italic">Recherche sur les sites européens...</p>
+                            <p class="font-bold text-sm mt-2 italic">Identification du véhicule...</p>
                         </div>
                         
                         <div id="ai-content" class="hidden">
+                            <div class="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-200 text-center">
+                                <p id="ai-vehicule-detecte" class="text-blue-800 font-black uppercase text-xs tracking-tighter"></p>
+                            </div>
+
                             <img id="ai-photo" src="" alt="Pièce" class="w-full h-48 object-contain rounded-xl mb-4 bg-white shadow-inner">
                             <p id="ai-description" class="text-sm font-bold text-slate-700 mb-4 text-center"></p>
-                            <div class="bg-blue-700 text-white p-4 rounded-xl text-center shadow-lg">
-                                <p class="text-[10px] uppercase font-bold tracking-widest">Prix GSD Livré Guyane</p>
+                            
+                            <button id="btn-paiement-direct" class="w-full bg-blue-700 text-white p-4 rounded-xl text-center shadow-lg hover:bg-blue-800 transition-all transform active:scale-95 group">
+                                <p class="text-[10px] uppercase font-bold tracking-widest group-hover:hidden">Prix GSD Livré Guyane</p>
+                                <p class="text-[10px] uppercase font-bold tracking-widest hidden group-hover:block italic">Ajouter au panier / Régler</p>
                                 <p id="ai-prix-final" class="text-4xl font-black"></p>
-                            </div>
-                            <p class="text-[9px] text-center mt-3 text-slate-500 italic font-bold">Photo non contractuelle. Prix incluant sourcing, marge et transport.</p>
+                            </button>
+                            
+                            <p class="text-[9px] text-center mt-3 text-slate-500 italic font-bold">Cliquez sur le prix pour commander immédiatement.</p>
                         </div>
                     </div>
                 </div>
@@ -84,7 +91,7 @@
 
             <section class="rounded-3xl shadow-2xl p-6">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center border-b-2 border-green-600 pb-2">
-                    <i class="fas fa-file-invoice-dollar mr-3 text-green-600"></i> Finaliser ma Demande
+                    <i class="fas fa-file-invoice-dollar mr-3 text-green-600"></i> Finaliser manuellement
                 </h2>
                 <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
                     <div class="flex gap-2">
@@ -96,11 +103,11 @@
                         <input type="text" name="nom" placeholder="Nom complet" required class="w-2/3 p-4 rounded-2xl outline-none">
                     </div>
                     <input type="email" name="email" placeholder="Votre Adresse Mail" required class="w-full p-4 rounded-2xl outline-none">
-                    <input type="text" name="lieu_livraison" placeholder="Lieu de livraison (Ex: Cayenne...)" required class="w-full p-4 rounded-2xl outline-none">
+                    <input type="text" name="lieu_livraison" placeholder="Lieu de livraison" required class="w-full p-4 rounded-2xl outline-none">
                     <textarea name="besoin" id="final-besoin" placeholder="Détaillez votre besoin ici..." rows="2" required class="w-full p-4 rounded-2xl outline-none"></textarea>
                     
-                    <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black uppercase shadow-lg hover:bg-green-700 transition-all active:scale-95">
-                        Envoyer ma demande officielle
+                    <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black uppercase shadow-lg hover:bg-green-700 transition-all">
+                        Envoyer la demande
                     </button>
                 </form>
             </section>
@@ -119,17 +126,12 @@
                     </div>
                 </div>
                 <div id="resultat" class="hidden mt-6 animate-in fade-in duration-500">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl relative">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl">
                         <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
                         <div class="my-4 py-4 border-y border-slate-800">
                             <p id="montantDisplay" class="text-5xl font-black text-white"></p>
                         </div>
                         <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner tracking-widest"></div>
-                    </div>
-                    <div id="zonePaiement" class="hidden mt-6 space-y-4">
-                        <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                            <i class="fas fa-credit-card"></i> Payer par Carte
-                        </a>
                     </div>
                 </div>
             </section>
@@ -158,7 +160,7 @@
             const contentZone = document.getElementById('ai-content');
             const loadingZone = document.getElementById('ai-loading');
 
-            if(!immat || !piece) { alert("Indiquez l'immatriculation et la pièce !"); return; }
+            if(!immat || !piece) { alert("Indiquez la plaque et la pièce !"); return; }
 
             resultZone.classList.remove('hidden');
             contentZone.classList.add('hidden');
@@ -173,45 +175,45 @@
                         messages: [
                             { 
                                 role: "system", 
-                                content: "Tu es l'expert de Guyane Sourcing Direct. Trouve le prix d'achat moyen (EURO) en Europe. POUR L'IMAGE : trouve un lien public direct vers une image JPG/PNG claire de la pièce. Réponds UNIQUEMENT en JSON : {'prix_achat': 100, 'description_courte': 'Nom de la pièce', 'url_photo': 'lien_image'}" 
+                                content: "Tu es l'expert de Guyane Sourcing Direct. 1. Identifie précisément le véhicule via la plaque immatriculation française fournie. 2. Trouve le prix d'achat moyen (EURO) en Europe. POUR L'IMAGE : trouve un lien public direct (Unsplash ou Wikimedia) d'une image JPG/PNG de la pièce. Réponds UNIQUEMENT en JSON : {'vehicule_detecte': 'Marque Modèle Année', 'prix_achat': 100, 'description_courte': 'Nom technique', 'url_photo': 'lien_image'}" 
                             },
-                            { role: "user", content: `Pièce : ${piece} pour ${immat}` }
+                            { role: "user", content: `Plaque : ${immat}, Pièce : ${piece}` }
                         ],
                         response_format: { type: "json_object" }
                     })
                 });
 
-                if (!response.ok) throw new Error('Erreur API');
-
                 const data = await response.json();
                 const reponseIA = JSON.parse(data.choices[0].message.content);
 
-                // --- CALCUL GSD (MARGE 20% + TRANSPORT 45€) ---
+                // --- CALCUL GSD (+20% MARGE + 45€ PORT) ---
                 const prixFinal = (parseFloat(reponseIA.prix_achat) * 1.20) + 45;
                 const prixAffichage = prixFinal.toFixed(2);
 
+                document.getElementById('ai-vehicule-detecte').innerText = `🚗 Véhicule identifié : ${reponseIA.vehicule_detecte}`;
                 document.getElementById('ai-photo').src = reponseIA.url_photo || 'https://via.placeholder.com/400x300?text=Image+GSD';
                 document.getElementById('ai-description').innerText = reponseIA.description_courte;
                 document.getElementById('ai-prix-final').innerText = prixAffichage + " €";
                 
-                // Remplissage auto du formulaire
-                const recapMessage = `Demande pour : ${reponseIA.description_courte} (${immat}). Prix estimé : ${prixAffichage}€`;
-                document.getElementById('final-besoin').value = recapMessage;
+                // Remplissage auto
+                document.getElementById('final-besoin').value = `Commande pour : ${reponseIA.description_courte} (${reponseIA.vehicule_detecte} - ${immat}). Prix : ${prixAffichage}€`;
 
-                // Mise à jour du bouton WhatsApp avec les infos
-                const waMessage = encodeURIComponent(`Bonjour GSD, je souhaite commander : ${reponseIA.description_courte} pour mon véhicule ${immat}. Prix estimé sur le site : ${prixAffichage}€`);
-                document.getElementById('whatsapp-link').href = `https://wa.me/33699337803?text=${waMessage}`;
+                // ACTION PAIEMENT STRIPE (Lien générique à adapter)
+                document.getElementById('btn-paiement-direct').onclick = function() {
+                    alert("Redirection vers la passerelle sécurisée Stripe pour le montant de " + prixAffichage + "€");
+                    window.location.href = `https://buy.stripe.com/votre_lien_paiement_gsd?client_reference_id=${immat}&amount=${prixAffichage*100}`;
+                };
 
                 loadingZone.classList.add('hidden');
                 contentZone.classList.remove('hidden');
             } catch (e) {
                 console.error(e);
-                alert("Erreur IA. Vérifiez vos crédits OpenAI.");
+                alert("Erreur. Vérifiez vos crédits ou la validité de la plaque.");
                 resultZone.classList.add('hidden');
             }
         }
 
-        // --- RECHERCHE CSV ---
+        // RECHERCHE CSV CLASSIQUE
         const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
@@ -233,9 +235,6 @@
                         const s = document.getElementById('statut');
                         s.innerText = col[3]?.replace(/"/g, '').trim();
                         s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
-                        const bStripe = document.getElementById('btnStripe');
-                        const stripeL = col[4]?.replace(/"/g, '').trim();
-                        if(stripeL?.startsWith('http')) { bStripe.href = stripeL; bStripe.classList.remove('hidden'); bStripe.classList.add('flex'); }
                         break;
                     }
                 }
