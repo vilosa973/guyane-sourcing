@@ -19,11 +19,17 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
+        section:hover {
+            transform: translateY(-3px);
+            background-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+        }
         input, textarea, select {
             background-color: rgba(255, 255, 255, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
             color: #000 !important; font-weight: 700;
         }
+        input::placeholder, textarea::placeholder { color: #374151; }
         .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
         .card-choice { transition: all 0.2s; border: 2px solid transparent; }
         .card-choice:hover { border-color: #1d4ed8; transform: scale(1.01); }
@@ -48,7 +54,7 @@
 
                 <div class="p-6 space-y-4">
                     <div id="form-plaque" class="space-y-4">
-                        <input type="text" id="ai-immat" placeholder="AB-123-CD" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
+                        <input type="text" id="ai-immat" placeholder="EX: AB-123-CD" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
                     </div>
 
                     <div id="form-modele" class="hidden space-y-2">
@@ -63,7 +69,7 @@
                         </div>
                     </div>
 
-                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: ALTERNATEUR)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
+                    <input type="text" id="ai-piece" placeholder="QUELLE PIÈCE ? (EX: ALTERNATEUR)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
                         <i class="fas fa-search"></i> Comparer les offres GSD
@@ -77,15 +83,14 @@
 
                         <div id="ai-content" class="hidden space-y-4">
                             <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
-                                <img id="ai-vehicule-img" src="" class="w-20 h-20 object-contain rounded-lg bg-slate-100">
+                                <img id="ai-vehicule-img" src="" class="w-20 h-20 object-contain rounded-lg bg-slate-100 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                                 <div>
                                     <p id="ai-modele-long" class="font-black uppercase text-sm leading-tight text-slate-900"></p>
                                     <p id="ai-moteur-details" class="text-[10px] font-bold text-slate-500 italic"></p>
                                 </div>
                             </div>
 
-                            <div id="offres-container" class="space-y-3">
-                                </div>
+                            <div id="offres-container" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
@@ -97,31 +102,9 @@
                 </video>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
-                    <i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client Sécurisé
-                </h2>
-                <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none">
-                    <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
-                            <i class="fas fa-search text-xl"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="resultat" class="hidden mt-6">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl">
-                        <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
-                        <div class="my-4 py-4 border-y border-slate-800"><p id="montantDisplay" class="text-5xl font-black text-white"></p></div>
-                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner tracking-widest"></div>
-                    </div>
-                </div>
-            </section>
-
             <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform">
                 <i class="fab fa-whatsapp text-4xl"></i>
-                <span class="text-xl uppercase tracking-tighter text-center">Assistance Directe</span>
+                <span class="text-xl uppercase tracking-tighter">Assistance Directe</span>
             </a>
         </div>
     </div>
@@ -142,7 +125,7 @@
 
         async function rechercheIA() {
             const piece = document.getElementById('ai-piece').value;
-            let context = currentTab === 'plaque' ? `Plaque: ${document.getElementById('ai-immat').value}` : `${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-moteur').value} ${document.getElementById('m-litrage').value}`;
+            let context = currentTab === 'plaque' ? `Plaque: ${document.getElementById('ai-immat').value}` : `${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-moteur').value}`;
             
             if(!piece || !context) return alert("Remplissez les informations !");
 
@@ -158,7 +141,7 @@
                         model: "gpt-4o",
                         messages: [{ 
                             role: "system", 
-                            content: "Tu es l'expert GSD. Identifie le véhicule et la pièce. Propose 3 offres STRICTES : NEUF, RECONDITIONNÉ, OCCASION. Chaque offre doit avoir : prix achat Europe réaliste, URL image JPG direct (fond blanc si possible), référence constructeur EXACTE, durée garantie. JSON format: {'vehicule':{'nom':'','moteur':'','img':''}, 'offres':[{'type':'NEUF','prix':0,'img':'','ref':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','prix':0,'img':'','ref':'','garantie':'12 mois'},{'type':'OCCASION','prix':0,'img':'','ref':'','garantie':'6 mois'}]}" 
+                            content: "Tu es l'expert GSD. Identifie le véhicule et la pièce. Propose 3 offres : NEUF (Garantie 24 mois), RECONDITIONNÉ (Garantie 12 mois), OCCASION (Garantie 6 mois). Trouve la référence constructeur réelle (OEM) et une image JPG directe stable. JSON format: {'vehicule':{'nom':'','moteur':'','img':''}, 'offres':[{'type':'NEUF','nom':'','prix':150,'img':'','ref':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','prix':100,'img':'','ref':'','garantie':'12 mois'},{'type':'OCCASION','prix':60,'img':'','ref':'','garantie':'6 mois'}]}" 
                         }, { role: "user", content: `Cherche ${piece} pour ${context}` }],
                         response_format: { type: "json_object" }
                     })
@@ -167,32 +150,34 @@
                 const data = await response.json();
                 const res = JSON.parse(data.choices[0].message.content);
 
-                // Affichage Identification
-                document.getElementById('ai-vehicule-img').src = res.vehicule.img || 'https://via.placeholder.com/100?text=Auto';
+                document.getElementById('ai-vehicule-img').src = res.vehicule.img || 'https://cdn-icons-png.flaticon.com/512/3039/3039427.png';
                 document.getElementById('ai-modele-long').innerText = res.vehicule.nom;
                 document.getElementById('ai-moteur-details').innerText = res.vehicule.moteur;
 
-                // Construction des offres
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix) * 1.20) + 45;
                     const typeColor = o.type === 'NEUF' ? 'blue-700' : (o.type === 'OCCASION' ? 'emerald-600' : 'orange-500');
+                    const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(res.vehicule.nom + ' ' + o.ref + ' ' + piece)}&tbm=isch`;
                     
                     html += `
                         <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4">
-                            <img src="${o.img}" class="w-16 h-16 object-contain bg-slate-50 rounded-lg">
+                            <div class="flex flex-col items-center">
+                                <img src="${o.img}" class="w-16 h-16 object-contain bg-slate-50 rounded-lg border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
+                                <a href="${googleSearch}" target="_blank" class="mt-2 text-[7px] text-blue-600 font-bold uppercase underline tracking-tighter">Vérifier Photo Google</a>
+                            </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
                                     <span class="text-[8px] font-black uppercase px-2 py-0.5 bg-${typeColor} text-white rounded-md">${o.type}</span>
                                     <span class="text-[8px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"><i class="fas fa-shield-alt"></i> ${o.garantie}</span>
                                 </div>
-                                <p class="text-xs font-black mt-1 leading-tight uppercase text-slate-800">PIÈCE COMPATIBLE</p>
-                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">OEM: ${o.ref}</p>
+                                <p class="text-[11px] font-black mt-1 leading-tight uppercase text-slate-800">${piece}</p>
+                                <p class="text-[9px] text-slate-400 font-bold tracking-tighter">OEM: ${o.ref}</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-xs font-bold text-slate-300 line-through">${(prixFinal*1.15).toFixed(0)}€</p>
                                 <p class="text-xl font-black text-slate-900">${prixFinal.toFixed(2)}€</p>
-                                <button onclick="window.location.href='https://buy.stripe.com/votre_lien?amount=${prixFinal*100}'" class="mt-1 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase">Choisir</button>
+                                <button onclick="window.location.href='https://buy.stripe.com/votre_lien?amount=${prixFinal*100}'" class="mt-1 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase shadow-md">Choisir</button>
                             </div>
                         </div>
                     `;
@@ -206,34 +191,6 @@
                 alert("Erreur de recherche. Précisez votre modèle.");
                 document.getElementById('ai-resultat').classList.add('hidden');
             }
-        }
-
-        async function chercherDossier() {
-            const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
-            const res = document.getElementById('resultat');
-            const urlCSV = "https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv";
-            if(!nomSaisi || !idSaisi) return;
-            try {
-                const response = await fetch(urlCSV);
-                const data = await response.text();
-                const lignes = data.split('\n');
-                let trouve = false;
-                for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(col[0]?.replace(/"/g, '').trim().toUpperCase() === idSaisi && col[2]?.replace(/"/g, '').trim().toUpperCase() === nomSaisi) {
-                        trouve = true;
-                        res.classList.remove('hidden');
-                        document.getElementById('nomClientDisplay').innerText = col[1]?.replace(/"/g, '').trim() + " " + col[2]?.replace(/"/g, '').trim();
-                        document.getElementById('montantDisplay').innerText = col[7]?.replace(/"/g, '').trim() + " €";
-                        const s = document.getElementById('statut');
-                        s.innerText = col[3]?.replace(/"/g, '').trim();
-                        s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
-                        break;
-                    }
-                }
-                if (!trouve) alert("Dossier introuvable.");
-            } catch (e) { alert("Erreur réseau."); }
         }
     </script>
 </body>
