@@ -19,6 +19,11 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
+        section:hover {
+            transform: translateY(-3px);
+            background-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+        }
         input, textarea, select {
             background-color: rgba(255, 255, 255, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -66,17 +71,17 @@
                     <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE (EX: TURBO, ALTERNATEUR...)" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> Sourcing Haute Précision
+                        <i class="fas fa-search"></i> RECHERCHE
                     </button>
 
-                    <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="text-center py-8 bg-white/80 rounded-2xl">
+                    <div id="ai-resultat" class="hidden mt-4 space-y-4 text-center">
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl">
                             <i class="fas fa-microchip fa-spin text-blue-700 text-3xl"></i>
-                            <p class="font-bold mt-2 uppercase text-[10px] tracking-widest text-center">Recherche des visuels réels...</p>
+                            <p class="font-bold mt-2 uppercase text-[10px] tracking-widest">Sourcing en cours...</p>
                         </div>
 
                         <div id="ai-content" class="hidden space-y-4">
-                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
+                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
                                 <img id="ai-vehicule-img" src="" class="w-20 h-20 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                                 <div>
                                     <p id="ai-modele-long" class="font-black uppercase text-sm leading-tight text-slate-900"></p>
@@ -84,8 +89,7 @@
                                 </div>
                             </div>
 
-                            <div id="offres-container" class="grid grid-cols-1 gap-3">
-                            </div>
+                            <div id="offres-container" class="grid grid-cols-1 gap-3"></div>
                         </div>
                     </div>
                 </div>
@@ -93,7 +97,7 @@
 
             <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center">
-                    <i class="fas fa-play-circle mr-3 text-emerald-600 text-center"></i> Notre Processus
+                    <i class="fas fa-play-circle mr-3 text-emerald-600"></i> Notre Processus
                 </h2>
                 <video controls class="w-full rounded-2xl">
                     <source src="explication.mp4" type="video/mp4">
@@ -101,7 +105,7 @@
             </section>
 
             <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform">
-                <i class="fab fa-whatsapp text-4xl text-center"></i>
+                <i class="fab fa-whatsapp text-4xl"></i>
                 <span class="text-xl uppercase tracking-tighter text-center">Assistance Directe</span>
             </a>
         </div>
@@ -137,7 +141,7 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
                     body: JSON.stringify({
                         model: "gpt-4o",
-                        messages: [{ role: "system", content: "Tu es l'expert technique GSD. 1. Identifie le véhicule exact (trouve une image réelle). 2. Propose 3 offres : NEUF, RECONDITIONNÉ, OCCASION. 3. Trouve la RÉFÉRENCE INTERNATIONALE (IAM/EAN) exacte. 4. Fournis UNIQUEMENT des URLs d'images JPG réelles de la pièce (fond blanc privilégié). JSON format: {'vehicule':{'nom':'','moteur':'','img':''}, 'offres':[{'type':'NEUF','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'12 mois'},{'type':'OCCASION','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'6 mois'}]}" },
+                        messages: [{ role: "system", content: "Expert technique GSD. 1. Identifie le véhicule exact (image réelle). 2. Propose 3 offres : NEUF, RECONDITIONNÉ, OCCASION. 3. Trouve toutes les RÉFÉRENCES INTERNATIONALES (IAM/OEM) équivalentes comme sur un catalogue technique. 4. Fournis UNIQUEMENT des URLs d'images JPG réelles. JSON format: {'vehicule':{'nom':'','moteur':'','img':''}, 'offres':[{'type':'NEUF','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'12 mois'},{'type':'OCCASION','nom':'','prix':0,'img':'','ref_internationale':'','garantie':'6 mois'}]}" },
                         { role: "user", content: `Cherche ${piece} pour ${context}` }],
                         response_format: { type: "json_object" }
                     })
@@ -156,20 +160,23 @@
                     const color = o.type === 'NEUF' ? 'bg-blue-700' : (o.type === 'OCCASION' ? 'bg-emerald-600' : 'bg-orange-500');
                     
                     html += `
-                        <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4">
+                        <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4 text-left">
                             <img src="${o.img}" class="w-20 h-20 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
                                     <span class="text-[8px] font-black uppercase px-2 py-0.5 ${color} text-white rounded-md">${o.type}</span>
-                                    <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-tighter italic font-black">Garantie ${o.garantie}</span>
+                                    <span class="text-[9px] font-black text-blue-700 uppercase tracking-tighter italic font-black">Garantie ${o.garantie}</span>
                                 </div>
                                 <p class="text-[11px] font-black mt-1 leading-tight uppercase text-slate-800">${o.nom}</p>
-                                <p class="text-[8px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Réf Internationale: ${o.ref_internationale}</p>
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mb-1">Références internationales :</p>
+                                    <p class="text-[8px] text-slate-700 font-bold break-words leading-relaxed">${o.ref_internationale}</p>
+                                </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-right ml-2 min-w-[80px]">
                                 <p class="text-[10px] text-slate-300 line-through font-bold">${(prixFinal*1.18).toFixed(0)}€</p>
                                 <p class="text-xl font-black text-slate-900">${prixFinal.toFixed(2)}€</p>
-                                <button onclick="window.location.href='https://buy.stripe.com/votre_lien?amount=${prixFinal*100}'" class="mt-1 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase">Choisir</button>
+                                <button onclick="window.location.href='https://buy.stripe.com/votre_lien?amount=${prixFinal*100}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase w-full">Choisir</button>
                             </div>
                         </div>
                     `;
@@ -180,7 +187,7 @@
                 document.getElementById('ai-content').classList.remove('hidden');
 
             } catch (e) {
-                alert("Erreur réseau ou modèle inconnu. Réessayez.");
+                alert("Modèle non identifié. Réessayez.");
                 document.getElementById('ai-resultat').classList.add('hidden');
             }
         }
