@@ -35,39 +35,35 @@
     <div class="content-overlay flex flex-col">
         <header class="bg-white/95 p-4 text-center border-b-4 border-green-600 shadow-md sticky top-0 z-50">
             <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-16 mx-auto">
-            <p class="text-green-700 text-[10px] font-black uppercase mt-1 tracking-widest text-center">Sourcing • Logistique • Agricole • Auto</p>
+            <p class="text-green-700 text-[10px] font-black uppercase mt-1 tracking-widest text-center text-center">Sourcing • Logistique • Agricole • Auto</p>
         </header>
 
-        <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full mt-6">
+        <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full mt-6 text-center">
 
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
                     <button onclick="switchTab('plaque')" id="tab-plaque" class="tab-btn active flex-1 py-4 font-black uppercase text-xs tracking-widest">Auto (Plaque)</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600">Modèle / Agricole</button>
+                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600 text-center">Modèle / Agricole</button>
                 </div>
 
                 <div class="p-6 space-y-4">
-                    <div id="form-plaque" class="space-y-4">
+                    <div id="form-plaque" class="space-y-4 text-center">
                         <input type="text" id="ai-immat" placeholder="AB-123-CD" class="w-full p-4 rounded-2xl uppercase text-center outline-none">
                     </div>
 
-                    <div id="form-modele" class="hidden space-y-2">
-                        <div class="grid grid-cols-2 gap-2 text-center">
-                            <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center">
-                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
-                        </div>
+                    <div id="form-modele" class="hidden space-y-2 text-center text-center">
+                        <div class="grid grid-cols-2 gap-2 text-center"><input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center"><input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center text-center text-center"></div>
                         <div class="grid grid-cols-2 gap-2 text-center">
                             <select id="m-type" class="p-3 rounded-xl text-sm text-center outline-none font-bold">
-                                <option value="" disabled selected>TYPE DE VÉHICULE</option>
-                                <option value="Citadine">Citadine</option>
+                                <option value="" disabled selected>TYPE</option>
                                 <option value="Berline">Berline</option>
+                                <option value="Citadine">Citadine</option>
                                 <option value="SUV">SUV / 4x4</option>
-                                <option value="Utilitaire">Utilitaire / Van</option>
+                                <option value="Utilitaire">Utilitaire</option>
                                 <option value="Tracteur">Tracteur Agricole</option>
                                 <option value="Engin">Engin de Chantier</option>
-                                <option value="Camion">Poids Lourd</option>
                             </select>
-                            <select id="m-energie" class="p-3 rounded-xl text-sm text-center outline-none font-bold">
+                            <select id="m-energie" class="p-3 rounded-xl text-sm text-center outline-none font-bold text-center">
                                 <option value="" disabled selected>ÉNERGIE</option>
                                 <option value="Diesel">Diesel</option>
                                 <option value="Essence">Essence</option>
@@ -80,35 +76,29 @@
                     <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE..." class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> RECHERCHE
+                        <i class="fas fa-search text-center text-center"></i> RECHERCHE
                     </button>
 
-                    <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px] tracking-widest">Identification technique et sourcing...</p></div>
+                    <div id="ai-resultat" class="hidden mt-4 space-y-4 text-center">
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px] tracking-widest text-center text-center text-center">Identification technique du véhicule...</p></div>
                         <div id="ai-content" class="hidden space-y-4 text-left">
-                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
-                                <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border text-center" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
-                                <div class="flex-1">
-                                    <p class="text-[10px] text-blue-600 font-black uppercase mb-1">Véhicule identifié :</p>
-                                    <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900"></p>
-                                    <p id="ai-moteur-details" class="text-[11px] font-bold text-slate-600 mt-1 italic"></p>
+                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-center text-center">
+                                <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
+                                <div class="flex-1 text-center text-center">
+                                    <p class="text-[10px] text-blue-600 font-black uppercase mb-1 text-center text-center">Véhicule identifié :</p>
+                                    <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900 text-center text-center text-center"></p>
+                                    <p id="ai-moteur-details" class="text-[11px] font-bold text-slate-600 mt-1 italic text-center text-center text-center text-center"></p>
                                 </div>
                             </div>
-                            <div id="offres-container" class="grid grid-cols-1 gap-3"></div>
+                            <div id="offres-container" class="grid grid-cols-1 gap-3 text-center text-center"></div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Devis Manuel</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
-                    <div class="grid grid-cols-2 gap-2"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
-                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center"><input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
-                    <textarea name="description" placeholder="VÉHICULE & PIÈCES..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center">Envoyer la demande</button>
-                </form>
+            <section class="rounded-3xl shadow-2xl p-6 text-center text-center text-center">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700 text-center text-center"></i> Devis Manuel</h2>
+                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4 text-center text-center text-center"><select name="civilite" required class="w-full p-4 rounded-2xl outline-none"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select><div class="grid grid-cols-2 gap-2 text-center text-center text-center text-center text-center text-center text-center text-center text-center"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div><input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><textarea name="description" placeholder="VÉHICULE & PIÈCES..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"></textarea><button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">Envoyer la demande</button></form>
             </section>
         </div>
     </div>
@@ -134,7 +124,7 @@
         async function rechercheIA() {
             const piece = document.getElementById('ai-piece').value;
             const typeVehicule = document.getElementById('m-type').value;
-            let context = document.getElementById('ai-immat').value || `${typeVehicule} ${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-energie').value}`;
+            let context = document.getElementById('ai-immat').value || `${typeVehicule} ${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value}`;
             
             if(!piece || !context) return alert("Infos manquantes !");
             
@@ -150,11 +140,11 @@
                         model: "gpt-4o",
                         messages: [{ 
                             role: "system", 
-                            content: `Expert GSD. 
-                            ÉTAPE 1 : Identifie le MODÈLE COMPLET (Ex: Peugeot 208 II 1.2 PureTech 100cv).
-                            ÉTAPE 2 : Trouve 3 offres RÉELLES avec RÉFÉRENCE FABRICANT EXACTE. 
-                            POUR LES IMAGES : Utilise UNIQUEMENT des URLs directes .jpg ou .png pointant vers des images de produits réels sur fond blanc.
-                            JSON format: {'machine':{'nom':'','infos':'','img':'URL_VEHICULE'}, 'offres':[{'vendeur':'','vendeur_logo':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'img_piece':'URL_IMAGE_PIECE','description_technique':'','garantie':''}]}` 
+                            content: `Tu es un Expert technique automobile GSD. 
+                            ÉTAPE 1 : Identifie le MODÈLE COMPLET (Ex: Peugeot 208 II 1.2 PureTech 100ch).
+                            ÉTAPE 2 : Trouve 3 offres RÉELLES avec RÉFÉRENCE FABRICANT RÉELLE (OEM). 
+                            POUR LES IMAGES : Trouve UNIQUEMENT des URLs directes d'images produits (fond blanc) se terminant par .jpg ou .png provenant de sites de pièces auto. 
+                            JSON format: {'machine':{'nom':'','infos':'','img':'URL_VEHICULE'}, 'offres':[{'vendeur':'','vendeur_logo':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'img_piece':'URL_IMAGE_PRODUIT','description_technique':'','garantie':''}]}` 
                         }, { role: "user", content: `Cherche ${piece} pour ce véhicule : ${context}` }],
                         response_format: { type: "json_object" }
                     })
@@ -171,25 +161,25 @@
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix_ht) * 1.20) + 45;
-                    const googleLink = `https://www.google.com/search?q=${o.fabricant}+${o.ref_fab}+photo&tbm=isch`;
+                    const googleVerify = `https://www.google.com/search?q=${o.fabricant}+${o.ref_fab}+photo&tbm=isch`;
                     html += `
                         <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex flex-col gap-3 text-left">
-                            <div class="flex items-center gap-2 border-b pb-2"><img src="${buildProxyUrl(o.vendeur_logo)}" class="w-5 h-5 rounded border"><span class="text-[10px] font-black uppercase">${o.vendeur}</span></div>
-                            <div class="flex items-start gap-4">
-                                <img src="${buildProxyUrl(o.img_piece)}" class="w-24 h-24 object-contain rounded border bg-white" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
+                            <div class="flex items-center gap-2 border-b pb-2 text-left"><img src="${buildProxyUrl(o.vendeur_logo)}" class="w-5 h-5 rounded border text-left"><span class="text-[10px] font-black uppercase text-left">${o.vendeur}</span></div>
+                            <div class="flex items-start gap-4 text-left">
+                                <img src="${buildProxyUrl(o.img_piece)}" class="w-24 h-24 object-contain rounded border bg-white" onerror="this.src='Logo.jpg'">
                                 <div class="flex-1 text-left">
                                     <p class="text-[11px] font-black uppercase text-left">${o.nom_piece}</p>
                                     <p class="text-[10px] text-blue-600 font-bold text-left">${o.fabricant}</p>
                                     <p class="text-[8px] text-slate-500 italic text-left">${o.description_technique}</p>
-                                    <div class="mt-2 p-2 bg-slate-50 rounded border flex flex-col gap-1">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-[9px] font-black uppercase">Réf: ${o.ref_fab}</span>
-                                            <button onclick="copierTexte(this, '${o.ref_fab}')" class="text-slate-400 hover:text-blue-700"><i class="far fa-copy text-xs"></i></button>
+                                    <div class="mt-2 p-2 bg-slate-50 rounded border flex flex-col gap-1 text-left">
+                                        <div class="flex justify-between items-center text-left">
+                                            <span class="text-[9px] font-black uppercase text-left">Réf: ${o.ref_fab}</span>
+                                            <button onclick="copierTexte(this, '${o.ref_fab}')" class="text-slate-400 hover:text-blue-700 text-left"><i class="far fa-copy text-xs text-left"></i></button>
                                         </div>
-                                        <a href="${googleLink}" target="_blank" class="text-[8px] text-blue-500 underline font-bold uppercase"><i class="fas fa-eye"></i> Vérifier la photo sur Google</a>
+                                        <a href="${googleVerify}" target="_blank" class="text-[8px] text-blue-500 underline font-bold uppercase text-left text-left text-left"><i class="fas fa-eye text-left"></i> Vérifier la photo sur Google</a>
                                     </div>
                                 </div>
-                                <div class="text-right min-w-[90px]"><p class="text-xl font-black">${prixFinal.toFixed(2)}€</p><button onclick="window.location.href='https://wa.me/33699337803?text=Commande: ${o.ref_fab}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase">Commander</button></div>
+                                <div class="text-right min-w-[90px] text-right text-right"><p class="text-xl font-black text-right text-right">${prixFinal.toFixed(2)}€</p><button onclick="window.location.href='https://wa.me/33699337803?text=Commande: ${o.ref_fab}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase text-center text-center">Commander</button></div>
                             </div>
                         </div>`;
                 });
