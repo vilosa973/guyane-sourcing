@@ -41,7 +41,7 @@
         
         <header class="bg-white/95 p-4 text-center border-b-4 border-green-600 shadow-md sticky top-0 z-50">
             <img src="Logo.jpg" alt="Logo Guyane Sourcing Direct" class="h-16 mx-auto">
-            <p class="text-green-700 text-[10px] font-black uppercase mt-1 tracking-widest">Sourcing • Logistique • Guyane</p>
+            <p class="text-green-700 text-[10px] font-black uppercase mt-1 tracking-widest text-center">Sourcing • Logistique • Guyane</p>
         </header>
 
         <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full mt-6">
@@ -57,16 +57,16 @@
                         <input type="text" id="ai-immat" placeholder="AB-123-CD" class="w-full p-4 rounded-2xl uppercase text-center outline-none focus:border-blue-700">
                     </div>
 
-                    <div id="form-modele" class="hidden space-y-2">
+                    <div id="form-modele" class="hidden space-y-2 text-center">
                         <div class="grid grid-cols-2 gap-2">
                             <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase">
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2 text-center">
                             <input type="text" id="m-moteur" placeholder="MOTEUR (EX: HDI)" class="p-3 rounded-xl text-xs uppercase font-bold text-center">
                             <input type="text" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-xs text-center">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2 text-center">
                             <input type="text" id="m-litrage" placeholder="LITRAGE (EX: 1.6L)" class="p-3 rounded-xl text-xs text-center">
                             <input type="text" id="m-fiscale" placeholder="PUISSANCE FISCALE (CV)" class="p-3 rounded-xl text-xs text-center">
                         </div>
@@ -78,17 +78,17 @@
                         <i class="fas fa-search"></i> RECHERCHE
                     </button>
 
-                    <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl">
+                    <div id="ai-resultat" class="hidden mt-4 space-y-4 text-center">
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center">
                             <i class="fas fa-microchip fa-spin text-blue-700 text-3xl"></i>
-                            <p class="font-bold mt-2 uppercase text-[10px] tracking-widest">Sourcing GSD en cours...</p>
+                            <p class="font-bold mt-2 uppercase text-[10px] tracking-widest text-center">Identification technique...</p>
                         </div>
 
-                        <div id="ai-content" class="hidden space-y-4">
-                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left text-slate-900">
+                        <div id="ai-content" class="hidden space-y-4 text-left">
+                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-slate-900">
                                 <img id="ai-vehicule-img" src="" class="w-20 h-20 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                                 <div>
-                                    <p id="ai-modele-long" class="font-black uppercase text-sm leading-tight"></p>
+                                    <p id="ai-modele-long" class="font-black uppercase text-sm leading-tight font-bold"></p>
                                     <p id="ai-moteur-details" class="text-[10px] font-bold text-blue-700 italic"></p>
                                     <p id="ai-fiscale-display" class="text-[9px] font-black bg-slate-100 px-2 py-0.5 rounded-full inline-block mt-1 uppercase text-slate-500"></p>
                                 </div>
@@ -99,69 +99,17 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-6 flex items-center border-b-2 border-blue-700 pb-2">
-                    <i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Devis Manuel
-                </h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <div class="flex gap-2">
-                        <select name="civilite" required class="w-1/3 p-4 rounded-2xl outline-none appearance-none">
-                            <option value="" disabled selected>Civilité</option>
-                            <option value="Monsieur">Monsieur</option>
-                            <option value="Madame">Madame</option>
-                        </select>
-                        <input type="text" name="nom" placeholder="Nom complet" required class="w-2/3 p-4 rounded-2xl outline-none">
-                    </div>
-                    <input type="email" name="email" placeholder="Email" required class="w-full p-4 rounded-2xl outline-none">
-                    <textarea name="besoin" placeholder="Détails supplémentaires..." rows="2" class="w-full p-4 rounded-2xl outline-none"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black uppercase shadow-lg hover:bg-blue-800 transition-all">Envoyer</button>
-                </form>
-            </section>
-
             <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500">
                 <video controls class="w-full rounded-2xl shadow-inner border-4 border-white/30">
                     <source src="explication.mp4" type="video/mp4">
                 </video>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center">
-                    <i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client
-                </h2>
-                <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none">
-                    <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg hover:bg-orange-600 transition-all">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="resultat" class="hidden mt-6">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl">
-                        <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
-                        <div class="my-4 py-4 border-y border-slate-800"><p id="montantDisplay" class="text-5xl font-black text-white"></p></div>
-                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner tracking-widest"></div>
-                    </div>
-                    <div id="zonePaiement" class="hidden mt-6 space-y-4">
-                        <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                            <i class="fas fa-credit-card"></i> Payer par Carte
-                        </a>
-                        <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                            <i class="fab fa-paypal"></i> PayPal / 4X
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform">
+            <a href="https://wa.me/33699337803" class="flex items-center justify-center space-x-4 bg-[#25D366] text-white p-5 rounded-3xl font-black shadow-xl hover:scale-[1.02] transition-transform text-center">
                 <i class="fab fa-whatsapp text-4xl"></i>
-                <span class="text-xl uppercase tracking-tighter">WhatsApp Direct</span>
+                <span class="text-xl uppercase tracking-tighter">Assistance WhatsApp Direct</span>
             </a>
         </div>
-        <footer class="bg-white/80 p-8 text-center mt-10 text-slate-500 text-[10px] uppercase font-bold tracking-[0.3em]">
-            © 2026 Guyane Sourcing Direct | VILOSA
-        </footer>
     </div>
 
     <script>
@@ -196,7 +144,7 @@
                         model: "gpt-4o",
                         messages: [{ 
                             role: "system", 
-                            content: "Expert GSD. 1. Identifie véhicule (image réelle). 2. Offre 3 options : NEUF, RECONDITIONNÉ, OCCASION. 3. Références internationales (EAN/OEM). JSON format: {'vehicule':{'nom':'','moteur':'','img':'','cv_fiscaux':''}, 'offres':[{'type':'NEUF','nom':'','prix':0,'img':'','ref':'','garantie':'24 mois'},{'type':'RECONDITIONNÉ','nom':'','prix':0,'img':'','ref':'','garantie':'12 mois'},{'type':'OCCASION','nom':'','prix':0,'img':'','ref':'','garantie':'6 mois'}]}" 
+                            content: "Tu es l'expert GSD. Identifie le véhicule précisément (image réelle). Propose 3 offres : NEUF, RECONDITIONNÉ, OCCASION. Pour chaque pièce, trouve : le NOM de la pièce, le FABRICANT (Bosch, Ridex, Valeo...), et le NUMÉRO DE RÉFÉRENCE fabricant exact. JSON format: {'vehicule':{'nom':'','moteur':'','img':'','cv_fiscaux':''}, 'offres':[{'type':'NEUF','nom_piece':'','fabricant':'','ref_fabricant':'','prix':0,'img':'','garantie':'24 mois'},{'type':'RECON.','nom_piece':'','fabricant':'','ref_fabricant':'','prix':0,'img':'','garantie':'12 mois'},{'type':'OCCAS.','nom_piece':'','fabricant':'','ref_fabricant':'','prix':0,'img':'','garantie':'6 mois'}]}" 
                         }, { role: "user", content: `Cherche ${piece} pour ${context}` }],
                         response_format: { type: "json_object" }
                     })
@@ -213,25 +161,26 @@
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix) * 1.20) + 45;
-                    const color = o.type === 'NEUF' ? 'bg-blue-700' : (o.type === 'OCCASION' ? 'bg-emerald-600' : 'bg-orange-500');
+                    const color = o.type === 'NEUF' ? 'bg-blue-700' : (o.type === 'OCCAS.' ? 'bg-emerald-600' : 'bg-orange-500');
                     html += `
                         <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4 text-left">
                             <img src="${o.img}" class="w-20 h-20 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
-                                    <span class="text-[8px] font-black uppercase px-2 py-0.5 ${color} text-white rounded-md">${o.type}</span>
-                                    <span class="text-[9px] font-black text-blue-700 uppercase italic font-black">Garantie ${o.garantie}</span>
+                                    <span class="text-[8px] font-black uppercase px-2 py-0.5 ${color} text-white rounded-md text-center">${o.type}</span>
+                                    <span class="text-[9px] font-black text-blue-700 uppercase italic text-center">Garantie ${o.garantie}</span>
                                 </div>
-                                <p class="text-[11px] font-black mt-1 leading-tight uppercase text-slate-800">${o.nom}</p>
+                                <p class="text-[11px] font-black mt-1 leading-tight uppercase text-slate-800">${o.nom_piece}</p>
+                                <p class="text-[10px] font-bold text-blue-600 uppercase mt-0.5">${o.fabricant}</p>
                                 <div class="mt-1 p-2 bg-slate-50 rounded-lg border border-slate-100 text-center">
-                                    <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Réfs Internationales :</p>
-                                    <p class="text-[8px] text-slate-700 font-bold break-words leading-relaxed">${o.ref}</p>
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Réf. Fabricant :</p>
+                                    <p class="text-[8px] text-slate-700 font-bold break-words leading-relaxed">${o.ref_fabricant}</p>
                                 </div>
                             </div>
                             <div class="text-right min-w-[80px]">
                                 <p class="text-[10px] text-slate-300 line-through font-bold text-center">${(prixFinal*1.18).toFixed(0)}€</p>
                                 <p class="text-xl font-black text-slate-900 text-center">${prixFinal.toFixed(2)}€</p>
-                                <button onclick="window.location.href='https://wa.me/33699337803?text=Intérêt pour ${o.type} - ${o.nom}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase w-full">Choisir</button>
+                                <button onclick="window.location.href='https://wa.me/33699337803?text=Intérêt pour ${o.type} - ${o.fabricant} ${o.ref_fabricant}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase w-full">Choisir</button>
                             </div>
                         </div>
                     `;
@@ -240,50 +189,9 @@
                 document.getElementById('ai-loading').classList.add('hidden');
                 document.getElementById('ai-content').classList.remove('hidden');
             } catch (e) {
-                alert("Modèle non identifié. Réessayez.");
+                alert("Erreur de sourcing. Précisez le modèle.");
                 document.getElementById('ai-resultat').classList.add('hidden');
             }
-        }
-
-        async function chercherDossier() {
-            const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
-            const res = document.getElementById('resultat');
-            if(!nomSaisi || !idSaisi) return alert("Nom et N° Devis requis.");
-            try {
-                const response = await fetch("https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv");
-                const data = await response.text();
-                const lignes = data.split('\n');
-                let trouve = false;
-                for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(col[0]?.replace(/"/g, '').trim().toUpperCase() === idSaisi && col[2]?.replace(/"/g, '').trim().toUpperCase() === nomSaisi) {
-                        trouve = true;
-                        res.classList.remove('hidden');
-                        document.getElementById('nomClientDisplay').innerText = col[1]?.replace(/"/g, '').trim() + " " + col[2]?.replace(/"/g, '').trim();
-                        document.getElementById('montantDisplay').innerText = col[7]?.replace(/"/g, '').trim() + " €";
-                        const s = document.getElementById('statut');
-                        s.innerText = col[3]?.replace(/"/g, '').trim();
-                        s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
-                        
-                        const stripeL = col[4]?.replace(/"/g, '').trim();
-                        if(stripeL && stripeL.startsWith('http')) { 
-                            document.getElementById('btnStripe').href = stripeL; 
-                            document.getElementById('btnStripe').classList.remove('hidden'); 
-                            document.getElementById('btnStripe').classList.add('flex');
-                        }
-                        const paypalL = col[6]?.replace(/"/g, '').trim();
-                        if(paypalL && paypalL.startsWith('http')) { 
-                            document.getElementById('btnPaypal').href = paypalL; 
-                            document.getElementById('btnPaypal').classList.remove('hidden'); 
-                            document.getElementById('btnPaypal').classList.add('flex');
-                        }
-                        document.getElementById('zonePaiement').classList.remove('hidden');
-                        break;
-                    }
-                }
-                if (!trouve) alert("Dossier introuvable.");
-            } catch (e) { alert("Erreur réseau."); }
         }
     </script>
 </body>
