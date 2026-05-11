@@ -46,7 +46,7 @@
                             <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center">
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
                         </div>
-                        <div class="grid-inputs text-center">
+                        <div class="grid-inputs text-center text-center">
                             <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center">
                             <input type="text" id="m-puissance" placeholder="PUISSANCE" class="p-3 rounded-xl text-sm text-center">
                         </div>
@@ -59,7 +59,7 @@
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4 text-center">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Recherche en cours...</p></div>
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Analyse sourcing en cours...</p></div>
                         <div id="ai-content" class="hidden space-y-4">
                             <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
                                 <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" src="Logo.jpg">
@@ -93,7 +93,7 @@
                 </form>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center text-center text-center">
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center">
                     <i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier
                 </h2>
@@ -186,8 +186,7 @@
 
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            // Nettoyage de l'ID saisi (on enlève les tirets)
-            let idSaisi = document.getElementById('numDevis').value.trim().toUpperCase().replace(/-/g, "");
+            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase().replace(/-/g, "");
             
             if(!nomSaisi || !idSaisi) return alert("Remplissez NOM et N° DEVIS.");
             
@@ -195,22 +194,25 @@
                 const res = await fetch(URL_CSV + "?nocache=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
-                const sep = data[0].includes(';') ? ';' : ',';
+                const sep = data.includes(';') ? ';' : ',';
                 
                 let trouve = false;
                 for (let i = 1; i < lignes.length; i++) {
                     if (!lignes[i].trim()) continue;
+                    // Découpe gérant les guillemets et virgules de Google Sheets
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
                     
-                    // Nettoyage de l'ID du tableau (on enlève les tirets pour comparer)
                     const idTableau = col[0] ? col[0].toUpperCase().replace(/-/g, "") : "";
-                    const nomTableau = col[2] ? col[2].toUpperCase() : "";
+                    const nomTableau = col[2] ? col[2].toUpperCase() : ""; // Col C (Index 2)
                     
                     if(idTableau === idSaisi && (nomSaisi === nomTableau || nomSaisi.includes(nomTableau))) {
                         trouve = true;
                         document.getElementById('resultat').classList.remove('hidden');
+                        
+                        // AFFICHAGE CORRECT NOM ET PRÉNOM (Col D et C)
                         document.getElementById('nomClientDisplay').innerText = (col[3] || "") + " " + col[2];
                         
+                        // MONTANT TOTAL (Col I / Index 8)
                         let montant = col[8] || "0.00 €";
                         document.getElementById('montantDisplay').innerText = montant.includes('€') ? montant : montant + " €";
                         
@@ -231,7 +233,7 @@
                         break;
                     }
                 }
-                if(!trouve) alert("Dossier introuvable. Vérifiez l'ID et votre NOM.");
+                if(!trouve) alert("Dossier introuvable.");
             } catch(e) { alert("Erreur archives."); }
         }
 
