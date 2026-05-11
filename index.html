@@ -106,17 +106,6 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4 text-center">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
-                    <div class="grid grid-cols-2 gap-2"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
-                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center"><input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
-                    <textarea name="description" placeholder="DÉTAILS DU VÉHICULE & PIÈCES RECHERCHÉES..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center">Envoyer la demande</button>
-                </form>
-            </section>
-
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500 text-center"></i> Espace Client</h2>
                 <div class="space-y-3"><input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center"><div class="flex space-x-2"><input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none text-center"><button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg"><i class="fas fa-search"></i></button></div></div>
@@ -138,16 +127,16 @@
         async function rechercheIA() {
             const piece = document.getElementById('ai-piece').value;
             const immat = document.getElementById('ai-immat').value;
-            const marque = document.getElementById('m-marque').value;
-            const modele = document.getElementById('m-modele').value;
-            const annee = document.getElementById('m-annee').value;
-            const motorisation = document.getElementById('m-litrage').value;
-            const energie = document.getElementById('m-energie').value;
-            const type = document.getElementById('m-type').value;
+            const marqueInput = document.getElementById('m-marque').value;
+            const modeleInput = document.getElementById('m-modele').value;
+            const anneeInput = document.getElementById('m-annee').value;
+            const motorisationInput = document.getElementById('m-litrage').value;
+            const energieInput = document.getElementById('m-energie').value;
+            const typeInput = document.getElementById('m-type').value;
 
-            let context = immat ? `Plaque: ${immat}` : `${type} ${marque} ${modele} de ${annee}, Moteur ${motorisation} ${energie}`;
+            let context = immat ? `Plaque: ${immat}` : `${typeInput} ${marqueInput} ${modeleInput} de ${anneeInput}, Moteur ${motorisationInput} ${energieInput}`;
             
-            if(!piece || (!immat && !marque)) return alert("Veuillez remplir les informations du véhicule !");
+            if(!piece || (!immat && !marqueInput)) return alert("Veuillez remplir les informations du véhicule !");
             
             document.getElementById('ai-resultat').classList.remove('hidden');
             document.getElementById('ai-loading').classList.remove('hidden');
@@ -162,7 +151,7 @@
                         messages: [{ 
                             role: "system", 
                             content: `Expert GSD Guyane. 
-                            1. Identifie précisément le véhicule (Marque, Modèle, Année, Motorisation exacte).
+                            1. Identifie précisément le véhicule.
                             2. Propose 3 offres RÉELLES avec RÉFÉRENCE CONSTRUCTEUR (OEM). 
                             JSON: {'machine':{'nom':'NOM COMPLET','infos':'MOTORISATION + ANNÉE','img':'URL_IMAGE_VEHICULE'}, 'offres':[{'vendeur':'','vendeur_logo':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'img_piece':'','description_technique':''}]}` 
                         }, { role: "user", content: `Trouve ${piece} pour : ${context}` }],
@@ -181,24 +170,40 @@
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix_ht) * 1.20) + 45;
+                    const googleVerify = `https://www.google.com/search?q=${o.fabricant}+${o.ref_fab}+photo&tbm=isch`;
+                    
+                    // CONSTRUCTION DU MESSAGE WHATSAPP SUR MESURE
+                    const waMessage = `Bonjour GSD ! Je souhaite commander :
+• Pièce : ${o.nom_piece}
+• Marque : ${o.fabricant}
+• Référence : ${o.ref_fab}
+• Prix total : ${prixFinal.toFixed(2)}€
+• Vendeur/Site : ${o.vendeur}
+---
+Véhicule : ${res.machine.nom}`;
+
                     html += `
                         <div class="card-choice bg-white rounded-2xl p-4 shadow-lg flex flex-col gap-3 text-left">
                             <div class="flex items-center gap-2 border-b pb-2"><img src="${buildProxyUrl(o.vendeur_logo)}" class="w-5 h-5 rounded border"><span class="text-[10px] font-black uppercase">${o.vendeur}</span></div>
                             <div class="flex items-start gap-4">
                                 <img src="${buildProxyUrl(o.img_piece)}" class="w-20 h-20 object-contain rounded border" onerror="this.src='Logo.jpg'">
                                 <div class="flex-1">
-                                    <p class="text-[11px] font-black uppercase">${o.nom_piece}</p>
+                                    <p class="text-[11px] font-black uppercase text-slate-800 leading-tight">${o.nom_piece}</p>
                                     <p class="text-[10px] text-blue-600 font-bold">${o.fabricant} - REF: ${o.ref_fab}</p>
-                                    <p class="text-[9px] text-slate-500 italic">${o.description_technique}</p>
+                                    <p class="text-[8px] text-slate-500 italic">${o.description_technique}</p>
+                                    <a href="${googleVerify}" target="_blank" class="text-[8px] text-blue-500 underline font-bold uppercase"><i class="fas fa-eye"></i> Vérifier sur Google</a>
                                 </div>
-                                <div class="text-right min-w-[80px]"><p class="text-xl font-black">${prixFinal.toFixed(2)}€</p><button onclick="window.location.href='https://wa.me/33699337803?text=Commande: ${o.ref_fab}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase text-center text-center">Commander</button></div>
+                                <div class="text-right min-w-[90px]">
+                                    <p class="text-xl font-black">${prixFinal.toFixed(2)}€</p>
+                                    <button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase text-center w-full">Commander</button>
+                                </div>
                             </div>
                         </div>`;
                 });
                 document.getElementById('offres-container').innerHTML = html;
                 document.getElementById('ai-loading').classList.add('hidden');
                 document.getElementById('ai-content').classList.remove('hidden');
-            } catch (e) { alert("Erreur de connexion. Réessayez."); }
+            } catch (e) { alert("Erreur sourcing. Soyez plus précis sur le modèle !"); }
         }
 
         async function chercherDossier() {
