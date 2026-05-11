@@ -63,7 +63,7 @@
                         <div id="ai-content" class="hidden space-y-4">
                             <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
                                 <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" onerror="this.src='Logo.jpg'">
-                                <div class="flex-1 text-left">
+                                <div class="flex-1 text-left text-left">
                                     <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900"></p>
                                     <p id="ai-moteur-details" class="text-[11px] font-bold text-blue-600 mt-1 italic"></p>
                                 </div>
@@ -93,8 +93,8 @@
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client</h2>
-                <div class="space-y-3"><input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center"><div class="flex space-x-2 text-center"><input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none"><button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg"><i class="fas fa-search"></i></button></div></div>
-                <div id="resultat" class="hidden mt-6 text-center"><div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl"><p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p><div class="my-4 py-4 border-y border-slate-800 text-center"><p id="montantDisplay" class="text-5xl font-black text-white"></p></div><div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div></div><div id="zonePaiement" class="hidden mt-6 space-y-4"><a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3"><i class="fas fa-credit-card"></i> Payer par Carte</a><a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3"><i class="fab fa-paypal"></i> PayPal / 4X</a></div></div>
+                <div class="space-y-3"><input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center"><div class="flex space-x-2 text-center text-center"><input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none"><button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg"><i class="fas fa-search"></i></button></div></div>
+                <div id="resultat" class="hidden mt-6 text-center text-center"><div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl text-center"><p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2 text-center"></p><div class="my-4 py-4 border-y border-slate-800 text-center"><p id="montantDisplay" class="text-5xl font-black text-white text-center"></p></div><div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div></div><div id="zonePaiement" class="hidden mt-6 space-y-4 text-center"><a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fas fa-credit-card"></i> Payer par Carte</a><a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fab fa-paypal"></i> PayPal / 4X</a></div></div>
             </section>
         </div>
     </div>
@@ -119,11 +119,10 @@
             document.getElementById('ai-loading').classList.remove('hidden');
             document.getElementById('ai-content').classList.add('hidden');
 
-            let promptContent = [{ type: "text", text: `Expert GSD. 
-            1. Identifie précisément le véhicule (Année, kW/CH). 
-            2. Trouve 3 offres RÉELLES (Neuf ou Occasion). 
-            Sites prioritaires : Autodoc, Oscaro, Mister Auto, eBay, Opisto, Careco.
-            INTERDICTION d'inventer des sites. Si l'URL exacte est inconnue, laisse vide.
+            let promptContent = [{ type: "text", text: `Expert Sourcing GSD. 
+            1. IDENTIFICATION : Analyse le véhicule précisément. 
+            2. FOCUS STRICT : Trouve 3 offres uniquement pour la pièce suivante : "${piece}". NE PROPOSE AUCUNE AUTRE PIÈCE COMPLÉMENTAIRE.
+            3. SOURCING : Sites réels (Autodoc, Oscaro, eBay, Opisto, eBay Motors). Pas d'hallucination d'URL.
             JSON format: {'machine':{'nom':'','infos':'','img':''}, 'offres':[{'vendeur':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'url_site':'','img_piece':'','etat':'NEUF ou OCCASION'}]}` }];
             
             const cgFile = document.getElementById('input-cg').files[0];
@@ -141,7 +140,7 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
                     body: JSON.stringify({
                         model: "gpt-4o",
-                        messages: [{ role: "system", content: "Expert sourcing multicanal pro. Pas d'hallucination d'URL." }, { role: "user", content: promptContent }],
+                        messages: [{ role: "system", content: "Sourceur pro GSD. FOCUS STRICT sur la pièce demandée. Pas de liens inventés." }, { role: "user", content: promptContent }],
                         response_format: { type: "json_object" }
                     })
                 });
@@ -157,10 +156,8 @@
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix_ht) * 1.20) + 45;
-                    
-                    // LIEN DE SÉCURITÉ GOOGLE SHOPPING
-                    const lienGoogle = `https://www.google.com/search?q=${o.fabricant}+${o.ref_fab}+${o.nom_piece}&tbm=shop`;
-                    const urlAffichee = (o.url_site && o.url_site.includes('http')) ? o.url_site : lienGoogle;
+                    const lienShopping = `https://www.google.com/search?q=${o.fabricant}+${o.ref_fab}+${o.nom_piece}&tbm=shop`;
+                    const urlAffichee = (o.url_site && o.url_site.includes('http')) ? o.url_site : lienShopping;
 
                     const waMessage = `Bonjour GSD ! Commande :
 • Pièce : ${o.nom_piece} (${o.etat || 'N/A'})
@@ -170,17 +167,17 @@
 • Lien : ${urlAffichee}`;
 
                     html += `
-                        <div class="bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4 text-left border-b-4 border-blue-600">
+                        <div class="bg-white rounded-2xl p-4 shadow-lg flex items-center gap-4 text-left border-b-4 border-blue-600 text-left">
                             <img src="${buildProxy(o.img_piece)}" class="w-20 h-20 object-contain rounded border" onerror="this.src='Logo.jpg'">
-                            <div class="flex-1 text-left">
+                            <div class="flex-1 text-left text-left">
                                 <p class="text-[11px] font-black uppercase text-slate-800 leading-tight">${o.nom_piece}</p>
                                 <span class="text-[8px] px-2 py-0.5 rounded bg-slate-200 font-bold">${o.etat || 'PIÈCE'}</span>
                                 <p class="text-[10px] text-blue-600 font-bold">${o.fabricant} | REF: ${o.ref_fab}</p>
                                 <div class="mt-2 flex justify-between items-end text-right">
                                     <p class="text-xl font-black">${prixFinal.toFixed(2)}€</p>
-                                    <div class="flex flex-col gap-1">
+                                    <div class="flex flex-col gap-1 text-right">
                                          <button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="bg-slate-900 text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Commander</button>
-                                         <a href="${lienGoogle}" target="_blank" class="text-[8px] text-blue-500 underline font-bold">Vérifier / Autres offres</a>
+                                         <a href="${lienShopping}" target="_blank" class="text-[8px] text-blue-500 underline font-bold">Voir sur Google Shopping</a>
                                     </div>
                                 </div>
                             </div>
