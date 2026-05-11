@@ -13,6 +13,8 @@
         input, textarea, select { background-color: rgba(255, 255, 255, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: #000 !important; font-weight: 700; }
         .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900 text-center">
@@ -38,7 +40,7 @@
                             <span class="text-xs font-bold uppercase">Scanner ma Carte Grise</span>
                             <input type="file" accept="image/*" id="input-cg" class="hidden" onchange="previewCG(this)">
                         </label>
-                        <div id="cg-status" class="hidden text-[10px] text-green-700 font-bold uppercase text-center">✓ Document chargé</div>
+                        <div id="cg-status" class="hidden text-[10px] text-green-700 font-bold uppercase text-center">✓ Document chargé pour analyse</div>
                     </div>
 
                     <div id="form-modele" class="hidden space-y-2">
@@ -46,7 +48,7 @@
                             <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center">
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
                         </div>
-                        <div class="grid-inputs text-center text-center">
+                        <div class="grid-inputs text-center">
                             <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center">
                             <input type="text" id="m-puissance" placeholder="PUISSANCE" class="p-3 rounded-xl text-sm text-center">
                         </div>
@@ -59,7 +61,7 @@
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4 text-center">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Analyse sourcing en cours...</p></div>
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Sourcing en cours...</p></div>
                         <div id="ai-content" class="hidden space-y-4">
                             <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
                                 <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" src="Logo.jpg">
@@ -82,41 +84,39 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
-                    <div class="grid-inputs text-center"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
-                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center"><input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
-                    <textarea name="description" placeholder="VOTRE DEMANDE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center shadow-lg">Envoyer la demande</button>
-                </form>
-            </section>
-
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center">
                     <i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier
                 </h2>
                 <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center">
+                    <input type="text" id="nomRecherche" placeholder="VOTRE NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center uppercase">
                     <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg">
+                        <input type="text" id="numDevis" placeholder="N° DE DEVIS (Ex: GSD...)" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
+                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg active:scale-95 transition">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
                 </div>
-                <div id="resultat" class="hidden mt-6 text-center">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl text-center">
+                
+                <div id="resultat" class="hidden mt-6 animate-fade-in text-center">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl">
+                        <p class="text-[10px] uppercase tracking-widest opacity-60 mb-1">Dossier trouvé pour :</p>
                         <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
+                        
                         <div class="my-4 py-4 border-y border-slate-800 text-center">
+                            <p class="text-[10px] uppercase opacity-50 mb-1">Montant Total du Devis</p>
                             <p id="montantDisplay" class="text-5xl font-black text-white"></p>
                         </div>
-                        <div id="statutDisplay" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div>
+                        <div id="statutDisplay" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner"></div>
                     </div>
+                    
                     <div id="zonePaiement" class="hidden mt-6 space-y-4">
-                        <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fas fa-credit-card"></i> Payer par Carte</a>
-                        <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fab fa-paypal"></i> PayPal / 4X</a>
+                        <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg">
+                            <i class="fas fa-credit-card"></i> Payer par Carte
+                        </a>
+                        <a id="btnPaypal" href="#" target="_blank" class="w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg">
+                            <i class="fab fa-paypal"></i> PayPal / 4X
+                        </a>
                     </div>
                 </div>
             </section>
@@ -186,55 +186,58 @@
 
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase().replace(/-/g, "");
+            // Sécurité Tiret : On nettoie l'ID saisi de tous les tirets
+            let idSaisi = document.getElementById('numDevis').value.trim().toUpperCase().replace(/-/g, "");
             
-            if(!nomSaisi || !idSaisi) return alert("Remplissez NOM et N° DEVIS.");
+            if(!nomSaisi || !idSaisi) return alert("Veuillez entrer votre NOM et le N° de DEVIS.");
             
             try {
                 const res = await fetch(URL_CSV + "?nocache=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
-                const sep = data.includes(';') ? ';' : ',';
+                const sep = data[0].includes(';') ? ';' : ',';
                 
                 let trouve = false;
                 for (let i = 1; i < lignes.length; i++) {
                     if (!lignes[i].trim()) continue;
-                    // Découpe gérant les guillemets et virgules de Google Sheets
+                    
+                    // Découpage propre des colonnes avec gestion des guillemets
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
                     
+                    // Sécurité Tiret : On nettoie aussi l'ID du tableau de ses tirets pour comparer
                     const idTableau = col[0] ? col[0].toUpperCase().replace(/-/g, "") : "";
-                    const nomTableau = col[2] ? col[2].toUpperCase() : ""; // Col C (Index 2)
-                    
+                    const nomTableau = col[2] ? col[2].toUpperCase() : ""; // Colonne C (NOM)
+
                     if(idTableau === idSaisi && (nomSaisi === nomTableau || nomSaisi.includes(nomTableau))) {
                         trouve = true;
                         document.getElementById('resultat').classList.remove('hidden');
                         
-                        // AFFICHAGE CORRECT NOM ET PRÉNOM (Col D et C)
-                        document.getElementById('nomClientDisplay').innerText = (col[3] || "") + " " + col[2];
+                        // CORRECTION AFFICHAGE : col[1]=Civilité | col[3]=Prénom | col[2]=NOM
+                        document.getElementById('nomClientDisplay').innerText = col[1] + " " + col[3] + " " + col[2];
                         
-                        // MONTANT TOTAL (Col I / Index 8)
+                        // MONTANT TOTAL : Colonne I (index 8)
                         let montant = col[8] || "0.00 €";
                         document.getElementById('montantDisplay').innerText = montant.includes('€') ? montant : montant + " €";
                         
+                        // STATUT : Colonne E (index 4)
                         const s = document.getElementById('statutDisplay');
                         const stat = col[4] ? col[4].toUpperCase() : "EN ATTENTE";
-                        s.innerText = stat;
+                        s.innerText = "STATUT : " + stat;
                         s.style.backgroundColor = (stat.includes('PAYÉ') || stat.includes('OK')) ? '#059669' : '#D97706';
                         
+                        // LIENS DE PAIEMENT : Colonne H (index 7)
                         const stripeL = col[7];
                         if(stripeL && stripeL.startsWith('http')) {
                             document.getElementById('btnStripe').href = stripeL;
-                            document.getElementById('btnStripe').classList.remove('hidden');
                             document.getElementById('zonePaiement').classList.remove('hidden');
                         } else {
-                            document.getElementById('btnStripe').classList.add('hidden');
                             document.getElementById('zonePaiement').classList.add('hidden');
                         }
                         break;
                     }
                 }
-                if(!trouve) alert("Dossier introuvable.");
-            } catch(e) { alert("Erreur archives."); }
+                if(!trouve) alert("Dossier introuvable. Vérifiez l'ID et votre NOM en majuscules.");
+            } catch(e) { alert("Erreur de connexion aux archives."); }
         }
 
         function reserverTarif(plaque, piece, prix, url) {
