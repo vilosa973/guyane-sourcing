@@ -43,8 +43,12 @@
 
                     <div id="form-modele" class="hidden space-y-2">
                         <div class="grid-inputs">
-                            <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center text-center">
-                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center text-center">
+                            <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center">
+                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
+                        </div>
+                        <div class="grid-inputs">
+                            <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center">
+                            <input type="text" id="m-puissance" placeholder="PUISSANCE (kW/CH)" class="p-3 rounded-xl text-sm text-center">
                         </div>
                     </div>
 
@@ -56,10 +60,10 @@
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Analyse de compatibilité...</p></div>
-                        <div id="ai-content" class="hidden space-y-4 text-left">
-                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
+                        <div id="ai-content" class="hidden space-y-4">
+                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
                                 <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" onerror="this.src='Logo.jpg'">
-                                <div class="flex-1">
+                                <div class="flex-1 text-left">
                                     <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900"></p>
                                     <p id="ai-moteur-details" class="text-[11px] font-bold text-blue-600 mt-1 italic"></p>
                                 </div>
@@ -92,7 +96,7 @@
                     <input type="text" name="plaque" placeholder="PLAQUE D'IMMATRICULATION" class="w-full p-4 rounded-2xl outline-none uppercase text-center">
                     <input type="email" name="email" placeholder="VOTRE EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
                     <textarea name="description" placeholder="DÉTAILS DE VOTRE DEMANDE (Pièces, état, urgence...)" rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center shadow-lg hover:bg-blue-800 transition-colors">Envoyer la demande</button>
+                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center shadow-lg hover:bg-blue-800 transition-colors text-center">Envoyer la demande</button>
                 </form>
             </section>
 
@@ -110,10 +114,10 @@
                 <div id="resultat" class="hidden mt-6 text-center">
                     <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl text-center">
                         <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
-                        <div class="my-4 py-4 border-y border-slate-800 text-center">
+                        <div class="my-4 py-4 border-y border-slate-800">
                             <p id="montantDisplay" class="text-5xl font-black text-white"></p>
                         </div>
-                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div>
+                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner"></div>
                     </div>
                     <div id="zonePaiement" class="hidden mt-6 space-y-4">
                         <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3"><i class="fas fa-credit-card"></i> Payer par Carte</a>
@@ -144,12 +148,15 @@
             document.getElementById('ai-loading').classList.remove('hidden');
             document.getElementById('ai-content').classList.add('hidden');
 
-            let promptContent = [{ type: "text", text: `Expert GSD. Analyse carte grise (Case A: Plaque, D.2, E, P.1, P.2, P.3, P.6). Trouve 3 offres pour : "${piece}". JSON format: {'machine':{'nom':'','infos':'','img':'','plaque':''}, 'offres':[{'vendeur':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'etat':'','avis_expert':''}]}` }];
+            let promptContent = [{ type: "text", text: `Expert GSD. Analyse carte grise (Plaque, D.2, E, P.1, P.2, P.3, P.6). Trouve 3 offres pour : "${piece}". Format JSON: {'machine':{'nom':'','infos':'','img':'','plaque':''}, 'offres':[{'nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'etat':'','avis_expert':''}]}` }];
             
             const cgFile = document.getElementById('input-cg').files[0];
             if (cgFile && !document.getElementById('form-photo').classList.contains('hidden')) {
                 const base64 = await toBase64(cgFile);
                 promptContent.push({ type: "image_url", image_url: { url: base64 } });
+            } else {
+                const manual = `${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-annee').value} ${document.getElementById('m-puissance').value}`;
+                promptContent[0].text += ` Véhicule: ${manual}. Pièce: ${piece}`;
             }
 
             try {
@@ -158,7 +165,7 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
                     body: JSON.stringify({
                         model: "gpt-4o",
-                        messages: [{ role: "system", content: "Expert sourcing auto. Extraction plaque obligatoire." }, { role: "user", content: promptContent }],
+                        messages: [{ role: "system", content: "Expert sourcing auto. Extraction plaque et VIN obligatoire." }, { role: "user", content: promptContent }],
                         response_format: { type: "json_object" }
                     })
                 });
@@ -178,20 +185,20 @@
                     const waMessage = `Bonjour GSD ! Commande : ${o.nom_piece} (${o.etat}) | Plaque: ${plaque} | Réf: ${o.ref_fab} | Prix: ${prixFinal.toFixed(2)}€`;
 
                     html += `
-                        <div class="bg-white rounded-2xl p-4 shadow-lg flex flex-col gap-3 text-left border-b-4 border-blue-600 text-left">
-                            <div class="flex items-center gap-4">
+                        <div class="bg-white rounded-2xl p-4 shadow-lg flex flex-col gap-3 text-left border-b-4 border-blue-600">
+                            <div class="flex items-center gap-4 text-left">
                                 <img src="Logo.jpg" class="w-16 h-16 object-contain rounded border">
-                                <div class="flex-1">
+                                <div class="flex-1 text-left">
                                     <p class="text-[11px] font-black uppercase text-slate-800 leading-tight">${o.nom_piece}</p>
                                     <p class="text-[9px] text-blue-600 font-bold uppercase">${o.etat} | REF: ${o.ref_fab}</p>
-                                    <p class="text-[9px] bg-green-100 text-green-800 px-2 py-1 rounded-md mt-1 font-bold text-left"><i class="fas fa-check-circle"></i> ${o.avis_expert}</p>
+                                    <p class="text-[9px] bg-green-100 text-green-800 px-2 py-1 rounded-md mt-1 font-bold"><i class="fas fa-check-circle"></i> ${o.avis_expert}</p>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-end border-t pt-2">
-                                <p class="text-xl font-black">${prixFinal.toFixed(2)}€</p>
+                            <div class="flex justify-between items-end border-t pt-2 text-left">
+                                <p class="text-xl font-black text-left">${prixFinal.toFixed(2)}€</p>
                                 <div class="flex gap-2">
                                      <button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="bg-slate-900 text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Commander</button>
-                                     <a href="${rechercheAuto}" target="_blank" class="bg-blue-500 text-white text-[9px] px-4 py-2 rounded-lg flex items-center justify-center"><i class="fas fa-search"></i></a>
+                                     <a href="${rechercheAuto}" target="_blank" class="bg-blue-500 text-white text-[9px] px-4 py-2 rounded-lg flex items-center justify-center text-center"><i class="fas fa-search"></i></a>
                                 </div>
                             </div>
                         </div>`;
