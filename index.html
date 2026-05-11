@@ -87,26 +87,23 @@
                 <div id="resultat" class="hidden mt-6 text-center">
                     <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4">
                         <div class="border-b border-slate-700 pb-3 text-center">
-                            <p class="text-[10px] text-yellow-500 font-bold uppercase">1. Devis N° <span id="resNumDevis"></span></p>
+                            <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
                             <p class="text-xl font-black uppercase mt-1">
-                                2. <span id="resCivilite"></span> 3. <span id="resNomClient"></span>
+                                <span id="resCivilite"></span> <span id="resNomClient"></span>
                             </p>
                         </div>
+                        
                         <div>
-                            <p class="text-[10px] opacity-50 uppercase">4. Pièce commandée :</p>
-                            <p id="resPiece" class="font-bold text-emerald-400 uppercase text-sm"></p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] opacity-50 uppercase mb-1">5. Statut du dossier :</p>
+                            <p class="text-[10px] opacity-50 uppercase mb-1">Statut du dossier</p>
                             <div id="resStatut" class="inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-inner"></div>
                         </div>
                         <div class="py-4 border-y border-slate-800">
-                            <p class="text-[10px] opacity-50 uppercase mb-1">6. Montant total</p>
+                            <p class="text-[10px] opacity-50 uppercase mb-1">Montant total</p>
                             <p id="resMontant" class="text-5xl font-black text-white"></p>
                         </div>
                         <div id="zonePaiement" class="hidden pt-2">
                             <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg">
-                                <i class="fas fa-credit-card"></i> 7. Payer ma commande (Stripe)
+                                <i class="fas fa-credit-card"></i> Payer ma commande
                             </a>
                         </div>
                     </div>
@@ -158,7 +155,6 @@
 
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            // Sécurité : On nettoie l'ID de "GSD", des tirets et des espaces
             const idSaisiNettoye = document.getElementById('numDevis').value.trim().toUpperCase()
                                     .replace("GSD", "")
                                     .replace(/[- ]/g, "");
@@ -176,31 +172,24 @@
                     if (!lignes[i].trim()) continue;
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
                     
-                    // Nettoyage de l'ID du tableau pour la comparaison
                     const idTableauNettoye = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
                     const nomTableau = col[2] ? col[2].toUpperCase() : "";
 
                     if(idTableauNettoye === idSaisiNettoye && (nomSaisi === nomTableau || nomSaisi.includes(nomTableau))) {
                         trouve = true;
                         
-                        // 1. N° Devis
                         document.getElementById('resNumDevis').innerText = col[0];
-                        // 2. Civilité
                         document.getElementById('resCivilite').innerText = col[1];
-                        // 3. Nom
                         document.getElementById('resNomClient').innerText = col[2] + " " + (col[3] || "");
-                        // 4. Pièce (Colonne L / Index 11)
-                        document.getElementById('resPiece').innerText = col[11] || col[5] || "Détails en attente";
-                        // 5. Statut (Colonne E / Index 4)
+                        
                         const stat = col[4] ? col[4].toUpperCase() : "ACTIF";
                         const sBox = document.getElementById('resStatut');
                         sBox.innerText = stat;
                         sBox.style.backgroundColor = (stat.includes('PAYÉ')) ? '#059669' : '#D97706';
-                        // 6. Montant (Colonne I / Index 8)
+                        
                         let montant = col[8] || "0.00 €";
                         document.getElementById('resMontant').innerText = montant.includes('€') ? montant : montant + " €";
                         
-                        // 7. Stripe (Colonne H / Index 7)
                         const stripeL = col[7];
                         if(stripeL && stripeL.startsWith('http')) {
                             document.getElementById('btnStripe').href = stripeL;
