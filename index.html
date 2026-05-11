@@ -28,11 +28,11 @@
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
                     <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs tracking-widest text-center">📷 Analyse Carte Grise</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600 text-center">✍️ Saisie Manuelle</button>
+                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600 text-center text-center">✍️ Saisie Manuelle</button>
                 </div>
 
                 <div class="p-6 space-y-4 text-center">
-                    <div id="form-photo" class="space-y-4">
+                    <div id="form-photo" class="space-y-4 text-center">
                         <label class="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-blue-500 rounded-2xl bg-white/50 cursor-pointer hover:bg-white/80">
                             <i class="fas fa-id-card text-3xl text-blue-600 mb-2"></i>
                             <span class="text-xs font-bold uppercase">Scanner la Carte Grise (Garantie Totale)</span>
@@ -42,11 +42,11 @@
                     </div>
 
                     <div id="form-modele" class="hidden space-y-2">
-                        <div class="grid-inputs text-center">
+                        <div class="grid-inputs">
                             <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center">
-                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center text-center">
+                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
                         </div>
-                        <div class="grid-inputs text-center">
+                        <div class="grid-inputs">
                             <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center">
                             <input type="text" id="m-puissance" placeholder="PUISSANCE (kW/CH)" class="p-3 rounded-xl text-sm text-center">
                         </div>
@@ -60,10 +60,10 @@
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Vérification de compatibilité 100%...</p></div>
-                        <div id="ai-content" class="hidden space-y-4">
-                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
+                        <div id="ai-content" class="hidden space-y-4 text-left">
+                            <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
                                 <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" onerror="this.src='Logo.jpg'">
-                                <div class="flex-1 text-left">
+                                <div class="flex-1">
                                     <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900"></p>
                                     <p id="ai-moteur-details" class="text-[11px] font-bold text-blue-600 mt-1 italic"></p>
                                 </div>
@@ -75,31 +75,20 @@
             </section>
 
             <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden text-center">
-                <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video text-center">
+                <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video">
                     <video controls class="w-full h-full object-cover">
                         <source src="explication.mp4" type="video/mp4">
                     </video>
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
-                    <div class="grid-inputs"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
-                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center"><input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center text-center">
-                    <textarea name="description" placeholder="DÉTAILS VÉHICULE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center">Envoyer</button>
-                </form>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center text-center">
-                    <i class="fas fa-shield-check mr-3 text-orange-500 text-center"></i> Espace Client
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center text-center">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center">
+                    <i class="fas fa-shield-check mr-3 text-orange-500"></i> Espace Client
                 </h2>
                 <div class="space-y-3">
                     <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center">
-                    <div class="flex space-x-2 text-center">
+                    <div class="flex space-x-2">
                         <input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none">
                         <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg">
                             <i class="fas fa-search"></i>
@@ -114,9 +103,9 @@
                         </div>
                         <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div>
                     </div>
-                    <div id="zonePaiement" class="hidden mt-6 space-y-4 text-center">
-                        <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fas fa-credit-card"></i> Payer par Carte</a>
-                        <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fab fa-paypal"></i> PayPal / 4X</a>
+                    <div id="zonePaiement" class="hidden mt-6 space-y-4">
+                        <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3"><i class="fas fa-credit-card"></i> Payer par Carte</a>
+                        <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3"><i class="fab fa-paypal"></i> PayPal / 4X</a>
                     </div>
                 </div>
             </section>
@@ -146,18 +135,15 @@
             let promptContent = [{ type: "text", text: `Expert Sourcing GSD. 
             MISSION : ANALYSE TOTALE carte grise (Case A: Plaque, D.2, E, P.1, P.2, P.3, P.6). 
             FOCUS STRICT : Trouve 3 offres pour : "${piece}". 
-            STRATÉGIE LIENS : 
-            - Si NEUF/RECONDITIONNÉ : Génère l'URL directe du produit (Autodoc, Oscaro).
-            - Si OCCASION : Génère un lien de RECHERCHE automatique sur eBay (sch/i.html?_nkw=...).
+            LIENS : 
+            - NEUF/RECOND : URL directe fiche produit.
+            - OCCASION : URL de recherche eBay automatique (sch/i.html?_nkw=...).
             JSON format: {'machine':{'nom':'','infos':'','img':'','plaque':''}, 'offres':[{'vendeur':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'url_site':'','etat':'NEUF, RECONDITIONNÉ ou OCCASION','avis_expert':''}]}` }];
             
             const cgFile = document.getElementById('input-cg').files[0];
             if (cgFile && !document.getElementById('form-photo').classList.contains('hidden')) {
                 const base64 = await toBase64(cgFile);
                 promptContent.push({ type: "image_url", image_url: { url: base64 } });
-            } else {
-                const manual = `${document.getElementById('m-marque').value} ${document.getElementById('m-modele').value} ${document.getElementById('m-annee').value} ${document.getElementById('m-puissance').value}`;
-                promptContent[0].text += ` Véhicule: ${manual}. Pièce: ${piece}`;
             }
 
             try {
@@ -166,7 +152,7 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
                     body: JSON.stringify({
                         model: "gpt-4o",
-                        messages: [{ role: "system", content: "Expert logistique. Extraction immatriculation obligatoire." }, { role: "user", content: promptContent }],
+                        messages: [{ role: "system", content: "Expert logistique. Extraction immatriculation et analyse technique obligatoire." }, { role: "user", content: promptContent }],
                         response_format: { type: "json_object" }
                     })
                 });
@@ -187,18 +173,18 @@
 
                     const waMessage = `Bonjour GSD ! Commande garantie :
 • Pièce : ${o.nom_piece} (${o.etat})
-• Plaque : ${res.machine.plaque || 'Non scannée'}
+• Plaque : ${res.machine.plaque || 'N/A'}
 • Véhicule : ${res.machine.nom}
-• Marque/Réf : ${o.fabricant} | ${o.ref_fab}
+• Réf : ${o.ref_fab}
 • Prix : ${prixFinal.toFixed(2)}€
 • Avis Expert : ${o.avis_expert}
 ---
 • Lien : ${urlFinal}`;
 
                     html += `
-                        <div class="bg-white rounded-2xl p-4 shadow-lg flex flex-col gap-3 text-left border-b-4 border-blue-600">
+                        <div class="bg-white rounded-2xl p-4 shadow-lg flex flex-col gap-3 text-left border-b-4 border-blue-600 text-left">
                             <div class="flex items-center gap-4 text-left">
-                                <img src="${buildProxy(o.img_piece)}" class="w-20 h-20 object-contain rounded border" onerror="this.src='Logo.jpg'">
+                                <img src="Logo.jpg" class="w-16 h-16 object-contain rounded border">
                                 <div class="flex-1 text-left">
                                     <p class="text-[11px] font-black uppercase text-slate-800 leading-tight">${o.nom_piece}</p>
                                     <p class="text-[9px] text-blue-600 font-bold uppercase">${o.etat} | REF: ${o.ref_fab}</p>
@@ -206,10 +192,10 @@
                                 </div>
                             </div>
                             <div class="flex justify-between items-end border-t pt-2 text-left">
-                                <p class="text-xl font-black text-left">${prixFinal.toFixed(2)}€</p>
+                                <p class="text-xl font-black">${prixFinal.toFixed(2)}€</p>
                                 <div class="flex gap-2">
-                                     <button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="bg-slate-900 text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase text-center">Commander</button>
-                                     <a href="${urlFinal}" target="_blank" class="bg-blue-500 text-white text-[9px] px-4 py-2 rounded-lg flex items-center justify-center text-center"><i class="fas fa-external-link-alt"></i></a>
+                                     <button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="bg-slate-900 text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Commander</button>
+                                     <a href="${urlFinal}" target="_blank" class="bg-blue-500 text-white text-[9px] px-4 py-2 rounded-lg flex items-center justify-center text-center"><i class="fas fa-search"></i></a>
                                 </div>
                             </div>
                         </div>`;
@@ -227,7 +213,6 @@
             reader.onerror = e => rej(e);
         });
 
-        // FONCTION DE RECHERCHE DANS LE GOOGLE SHEETS
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
