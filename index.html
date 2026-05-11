@@ -28,7 +28,7 @@
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
                     <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs tracking-widest text-center">📷 Analyse Carte Grise</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600 text-center text-center">✍️ Saisie Manuelle</button>
+                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600 text-center">✍️ Saisie Manuelle</button>
                 </div>
 
                 <div class="p-6 space-y-4 text-center">
@@ -42,13 +42,13 @@
                     </div>
 
                     <div id="form-modele" class="hidden space-y-2">
-                        <div class="grid-inputs">
+                        <div class="grid-inputs text-center">
                             <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm uppercase text-center">
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
                         </div>
-                        <div class="grid-inputs">
+                        <div class="grid-inputs text-center">
                             <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center">
-                            <input type="text" id="m-puissance" placeholder="PUISSANCE (kW/CH)" class="p-3 rounded-xl text-sm text-center">
+                            <input type="text" id="m-puissance" placeholder="PUISSANCE" class="p-3 rounded-xl text-sm text-center">
                         </div>
                     </div>
 
@@ -58,12 +58,12 @@
                         <i class="fas fa-microchip"></i> ANALYSER & TROUVER
                     </button>
 
-                    <div id="ai-resultat" class="hidden mt-4 space-y-4">
+                    <div id="ai-resultat" class="hidden mt-4 space-y-4 text-center">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px]">Recherche en cours...</p></div>
                         <div id="ai-content" class="hidden space-y-4">
                             <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700 text-left">
                                 <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" src="Logo.jpg">
-                                <div class="flex-1 text-left">
+                                <div class="flex-1">
                                     <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900"></p>
                                     <p id="ai-moteur-details" class="text-[11px] font-bold text-blue-600 mt-1 italic"></p>
                                 </div>
@@ -74,7 +74,7 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden text-center text-center">
+            <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden text-center">
                 <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video text-center">
                     <video controls class="w-full h-full object-cover">
                         <source src="explication.mp4" type="video/mp4">
@@ -82,7 +82,18 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
+            <section class="rounded-3xl shadow-2xl p-6 text-center">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis</h2>
+                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
+                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
+                    <div class="grid-inputs text-center"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
+                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center"><input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
+                    <textarea name="description" placeholder="VOTRE DEMANDE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
+                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center shadow-lg">Envoyer la demande</button>
+                </form>
+            </section>
+
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center text-center text-center">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center">
                     <i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier
                 </h2>
@@ -122,7 +133,6 @@
 
     <script>
         const OPENAI_API_KEY = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV" + "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
-        // URL Corrigée pour export direct CSV
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
 
         function switchTab(tab) {
@@ -136,7 +146,7 @@
 
         async function rechercheIA() {
             const pieceInput = document.getElementById('ai-piece').value;
-            if(!pieceInput) return alert("Saisissez une pièce.");
+            if(!pieceInput) return alert("Précisez la pièce.");
             document.getElementById('ai-resultat').classList.remove('hidden');
             document.getElementById('ai-loading').classList.remove('hidden');
             document.getElementById('ai-content').classList.add('hidden');
@@ -163,8 +173,8 @@
                     let fraisLog = o.nom_piece.toLowerCase().match(/(moteur|boite|pont|chassis|bâche|pare-choc|capot|phare|aile|pneu)/) ? 150 : 65;
                     const prixFinal = (prixHT * 1.20) + fraisLog;
                     html += `<div class="bg-white rounded-2xl p-4 shadow-lg border-b-4 border-blue-600 text-left mb-3">
-                        <p class="text-xs font-black uppercase">${o.nom_piece}</p>
-                        <p class="text-2xl font-black">${prixFinal.toFixed(2)}€</p>
+                        <p class="text-xs font-black uppercase text-left">${o.nom_piece}</p>
+                        <p class="text-2xl font-black text-left">${prixFinal.toFixed(2)}€</p>
                         <button onclick="reserverTarif('${plaque}', '${o.nom_piece}', '${prixFinal.toFixed(2)}', '${o.url_source}')" class="w-full mt-2 bg-slate-900 text-white py-2 rounded-xl font-black uppercase text-[10px]">Réserver ce prix</button>
                     </div>`;
                 });
@@ -176,40 +186,39 @@
 
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
-            if(!nomSaisi || !idSaisi) return alert("Veuillez remplir NOM et N° DEVIS.");
+            // Nettoyage de l'ID saisi (on enlève les tirets)
+            let idSaisi = document.getElementById('numDevis').value.trim().toUpperCase().replace(/-/g, "");
+            
+            if(!nomSaisi || !idSaisi) return alert("Remplissez NOM et N° DEVIS.");
             
             try {
-                // On ajoute un timestamp pour forcer la mise à jour des données
-                const res = await fetch(URL_CSV + "&nocache=" + Date.now());
+                const res = await fetch(URL_CSV + "?nocache=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
-                const sep = data.includes(';') ? ';' : ',';
+                const sep = data[0].includes(';') ? ';' : ',';
                 
                 let trouve = false;
                 for (let i = 1; i < lignes.length; i++) {
                     if (!lignes[i].trim()) continue;
-                    // Découpage gérant les guillemets Google Sheets
-                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
                     
-                    const idTableau = col[0] ? col[0].toUpperCase() : ""; // Colonne A (Index 0)
-                    const nomTableau = col[2] ? col[2].toUpperCase() : ""; // Colonne C (Index 2)
+                    // Nettoyage de l'ID du tableau (on enlève les tirets pour comparer)
+                    const idTableau = col[0] ? col[0].toUpperCase().replace(/-/g, "") : "";
+                    const nomTableau = col[2] ? col[2].toUpperCase() : "";
                     
                     if(idTableau === idSaisi && (nomSaisi === nomTableau || nomSaisi.includes(nomTableau))) {
                         trouve = true;
                         document.getElementById('resultat').classList.remove('hidden');
                         document.getElementById('nomClientDisplay').innerText = (col[3] || "") + " " + col[2];
                         
-                        // Montant en Colonne I (Index 8)
                         let montant = col[8] || "0.00 €";
                         document.getElementById('montantDisplay').innerText = montant.includes('€') ? montant : montant + " €";
                         
                         const s = document.getElementById('statutDisplay');
-                        const stat = col[4] ? col[4].toUpperCase() : "EN ATTENTE"; // Colonne E (Index 4)
+                        const stat = col[4] ? col[4].toUpperCase() : "EN ATTENTE";
                         s.innerText = stat;
                         s.style.backgroundColor = (stat.includes('PAYÉ') || stat.includes('OK')) ? '#059669' : '#D97706';
                         
-                        // Lien Stripe en Colonne H (Index 7)
                         const stripeL = col[7];
                         if(stripeL && stripeL.startsWith('http')) {
                             document.getElementById('btnStripe').href = stripeL;
@@ -222,8 +231,8 @@
                         break;
                     }
                 }
-                if(!trouve) alert("Dossier introuvable. Vérifiez l'orthographe du NOM et le N° de Devis.");
-            } catch(e) { alert("Erreur lors de la lecture du fichier."); }
+                if(!trouve) alert("Dossier introuvable. Vérifiez l'ID et votre NOM.");
+            } catch(e) { alert("Erreur archives."); }
         }
 
         function reserverTarif(plaque, piece, prix, url) {
@@ -232,7 +241,7 @@
             document.getElementById('mail-tarif').value = prix + "€";
             document.getElementById('mail-url').value = url;
             document.getElementById('form-sourcing-ia').submit();
-            alert("Demande envoyée !");
+            alert("Demande de réservation envoyée !");
         }
 
         const toBase64 = file => new Promise((res, rej) => {
