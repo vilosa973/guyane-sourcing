@@ -92,6 +92,34 @@
                     <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-center">Envoyer</button>
                 </form>
             </section>
+
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center text-center">
+                    <i class="fas fa-shield-check mr-3 text-orange-500 text-center"></i> Espace Client
+                </h2>
+                <div class="space-y-3">
+                    <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center">
+                    <div class="flex space-x-2 text-center">
+                        <input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none">
+                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="resultat" class="hidden mt-6 text-center text-center">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl text-center">
+                        <p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p>
+                        <div class="my-4 py-4 border-y border-slate-800 text-center">
+                            <p id="montantDisplay" class="text-5xl font-black text-white"></p>
+                        </div>
+                        <div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div>
+                    </div>
+                    <div id="zonePaiement" class="hidden mt-6 space-y-4 text-center">
+                        <a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fas fa-credit-card"></i> Payer par Carte</a>
+                        <a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center"><i class="fab fa-paypal"></i> PayPal / 4X</a>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -198,6 +226,39 @@
             reader.onload = () => res(reader.result);
             reader.onerror = e => rej(e);
         });
+
+        // FONCTION DE RECHERCHE DANS LE GOOGLE SHEETS
+        async function chercherDossier() {
+            const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
+            const idSaisi = document.getElementById('numDevis').value.trim().toUpperCase();
+            if(!nomSaisi || !idSaisi) return alert("Identifiants requis.");
+            try {
+                const response = await fetch("https://docs.google.com/spreadsheets/d/1iSZUCUMXn5YioZt6P_PqLCvYkuo6px_6/export?format=csv");
+                const data = await response.text();
+                const lignes = data.split('\n');
+                let trouve = false;
+                for (let i = 1; i < lignes.length; i++) {
+                    const col = lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(col[0]?.replace(/"/g, '').trim().toUpperCase() === idSaisi && col[2]?.replace(/"/g, '').trim().toUpperCase() === nomSaisi) {
+                        trouve = true;
+                        document.getElementById('resultat').classList.remove('hidden');
+                        document.getElementById('nomClientDisplay').innerText = col[1]?.replace(/"/g, '').trim() + " " + col[2]?.replace(/"/g, '').trim();
+                        document.getElementById('montantDisplay').innerText = col[7]?.replace(/"/g, '').trim() + " €";
+                        const s = document.getElementById('statut');
+                        s.innerText = col[3]?.replace(/"/g, '').trim();
+                        s.style.backgroundColor = s.innerText.toLowerCase().includes('payé') ? '#00843D' : '#D97706';
+                        
+                        const stripeL = col[4]?.replace(/"/g, '').trim();
+                        if(stripeL?.startsWith('http')) { document.getElementById('btnStripe').href = stripeL; document.getElementById('btnStripe').classList.remove('hidden'); }
+                        const paypalL = col[6]?.replace(/"/g, '').trim();
+                        if(paypalL?.startsWith('http')) { document.getElementById('btnPaypal').href = paypalL; document.getElementById('btnPaypal').classList.remove('hidden'); }
+                        document.getElementById('zonePaiement').classList.remove('hidden');
+                        break;
+                    }
+                }
+                if (!trouve) alert("Dossier introuvable.");
+            } catch (e) { alert("Erreur réseau."); }
+        }
     </script>
 </body>
 </html>
