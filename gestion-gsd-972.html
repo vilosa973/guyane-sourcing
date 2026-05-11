@@ -16,7 +16,7 @@
         }
         #devis-a-imprimer * { color: #000000 !important; }
         #content-admin { display: none; }
-        input, select { background-color: #0f172a !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
+        input, select, textarea { background-color: #0f172a !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
     </style>
 </head>
 <body class="bg-gsd text-white font-sans p-4 pb-20">
@@ -36,24 +36,24 @@
     <div id="content-admin" class="max-w-2xl mx-auto space-y-6">
         <header class="text-center py-4">
             <h1 class="text-3xl font-black text-emerald-400 uppercase tracking-tighter italic">GSD | LOGICIEL ADMIN</h1>
-            <p class="text-slate-400 text-[10px] uppercase tracking-widest text-slate-500">Réédition & Envoi Mail Automatique</p>
+            <p class="text-slate-400 text-[10px] uppercase tracking-widest">Édition, Archivage & Envoi Client</p>
         </header>
 
         <div class="bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-700 space-y-4">
             <div class="flex gap-2">
-                <select id="civiliteClient" onchange="calculerDevis()" class="w-1/3 p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+                <select id="civiliteClient" onchange="calculerDevis()" class="w-1/3 p-4 rounded-2xl outline-none text-sm">
                     <option value="Monsieur">Monsieur</option>
                     <option value="Madame">Madame</option>
                 </select>
-                <input type="text" id="nomClient" placeholder="NOM DU CLIENT" class="w-2/3 p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm uppercase" oninput="calculerDevis()">
+                <input type="text" id="nomClient" placeholder="NOM" class="w-2/3 p-4 rounded-2xl outline-none text-sm uppercase" oninput="calculerDevis()">
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <input type="text" id="prenomClient" placeholder="Prénom" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
-                <input type="email" id="emailClient" placeholder="Adresse Mail client" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+                <input type="text" id="prenomClient" placeholder="Prénom" class="w-full p-4 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+                <input type="email" id="emailClient" placeholder="Email client" class="w-full p-4 rounded-2xl outline-none text-sm">
             </div>
-            <input type="text" id="objetDevis" placeholder="Désignation des pièces (ex: Cardans, Alternateur...)" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
-            <input type="text" id="adresseClient" placeholder="Lieu de livraison (Ville)" class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm" oninput="calculerDevis()">
-            <input type="url" id="lienPiece" placeholder="Lien de la pièce (Sourcing)..." class="w-full p-4 rounded-2xl outline-none focus:border-emerald-500 text-sm">
+            <input type="text" id="objetDevis" placeholder="Désignation des pièces" class="w-full p-4 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+            <input type="text" id="adresseClient" placeholder="Lieu de livraison (Ville)" class="w-full p-4 rounded-2xl outline-none text-sm" oninput="calculerDevis()">
+            <input type="url" id="lienPiece" placeholder="Lien sourcing (caché au client)" class="w-full p-4 rounded-2xl outline-none text-sm">
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="relative">
@@ -61,9 +61,9 @@
                     <span class="absolute right-4 top-5 text-slate-600 font-bold">€</span>
                 </div>
                 <select id="fraisPort" onchange="calculerDevis()" class="w-full p-4 bg-slate-700 border border-slate-600 rounded-2xl font-bold text-sm outline-none">
-                    <option value="30">Petit Colis (30€)</option>
-                    <option value="150">Moyen Colis (150€)</option>
-                    <option value="450">Gros / Bâche (450€)</option>
+                    <option value="65">Avion (65€)</option>
+                    <option value="150">Bateau Groupé (150€)</option>
+                    <option value="400">Bateau Solo (400€)</option>
                 </select>
             </div>
 
@@ -72,8 +72,8 @@
                     <i class="fas fa-file-pdf text-xl"></i> TÉLÉCHARGER LE PDF
                 </button>
                 <div class="grid grid-cols-2 gap-2">
-                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-white">1. Enregistrer Cloud</button>
-                    <button id="btnMail" onclick="envoyerMail()" class="bg-indigo-600 p-4 rounded-2xl font-bold text-xs uppercase tracking-tighter text-white">2. Envoyer par Mail</button>
+                    <button id="btnEnregistrer" onclick="enregistrerDevis()" class="bg-emerald-600 p-4 rounded-2xl font-bold text-xs uppercase text-white">1. Sauvegarder</button>
+                    <button id="btnMail" onclick="envoyerMail()" class="bg-indigo-600 p-4 rounded-2xl font-bold text-xs uppercase text-white">2. Envoyer au client</button>
                 </div>
             </div>
         </div>
@@ -98,19 +98,19 @@
             </div>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
                 <thead>
-                    <tr style="background: #f1f5f9;"><th style="padding: 12px; border: 1px solid #e2e8f0; text-align: left;">Prestations</th><th style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; width: 140px;">Montant TTC</th></tr>
+                    <tr style="background: #f1f5f9;"><th style="padding: 12px; border: 1px solid #e2e8f0; text-align: left;">Désignation</th><th style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; width: 140px;">Montant TTC</th></tr>
                 </thead>
                 <tbody>
                     <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Fourniture de pièces détachées automobiles</td><td id="displayVente" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td></tr>
-                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td><td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">30.00 €</td></tr>
+                    <tr><td style="padding: 15px; border: 1px solid #e2e8f0;">Services logistiques et expédition Guyane</td><td id="displayPort" style="padding: 15px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900;">0.00 €</td></tr>
                 </tbody>
             </table>
             <div style="text-align: right; border-top: 5px solid #059669; padding-top: 15px;"><p style="font-size: 34px; font-weight: 900; color: #059669; margin: 0;" id="displayTotal">0.00 €</p></div>
         </div>
 
         <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
-            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Archives Cloud</h2>
-            <div id="historique" class="space-y-3 mb-4"></div>
+            <h2 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Liste des devis archivés</h2>
+            <div id="historique" class="space-y-3"></div>
         </div>
     </div>
 
@@ -131,8 +131,9 @@
             const civilite = document.getElementById('civiliteClient').value;
             const prenom = document.getElementById('prenomClient').value || "";
             const nom = document.getElementById('nomClient').value || "";
-            const vente = (achat * 1.18).toFixed(2);
+            const vente = (achat * 1.20).toFixed(2); // On garde ta marge de 20%
             const total = (parseFloat(vente) + port).toFixed(2);
+            
             document.getElementById('dateDevis').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('clientNomPdf').innerText = civilite + " " + prenom + " " + nom.toUpperCase();
             document.getElementById('clientAdPdf').innerText = document.getElementById('adresseClient').value;
@@ -143,7 +144,7 @@
 
         async function enregistrerDevis() {
             const btn = document.getElementById('btnEnregistrer');
-            btn.innerText = "⏳ Envoi..."; btn.disabled = true;
+            btn.innerText = "⏳ Archivage..."; btn.disabled = true;
             const donnees = { 
                 id: idDevisActuel, 
                 civilite: document.getElementById('civiliteClient').value, 
@@ -159,63 +160,62 @@
                 statut: "ACTIF", 
                 date: new Date().toLocaleDateString('fr-FR') 
             };
-            try { await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); alert("Devis archivé !"); chargerCloud(); btn.innerText = "1. Enregistrer Cloud"; btn.disabled = false; } catch (e) { alert("Erreur"); btn.disabled = false; }
+            try { 
+                await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); 
+                alert("Enregistré sur le Cloud !"); 
+                setTimeout(chargerCloud, 2000); 
+                btn.innerText = "Sauvegarder"; btn.disabled = false; 
+            } catch (e) { alert("Erreur réseau"); btn.disabled = false; }
         }
 
         async function envoyerMail() {
             const email = document.getElementById('emailClient').value;
-            const objetPiece = document.getElementById('objetDevis').value || "votre demande";
             const nom = document.getElementById('nomClient').value;
-            const civilite = document.getElementById('civiliteClient').value;
+            if(!email || !nom) return alert("Email et Nom requis !");
+            
             const btn = document.getElementById('btnMail');
-
-            if(!email || !nom) return alert("Nom et Email obligatoires !");
-            btn.innerText = "⏳ Envoi mail..."; btn.disabled = true;
+            btn.innerText = "⏳ Envoi..."; btn.disabled = true;
 
             const donnees = { 
                 action: "ENVOI_MAIL_CLIENT",
                 id: idDevisActuel, 
-                civilite: civilite, 
+                civilite: document.getElementById('civiliteClient').value, 
                 nom: nom.toUpperCase(), 
                 email: email, 
-                objet_pieces: objetPiece,
-                message: `Bonjour ${civilite} ${nom.toUpperCase()},\n\nSuite à votre demande, veuillez trouver ci-joint votre devis ${idDevisActuel} lié à votre demande de ${objetPiece}.\n\nEn vous souhaitant une bonne réception.`
+                montant: document.getElementById('displayTotal').innerText,
+                objet: document.getElementById('objetDevis').value
             };
 
             try { 
                 await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) }); 
-                alert(`Mail envoyé à ${email}`); 
+                alert("Ordre d'envoi transmis à Zapier !"); 
                 btn.innerText = "✅ Mail Envoyé";
-                setTimeout(() => { btn.innerText = "2. Envoyer par Mail"; btn.disabled = false; }, 2000);
-            } catch (e) { alert("Erreur"); btn.disabled = false; }
+                setTimeout(() => { btn.innerText = "2. Envoyer au client"; btn.disabled = false; }, 2000);
+            } catch (e) { alert("Erreur mail"); btn.disabled = false; }
         }
 
         async function chargerCloud() {
             const container = document.getElementById('historique');
-            container.innerHTML = "<p class='text-xs text-center py-4 opacity-50'>Mise à jour...</p>";
+            container.innerHTML = "<p class='text-xs text-center py-4 opacity-50'>Chargement...</p>";
             try {
                 const res = await fetch(URL_CSV + "?v=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split('\n');
                 const sep = data.includes(';') ? ';' : ',';
-                const devisLignes = lignes.slice(1).filter(l => l.trim().split(sep).length > 3).reverse();
+                const items = lignes.slice(1).filter(l => l.trim().length > 10).reverse();
+                
                 let html = "";
-                devisLignes.forEach(l => {
-                    const col = sep === ',' ? l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : l.split(';');
-                    const id = col[0]?.replace(/"/g,'').trim();
-                    const civ = col[1]?.replace(/"/g,'').trim() || "";
-                    const nom = col[2]?.replace(/"/g,'').trim() || "";
-                    const mt = col[8]?.replace(/"/g,'').trim() || "0 €";
-                    const stat = col[4]?.replace(/"/g,'').toUpperCase().trim();
-                    if(!id || stat === "ANNULÉ") return;
+                items.forEach(l => {
+                    const c = l.split(sep).map(v => v.replace(/"/g, '').trim());
+                    if(!c[0]) return;
                     html += `<div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700 flex justify-between items-center mb-2 shadow-lg">
-                        <div class="flex-1 text-left"><p class="text-[9px] text-slate-500 font-bold">${id}</p>
-                        <p class="font-black text-emerald-400 uppercase text-sm leading-none mb-1">${civ} ${nom}</p>
-                        <p class="text-white font-black text-lg">${mt}</p></div>
+                        <div class="text-left">
+                            <p class="text-[9px] text-slate-500">${c[0]}</p>
+                            <p class="font-black text-emerald-400 text-sm uppercase">${c[1]} ${c[2]}</p>
+                            <p class="text-white font-black text-lg">${c[8]}</p>
+                        </div>
                         <div class="flex gap-2">
-                            <button onclick="extrairePdfDirect('${id}')" title="Extraire PDF" class="bg-emerald-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-file-download text-white text-xs"></i></button>
-                            <button onclick="recupererCloud('${id}')" title="Éditer" class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-edit text-white text-xs"></i></button>
-                            <button onclick="annulerCloud('${id}', '${nom}')" title="Supprimer" class="bg-red-600/20 h-10 w-10 rounded-xl flex items-center justify-center border border-red-600/30"><i class="fas fa-trash text-red-500 text-xs"></i></button>
+                            <button onclick="recupererCloud('${c[0]}')" class="bg-blue-600 h-10 w-10 rounded-xl"><i class="fas fa-edit text-white text-xs"></i></button>
                         </div>
                     </div>`;
                 });
@@ -223,51 +223,24 @@
             } catch(e) { container.innerHTML = "Erreur Cloud."; }
         }
 
-        async function extrairePdfDirect(idCherche) {
+        async function recupererCloud(id) {
             const res = await fetch(URL_CSV + "?v=" + Date.now());
             const data = await res.text();
             const lignes = data.split('\n');
             const sep = data.includes(';') ? ';' : ',';
             for(let i=1; i<lignes.length; i++) {
-                const c = sep === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
-                if(c[0]?.replace(/"/g,'').trim() === idCherche) {
-                    const civ = c[1]?.replace(/"/g,'').trim();
-                    const nom = c[2]?.replace(/"/g,'').trim();
-                    const prenom = c[3]?.replace(/"/g,'').trim();
-                    const ach = parseFloat(c[5]?.replace(/"/g,'')) || 0;
-                    const por = parseFloat(c[6]?.replace(/"/g,'')) || 0;
-                    const adr = c[10]?.replace(/"/g,'').trim() || "";
-                    const vnt = (ach * 1.18).toFixed(2);
-                    const tot = (parseFloat(vnt) + por).toFixed(2);
-                    document.getElementById('numDevisDisplay').innerText = idCherche;
-                    document.getElementById('clientNomPdf').innerText = civ + " " + prenom + " " + nom.toUpperCase();
-                    document.getElementById('clientAdPdf').innerText = adr;
-                    document.getElementById('displayVente').innerText = vnt + " €";
-                    document.getElementById('displayPort').innerText = por.toFixed(2) + " €";
-                    document.getElementById('displayTotal').innerText = tot + " €";
-                    const element = document.getElementById('devis-a-imprimer');
-                    html2pdf().set({ margin: 10, filename: 'DEVIS_'+idCherche+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
-                    break;
-                }
-            }
-        }
-
-        async function recupererCloud(idCherche) {
-            const res = await fetch(URL_CSV + "?v=" + Date.now());
-            const data = await res.text();
-            const lignes = data.split('\n');
-            const sep = data.includes(';') ? ';' : ',';
-            for(let i=1; i<lignes.length; i++) {
-                const c = sep === ',' ? lignes[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) : lignes[i].split(';');
-                if(c[0]?.replace(/"/g,'').trim() === idCherche) {
-                    document.getElementById('civiliteClient').value = c[1]?.replace(/"/g,'').trim() || "Monsieur";
-                    document.getElementById('nomClient').value = c[2]?.replace(/"/g,'').trim();
-                    document.getElementById('prenomClient').value = c[3]?.replace(/"/g,'').trim();
-                    document.getElementById('prixAchat').value = c[5]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('objetDevis').value = c[11]?.replace(/"/g,'').trim() || "";
-                    document.getElementById('adresseClient').value = c[10]?.replace(/"/g,'').trim() || "";
-                    idDevisActuel = idCherche;
-                    document.getElementById('numDevisDisplay').innerText = idCherche;
+                const c = lignes[i].split(sep).map(v => v.replace(/"/g, '').trim());
+                if(c[0] === id) {
+                    document.getElementById('civiliteClient').value = c[1];
+                    document.getElementById('nomClient').value = c[2];
+                    document.getElementById('prenomClient').value = c[3];
+                    document.getElementById('prixAchat').value = c[5];
+                    document.getElementById('fraisPort').value = c[6];
+                    document.getElementById('emailClient').value = c[9];
+                    document.getElementById('adresseClient').value = c[10];
+                    document.getElementById('objetDevis').value = c[11];
+                    idDevisActuel = id;
+                    document.getElementById('numDevisDisplay').innerText = id;
                     calculerDevis();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     break;
@@ -275,11 +248,9 @@
             }
         }
 
-        async function annulerCloud(id, nom) {
-            if(!confirm(`Supprimer le devis de ${nom} du site ?`)) return;
-            const donnees = { id: id, nom: nom, statut: "ANNULÉ" };
-            await fetch(URL_ZAPIER, { method: "POST", mode: "no-cors", body: JSON.stringify(donnees) });
-            chargerCloud();
+        function genererPDF() {
+            const element = document.getElementById('devis-a-imprimer');
+            html2pdf().set({ margin: 10, filename: 'GSD_'+idDevisActuel+'.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
         }
 
         window.onload = () => { document.getElementById('numDevisDisplay').innerText = idDevisActuel; calculerDevis(); chargerCloud(); };
