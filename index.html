@@ -41,13 +41,19 @@
 
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
-                    <button onclick="switchTab('plaque')" id="tab-plaque" class="tab-btn active flex-1 py-4 font-black uppercase text-xs tracking-widest text-center">Auto (Plaque)</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600 text-center">Modèle / Agricole</button>
+                    <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs tracking-widest">📷 Photo / Plaque</button>
+                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-600">✍️ Modèle Manuel</button>
                 </div>
 
                 <div class="p-6 space-y-4">
-                    <div id="form-plaque" class="space-y-4">
+                    <div id="form-photo" class="space-y-4 text-center">
                         <input type="text" id="ai-immat" placeholder="AB-123-CD" class="w-full p-4 rounded-2xl uppercase text-center outline-none">
+                        <label class="w-full flex flex-col items-center justify-center p-4 border-2 border-dashed border-blue-400 rounded-2xl bg-white/30 cursor-pointer hover:bg-white/50">
+                            <i class="fas fa-camera text-2xl text-blue-600 mb-1"></i>
+                            <span class="text-[10px] font-bold uppercase">Scanner la Carte Grise</span>
+                            <input type="file" accept="image/*" id="input-cg" class="hidden" onchange="previewCG(this)">
+                        </label>
+                        <div id="cg-status" class="hidden text-[10px] text-green-700 font-bold uppercase">✓ Document chargé</div>
                     </div>
 
                     <div id="form-modele" class="hidden space-y-2">
@@ -56,15 +62,14 @@
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm uppercase text-center">
                         </div>
                         <div class="grid-inputs">
-                            <input type="number" id="m-annee" placeholder="ANNÉE (EX: 2018)" class="p-3 rounded-xl text-sm text-center">
+                            <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center">
                             <select id="m-type" class="p-3 rounded-xl text-sm text-center outline-none font-bold">
                                 <option value="" disabled selected>TYPE</option>
-                                <option value="Citadine">Citadine</option>
                                 <option value="Berline">Berline</option>
                                 <option value="SUV">SUV / 4x4</option>
+                                <option value="Citadine">Citadine</option>
                                 <option value="Utilitaire">Utilitaire</option>
                                 <option value="Tracteur">Tracteur</option>
-                                <option value="Engin">Engin TP</option>
                             </select>
                         </div>
                         <div class="grid-inputs">
@@ -73,23 +78,22 @@
                                 <option value="Diesel">Diesel</option>
                                 <option value="Essence">Essence</option>
                                 <option value="Electrique">Électrique</option>
-                                <option value="Hybride">Hybride</option>
                             </select>
-                            <input type="text" id="m-litrage" placeholder="MOTEUR (EX: 1.6L 110CV)" class="p-3 rounded-xl text-sm text-center">
+                            <input type="text" id="m-litrage" placeholder="MOTEUR (Ex: 1.6L 110CV)" class="p-3 rounded-xl text-sm text-center">
                         </div>
                     </div>
 
-                    <input type="text" id="ai-piece" placeholder="PIÈCE RECHERCHÉE..." class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner text-center font-bold">
+                    <input type="text" id="ai-piece" placeholder="NOM DE LA PIÈCE..." class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner text-center font-bold">
 
                     <button onclick="rechercheIA()" id="btn-ia" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                        <i class="fas fa-search"></i> RECHERCHE
+                        <i class="fas fa-search"></i> TROUVER MA PIÈCE
                     </button>
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px] tracking-widest text-center">Analyse technique et sourcing...</p></div>
-                        <div id="ai-content" class="hidden space-y-4 text-left text-center">
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i><p class="font-bold mt-2 uppercase text-[10px] tracking-widest text-center">Identification technique...</p></div>
+                        <div id="ai-content" class="hidden space-y-4 text-left">
                             <div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-md border-l-8 border-blue-700">
-                                <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
+                                <img id="ai-vehicule-img" class="w-24 h-24 object-contain rounded-lg bg-slate-50 border text-center" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3039/3039427.png'">
                                 <div class="flex-1 text-left">
                                     <p class="text-[10px] text-blue-600 font-black uppercase mb-1">Véhicule identifié :</p>
                                     <p id="ai-modele-long" class="font-black uppercase text-base leading-tight text-slate-900"></p>
@@ -110,8 +114,8 @@
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500 text-center"></i> Espace Client</h2>
-                <div class="space-y-3"><input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center"><div class="flex space-x-2 text-center"><input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none text-center text-center"><button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg"><i class="fas fa-search text-center"></i></button></div></div>
-                <div id="resultat" class="hidden mt-6 text-center text-center"><div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl text-center"><p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2 text-center"></p><div class="my-4 py-4 border-y border-slate-800 text-center"><p id="montantDisplay" class="text-5xl font-black text-white text-center text-center"></p></div><div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div></div><div id="zonePaiement" class="hidden mt-6 space-y-4 text-center"><a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center text-center text-center"><i class="fas fa-credit-card"></i> Payer par Carte</a><a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center text-center text-center"><i class="fab fa-paypal"></i> PayPal / 4X</a></div></div>
+                <div class="space-y-3"><input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center"><div class="flex space-x-2"><input type="text" id="numDevis" placeholder="N° DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none text-center"><button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg"><i class="fas fa-search"></i></button></div></div>
+                <div id="resultat" class="hidden mt-6 text-center text-center"><div class="bg-slate-900/95 rounded-3xl p-6 text-center text-white border-b-8 border-yellow-500 shadow-2xl text-center"><p id="nomClientDisplay" class="text-xl font-black uppercase text-yellow-500 mb-2"></p><div class="my-4 py-4 border-y border-slate-800 text-center text-center text-center"><p id="montantDisplay" class="text-5xl font-black text-white text-center text-center"></p></div><div id="statut" class="inline-block px-6 py-2 rounded-full text-white font-black text-[10px] uppercase shadow-inner text-center"></div></div><div id="zonePaiement" class="hidden mt-6 space-y-4 text-center text-center text-center"><a id="btnStripe" href="#" target="_blank" class="hidden w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center text-center"><i class="fas fa-credit-card"></i> Payer par Carte</a><a id="btnPaypal" href="#" target="_blank" class="hidden w-full bg-[#0070ba] text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 text-center text-center"><i class="fab fa-paypal"></i> PayPal / 4X</a></div></div>
             </section>
         </div>
     </div>
@@ -120,29 +124,37 @@
         const OPENAI_API_KEY = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV" + "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
 
         function switchTab(tab) {
-            document.getElementById('tab-plaque').classList.toggle('active', tab === 'plaque');
+            document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
             document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
-            document.getElementById('form-plaque').classList.toggle('hidden', tab !== 'plaque');
+            document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+        }
+
+        function previewCG(input) {
+            if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden');
         }
 
         async function rechercheIA() {
             const piece = document.getElementById('ai-piece').value;
+            const cgFile = document.getElementById('input-cg').files[0];
             const immat = document.getElementById('ai-immat').value;
-            const marque = document.getElementById('m-marque').value;
-            const modele = document.getElementById('m-modele').value;
-            const annee = document.getElementById('m-annee').value;
-            const moteur = document.getElementById('m-litrage').value;
-            const energie = document.getElementById('m-energie').value;
-            const type = document.getElementById('m-type').value;
-
-            let context = immat ? `Plaque: ${immat}` : `${type} ${marque} ${modele} année ${annee} moteur ${moteur} ${energie}`;
             
-            if(!piece || (!immat && !marque)) return alert("Infos manquantes !");
+            if(!piece) return alert("Veuillez saisir le nom de la pièce !");
             
             document.getElementById('ai-resultat').classList.remove('hidden');
             document.getElementById('ai-loading').classList.remove('hidden');
             document.getElementById('ai-content').classList.add('hidden');
+
+            let promptContent = [{ type: "text", text: `Expert GSD Guyane. Identifie précisément le véhicule (Marque, Modèle, Année, kW/CH). Trouve 3 offres RÉELLES avec URL SITE DIRECTE et RÉFÉRENCE SITE INTERNE. JSON format: {'machine':{'nom':'','infos':'','img':''}, 'offres':[{'vendeur':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'url_site':'','img_piece':'','description':''}]}` }];
+
+            if (cgFile && !document.getElementById('form-photo').classList.contains('hidden')) {
+                const base64 = await toBase64(cgFile);
+                promptContent.push({ type: "image_url", image_url: { url: base64 } });
+            } else {
+                const marque = document.getElementById('m-marque').value;
+                const manualContext = immat ? `Plaque: ${immat}` : `${marque} ${document.getElementById('m-modele').value} ${document.getElementById('m-annee').value} ${document.getElementById('m-litrage').value}`;
+                promptContent[0].text += ` Véhicule: ${manualContext}. Pièce: ${piece}`;
+            }
 
             try {
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -150,16 +162,7 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
                     body: JSON.stringify({
                         model: "gpt-4o",
-                        messages: [{ 
-                            role: "system", 
-                            content: `Expert technique GSD. Identifie le véhicule précisément. 
-                            Fournis 3 offres réelles avec obligatoirement : 
-                            1. URL directe du produit sur le site (url_site)
-                            2. Référence fabricant (ref_fab)
-                            3. Marque (fabricant)
-                            4. Prix HT (prix_ht)
-                            JSON format: {'machine':{'nom':'MODÈLE COMPLET','infos':'MOTEUR + ANNÉE','img':'URL_IMG'}, 'offres':[{'vendeur':'','nom_piece':'','fabricant':'','ref_fab':'','prix_ht':0,'url_site':'URL_PRODUIT','img_piece':'','description':''}]}` 
-                        }, { role: "user", content: `Trouve ${piece} pour : ${context}` }],
+                        messages: [{ role: "system", content: "Expert technique Sourcing." }, { role: "user", content: promptContent }],
                         response_format: { type: "json_object" }
                     })
                 });
@@ -170,15 +173,14 @@
 
                 document.getElementById('ai-vehicule-img').src = buildProxyUrl(res.machine.img);
                 document.getElementById('ai-modele-long').innerText = res.machine.nom;
-                document.getElementById('ai-moteur-details').innerText = "📅 " + res.machine.infos;
+                document.getElementById('ai-moteur-details').innerText = "⚙️ " + res.machine.infos;
 
                 let html = "";
                 res.offres.forEach(o => {
                     const prixFinal = (parseFloat(o.prix_ht) * 1.20) + 45;
                     const googleVerify = `https://www.google.com/search?q=${o.fabricant}+${o.ref_fab}+photo&tbm=isch`;
                     
-                    // MESSAGE WHATSAPP SUR MESURE AVEC TES 5 POINTS
-                    const waMessage = `Bonjour GSD ! Je souhaite commander cette pièce :
+                    const waMessage = `Bonjour GSD ! Je souhaite commander :
 • Pièce : ${o.nom_piece}
 • Site Internet : ${o.url_site}
 • Référence : ${o.ref_fab}
@@ -193,17 +195,14 @@ Véhicule : ${res.machine.nom}`;
                             <div class="flex items-start gap-4">
                                 <img src="${buildProxyUrl(o.img_piece)}" class="w-20 h-20 object-contain rounded border" onerror="this.src='Logo.jpg'">
                                 <div class="flex-1">
-                                    <p class="text-[11px] font-black uppercase leading-tight">${o.nom_piece}</p>
-                                    <p class="text-[10px] text-blue-600 font-bold">${o.fabricant} - REF: ${o.ref_fab}</p>
-                                    <div class="mt-2 flex flex-col gap-1">
+                                    <p class="text-[11px] font-black uppercase text-left leading-tight">${o.nom_piece}</p>
+                                    <p class="text-[10px] text-blue-600 font-bold text-left">${o.fabricant} - REF: ${o.ref_fab}</p>
+                                    <div class="mt-2 flex flex-col gap-1 text-left">
                                         <a href="${o.url_site}" target="_blank" class="text-[8px] text-slate-500 underline uppercase truncate">Voir sur le site</a>
-                                        <a href="${googleVerify}" target="_blank" class="text-[8px] text-blue-500 underline font-bold uppercase italic"><i class="fas fa-eye"></i> Vérifier sur Google</a>
+                                        <a href="${googleVerify}" target="_blank" class="text-[8px] text-blue-500 underline font-bold uppercase italic"><i class="fas fa-eye text-left"></i> Vérifier sur Google</a>
                                     </div>
                                 </div>
-                                <div class="text-right min-w-[90px]">
-                                    <p class="text-xl font-black">${prixFinal.toFixed(2)}€</p>
-                                    <button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase w-full">Commander</button>
-                                </div>
+                                <div class="text-right min-w-[90px]"><p class="text-xl font-black text-right">${prixFinal.toFixed(2)}€</p><button onclick="window.location.href='https://wa.me/33699337803?text=${encodeURIComponent(waMessage)}'" class="mt-2 bg-slate-900 text-white text-[8px] px-3 py-1.5 rounded-lg font-black uppercase w-full">Commander</button></div>
                             </div>
                         </div>`;
                 });
@@ -212,6 +211,13 @@ Véhicule : ${res.machine.nom}`;
                 document.getElementById('ai-content').classList.remove('hidden');
             } catch (e) { alert("Erreur sourcing. Soyez précis !"); }
         }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
 
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
