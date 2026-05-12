@@ -47,13 +47,31 @@
                     <button onclick="rechercheIA()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
                         <i class="fas fa-microchip"></i> ANALYSER & TROUVER
                     </button>
-                    <div id="ai-resultat" class="hidden mt-4">
+                    <div id="ai-resultat" class="hidden mt-4 space-y-4">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i></div>
                         <div id="ai-content" class="hidden space-y-4 text-left">
                             <div id="offres-container"></div>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden">
+                <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video">
+                    <video controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video>
+                </div>
+            </section>
+
+            <section class="rounded-3xl shadow-2xl p-6 text-center">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis</h2>
+                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
+                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
+                    <div class="grid-inputs"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
+                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center">
+                    <input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
+                    <textarea name="description" placeholder="VOTRE DEMANDE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
+                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Envoyer la demande</button>
+                </form>
             </section>
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
@@ -75,14 +93,11 @@
 
                         <div id="zoneValidation" class="hidden py-4 border-b border-slate-800 space-y-4">
                             <p class="text-xs italic">Comment recevoir votre code de validation ?</p>
-                            
                             <div class="flex flex-col gap-3">
                                 <button onclick="envoyerCodeEmail()" id="btnEmail" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-2">
-                                    <i class="fas fa-envelope"></i> Recevoir par Email
+                                    <i class="fas fa-envelope"></i> Par Email
                                 </button>
-
                                 <div class="text-xs opacity-50 font-black uppercase">Ou</div>
-
                                 <div class="bg-white/10 p-3 rounded-2xl border border-white/20">
                                     <div class="flex gap-2 mb-2">
                                         <select id="prefixeTel" class="w-1/3 p-2 rounded-xl text-xs font-bold outline-none">
@@ -90,21 +105,15 @@
                                                 <option value="594" selected>🇬🇫 +594</option>
                                                 <option value="596">🇲🇶 +596</option>
                                                 <option value="590">🇬🇵 +590</option>
-                                                <option value="590">🇧🇱 +590</option>
-                                                <option value="590">🇲🇫 +590</option>
                                             </optgroup>
                                             <optgroup label="Europe">
                                                 <option value="33">🇫🇷 +33</option>
                                             </optgroup>
-                                            <optgroup label="Océan Indien">
-                                                <option value="262">🇷🇪 +262</option>
-                                                <option value="262">🇾🇹 +262</option>
-                                            </optgroup>
                                         </select>
-                                        <input type="tel" id="telClient" placeholder="Votre numéro" class="flex-1 p-2 rounded-xl text-center outline-none">
+                                        <input type="tel" id="telClient" placeholder="Numéro" class="flex-1 p-2 rounded-xl text-center outline-none">
                                     </div>
-                                    <button onclick="demanderCodeWhatsApp()" id="btnWA" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2">
-                                        <i class="fab fa-whatsapp text-lg"></i> Recevoir par WhatsApp
+                                    <button onclick="demanderCodeWhatsApp()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                                        <i class="fab fa-whatsapp text-lg"></i> Par WhatsApp
                                     </button>
                                 </div>
                             </div>
@@ -115,11 +124,10 @@
                             <div id="resStatut" class="inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-inner"></div>
                         </div>
                         <div class="py-4 border-y border-slate-800">
-                            <p class="text-[10px] opacity-50 uppercase mb-1">Montant total</p>
                             <p id="resMontant" class="text-5xl font-black text-white"></p>
                         </div>
                         <div id="zonePaiement" class="hidden pt-2">
-                            <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg">
+                            <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3">
                                 <i class="fas fa-credit-card"></i> Payer ma commande
                             </a>
                         </div>
@@ -130,9 +138,10 @@
     </div>
 
     <script>
+        const OPENAI_API_KEY = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV" + "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxkSF1Lxnuvy3EukV2tZG2kRKyxdR6xsps7K1WOlj9Nnhs6J_iyzzGsoPIN93auz921/exec";
-        const numeroGSD = "594694000000"; // REMPLACE PAR TON NUMÉRO (Sans le +)
+        const numeroGSD = "594694000000"; // REMPLACE PAR TON NUMÉRO
 
         let codeGenere = null;
 
@@ -143,11 +152,41 @@
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
         }
 
+        function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
+
+        async function rechercheIA() {
+            const pieceInput = document.getElementById('ai-piece').value;
+            if(!pieceInput) return alert("Précisez la pièce.");
+            document.getElementById('ai-resultat').classList.remove('hidden');
+            document.getElementById('ai-loading').classList.remove('hidden');
+            document.getElementById('ai-content').classList.add('hidden');
+            let promptContent = [{ type: "text", text: `Expert GSD. Trouve 3 offres pour : "${pieceInput}". JSON: {'offres':[{'nom_piece':'','prix_ht':0}]}` }];
+            const cgFile = document.getElementById('input-cg').files[0];
+            if (cgFile) { const base64 = await toBase64(cgFile); promptContent.push({ type: "image_url", image_url: { url: base64 } }); }
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+                    body: JSON.stringify({ model: "gpt-4o", messages: [{ role: "user", content: promptContent }], response_format: { type: "json_object" } })
+                });
+                const data = await response.json();
+                const res = JSON.parse(data.choices[0].message.content);
+                let html = "";
+                res.offres.forEach(o => {
+                    const prixFinal = (parseFloat(o.prix_ht) * 1.20) + 65;
+                    html += `<div class="bg-white p-4 rounded-xl shadow mb-2 text-sm text-left"><b>${o.nom_piece}</b><br><span class="text-blue-600 font-bold">${prixFinal.toFixed(2)}€</span></div>`;
+                });
+                document.getElementById('offres-container').innerHTML = html;
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-content').classList.remove('hidden');
+            } catch (e) { alert("Erreur IA"); }
+        }
+
         async function chercherDossier() {
             const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
             try {
-                const res = await fetch(URL_CSV + "?nocache=" + Date.now());
+                const res = await fetch(URL_CSV + "?v=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
                 const sep = data.includes(';') ? ';' : ',';
@@ -165,8 +204,7 @@
                         sBox.innerText = stat;
                         sBox.style.backgroundColor = (stat.includes('PAYÉ') || stat.includes('CONFIRMÉE')) ? '#059669' : '#D97706';
                         document.getElementById('zoneValidation').classList.toggle('hidden', !stat.includes('ATTENTE'));
-                        let mnt = col[8] || "0.00 €";
-                        document.getElementById('resMontant').innerText = mnt.includes('€') ? mnt : mnt + " €";
+                        document.getElementById('resMontant').innerText = col[8] || "0.00 €";
                         if(col[7] && col[7].startsWith('http')) {
                             document.getElementById('btnStripe').href = col[7];
                             document.getElementById('zonePaiement').classList.remove('hidden');
@@ -179,53 +217,44 @@
             } catch(e) { alert("Erreur réseau"); }
         }
 
+        function genererNouveauCode() { codeGenere = Math.floor(1000 + Math.random() * 9000); return codeGenere; }
+
         async function envoyerCodeEmail() {
-            codeGenere = Math.floor(1000 + Math.random() * 9000);
-            const btn = document.getElementById('btnEmail');
-            btn.disabled = true; btn.innerText = "⏳ Envoi...";
+            const code = genererNouveauCode();
             try {
                 const form = new FormData();
-                form.append("OBJET", "CODE DE VALIDATION - GUYANE SOURCING DIRECT");
                 form.append("DEVIS", document.getElementById('resNumDevis').innerText);
-                form.append("CODE", codeGenere);
-                form.append("CLIENT", document.getElementById('resNomClient').innerText);
-                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form, headers: { 'Accept': 'application/json' }});
+                form.append("CODE", code);
+                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form });
                 finaliserSaisie();
-            } catch (e) { alert("Erreur."); btn.disabled = false; }
+            } catch (e) { alert("Erreur."); }
         }
 
         function demanderCodeWhatsApp() {
-            codeGenere = Math.floor(1000 + Math.random() * 9000);
-            const prefixe = document.getElementById('prefixeTel').value;
-            let tel = document.getElementById('telClient').value.trim();
-            const idDevis = document.getElementById('resNumDevis').innerText;
-
-            if(!tel) return alert("Veuillez saisir votre numéro.");
-            
-            // Nettoyage complet (espaces, points, tirets et le 0 initial)
-            tel = tel.replace(/[\s.-]/g, '');
+            const code = genererNouveauCode();
+            const pref = document.getElementById('prefixeTel').value;
+            let tel = document.getElementById('telClient').value.trim().replace(/[\s.-]/g, '');
             if(tel.startsWith('0')) tel = tel.substring(1);
-            if(isNaN(tel)) return alert("Numéro invalide.");
-
-            const message = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${idDevis}. Merci de me transmettre mon code de validation.`);
-            alert("Vous allez être redirigé vers WhatsApp. Saisissez ensuite le code sur le site.");
-            window.open(`https://wa.me/${numeroGSD}?text=${message}`, '_blank');
+            const msg = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${document.getElementById('resNumDevis').innerText}.`);
+            window.open(`https://wa.me/${numeroGSD}?text=${msg}`, '_blank');
             finaliserSaisie();
         }
 
         async function finaliserSaisie() {
-            const saisie = prompt("Saisissez le code de validation reçu :");
+            const saisie = prompt("Saisissez le code reçu :");
             if (saisie == codeGenere) {
-                try {
-                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
-                    alert("Merci ! Votre commande est confirmée.");
-                    location.reload();
-                } catch (e) { alert("Erreur."); }
-            } else {
-                alert("Code incorrect.");
+                await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
+                alert("Merci ! Votre commande est confirmée.");
                 location.reload();
-            }
+            } else { alert("Code incorrect."); }
         }
+
+        const toBase64 = file => new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => res(reader.result);
+            reader.onerror = e => rej(e);
+        });
     </script>
 </body>
 </html>
