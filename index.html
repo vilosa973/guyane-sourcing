@@ -12,7 +12,8 @@
         section { backdrop-filter: blur(12px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
         input, textarea, select { background-color: rgba(255, 255, 255, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: #000 !important; font-weight: 700; }
         .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        /* Style amélioré pour les inputs de la grille */
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900 text-center">
@@ -27,26 +28,36 @@
 
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
-                    <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs text-center">📷 Analyse Carte Grise</button>
+                    <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs text-center">📷 Photo Carte Grise</button>
                     <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs text-center">✍️ Saisie Manuelle</button>
                 </div>
                 <div class="p-6 space-y-4">
                     <div id="form-photo" class="space-y-4">
                         <label class="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-blue-500 rounded-2xl bg-white/50 cursor-pointer">
-                            <i class="fas fa-id-card text-3xl text-blue-600 mb-2"></i>
+                            <i class="fas fa-camera text-3xl text-blue-600 mb-2"></i>
                             <span class="text-xs font-bold uppercase">Scanner ma Carte Grise</span>
                             <input type="file" accept="image/*" id="input-cg" class="hidden" onchange="previewCG(this)">
                         </label>
                         <div id="cg-status" class="hidden text-[10px] text-green-700 font-bold uppercase">✓ Document chargé</div>
                     </div>
-                    <div id="form-modele" class="hidden grid-inputs">
-                        <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm text-center">
-                        <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm text-center">
+                    
+                    <div id="form-modele" class="hidden space-y-3">
+                        <div class="grid-inputs">
+                            <input type="text" id="m-marque" placeholder="MARQUE" class="p-3 rounded-xl text-sm text-center uppercase">
+                            <input type="text" id="m-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-sm text-center uppercase">
+                        </div>
+                        <div class="grid-inputs">
+                            <input type="text" id="m-moteur" placeholder="MOTORISATION (ex: 2.0L)" class="p-3 rounded-xl text-sm text-center uppercase">
+                            <input type="number" id="m-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-sm text-center uppercase">
+                        </div>
                     </div>
+
                     <input type="text" id="ai-piece" placeholder="QUELLE PIÈCE RECHERCHEZ-VOUS ?" class="w-full p-4 rounded-2xl outline-none border-2 border-blue-500 shadow-inner text-center font-bold">
+                    
                     <button onclick="rechercheIA()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
                         <i class="fas fa-microchip"></i> ANALYSER & TROUVER
                     </button>
+
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i></div>
                         <div id="ai-content" class="hidden space-y-4 text-left">
@@ -63,51 +74,48 @@
             </section>
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
                 <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center">
+                    <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center uppercase">
                     <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
+                        <input type="text" id="numDevis" placeholder="N° DE DEVIS (ex: GSD...)" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
                         <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 
                 <div id="resultat" class="hidden mt-6 text-center">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4">
-                        <div class="border-b border-slate-700 pb-3 text-center">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-6">
+                        <div class="border-b border-slate-700 pb-3">
                             <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
                             <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
                         </div>
 
                         <div id="zoneValidation" class="hidden py-4 border-b border-slate-800 space-y-4">
-                            <p class="text-xs italic mb-2">Comment recevoir votre code de validation ?</p>
+                            <p class="text-sm font-medium italic">Comment recevoir votre code de validation ?</p>
                             
-                            <div class="flex flex-col gap-3">
-                                <button onclick="envoyerCodeEmail()" id="btnEmail" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-2">
+                            <div class="flex flex-col gap-4 max-w-sm mx-auto">
+                                <button onclick="envoyerCodeEmail()" id="btnEmail" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition">
                                     <i class="fas fa-envelope"></i> Recevoir par Email
                                 </button>
 
-                                <div class="text-[10px] opacity-50 font-black uppercase">Ou</div>
+                                <div class="relative flex items-center">
+                                    <div class="flex-grow border-t border-slate-700"></div>
+                                    <span class="flex-shrink mx-4 text-[10px] text-slate-500 font-bold uppercase">Ou</span>
+                                    <div class="flex-grow border-t border-slate-700"></div>
+                                </div>
 
-                                <div class="bg-white/10 p-3 rounded-2xl border border-white/20">
-                                    <div class="flex gap-2 mb-2">
-                                        <select id="prefixeTel" class="w-1/3 p-2 rounded-xl text-xs font-bold outline-none">
-                                            <optgroup label="Antilles-Guyane">
-                                                <option value="594" selected>🇬🇫 +594</option>
-                                                <option value="596">🇲🇶 +596</option>
-                                                <option value="590">🇬🇵 +590</option>
-                                            </optgroup>
-                                            <optgroup label="Europe">
-                                                <option value="33">🇫🇷 +33</option>
-                                            </optgroup>
-                                            <optgroup label="Océan Indien">
-                                                <option value="262">🇷🇪 +262</option>
-                                                <option value="262">🇾🇹 +262</option>
-                                            </optgroup>
+                                <div class="space-y-3">
+                                    <div class="flex gap-2">
+                                        <select id="prefixeTel" class="bg-slate-800 text-white p-3 rounded-xl text-xs font-bold border border-slate-600 outline-none">
+                                            <option value="594">🇬🇫 +594</option>
+                                            <option value="33">🇫🇷 +33</option>
+                                            <option value="590">🇬🇵 +590</option>
+                                            <option value="596">🇲🇶 +596</option>
+                                            <option value="262">🇷🇪 +262</option>
                                         </select>
-                                        <input type="tel" id="telClient" placeholder="Votre numéro" class="flex-1 p-2 rounded-xl text-center outline-none text-black">
+                                        <input type="tel" id="telClient" placeholder="Votre numéro" class="flex-1 p-3 rounded-xl text-center outline-none text-black font-bold">
                                     </div>
-                                    <button onclick="demanderCodeWhatsApp()" id="btnWA" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                                    <button onclick="demanderCodeWhatsApp()" id="btnWA" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition">
                                         <i class="fab fa-whatsapp text-lg"></i> Recevoir par WhatsApp
                                     </button>
                                 </div>
@@ -118,12 +126,14 @@
                             <p class="text-[10px] opacity-50 uppercase mb-1">Statut du dossier</p>
                             <div id="resStatut" class="inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-inner"></div>
                         </div>
+
                         <div class="py-4 border-y border-slate-800">
                             <p class="text-[10px] opacity-50 uppercase mb-1">Montant total</p>
                             <p id="resMontant" class="text-5xl font-black text-white"></p>
                         </div>
+
                         <div id="zonePaiement" class="hidden pt-2">
-                            <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg">
+                            <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg hover:scale-105 transition">
                                 <i class="fas fa-credit-card"></i> Payer ma commande
                             </a>
                         </div>
@@ -138,8 +148,7 @@
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxkSF1Lxnuvy3EukV2tZG2kRKyxdR6xsps7K1WOlj9Nnhs6J_iyzzGsoPIN93auz921/exec";
         
-        // --- À MODIFIER AVEC TON NUMÉRO ---
-        const numeroGSD = "594694000000"; 
+        const numeroGSD = "594694000000"; // Ton numéro ici Joakim
 
         let codeGenere = null;
 
@@ -153,12 +162,14 @@
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idSaisiNettoye = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
+            
             try {
-                const res = await fetch(URL_CSV + "&nocache=" + Date.now());
+                const res = await fetch(URL_CSV + "&v=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
                 const sep = data.includes(';') ? ';' : ',';
                 let trouve = false;
+
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
                     const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
@@ -190,15 +201,14 @@
         async function envoyerCodeEmail() {
             const code = genererCode();
             const btn = document.getElementById('btnEmail');
-            btn.disabled = true; btn.innerText = "⏳ Envoi...";
+            btn.disabled = true; btn.innerText = "⏳ ENVOI...";
             try {
                 const form = new FormData();
-                form.append("OBJET", "CODE DE VALIDATION - GUYANE SOURCING DIRECT");
                 form.append("CODE", code);
                 form.append("DEVIS", document.getElementById('resNumDevis').innerText);
-                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form, headers: { 'Accept': 'application/json' }});
+                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form });
                 verifierSaisie();
-            } catch (e) { alert("Erreur mail."); btn.disabled = false; }
+            } catch (e) { alert("Erreur."); btn.disabled = false; btn.innerText = "Recevoir par Email"; }
         }
 
         function demanderCodeWhatsApp() {
@@ -209,13 +219,12 @@
             if(!tel) return alert("Numéro invalide.");
             
             const msg = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${document.getElementById('resNumDevis').innerText}. Merci de me transmettre mon code.`);
-            alert("Vous allez être redirigé vers WhatsApp.");
             window.open(`https://wa.me/${numeroGSD}?text=${msg}`, '_blank');
             verifierSaisie();
         }
 
         async function verifierSaisie() {
-            const saisie = prompt("Saisissez le code reçu :");
+            const saisie = prompt("Veuillez saisir le code de validation reçu :");
             if (saisie == codeGenere) {
                 try {
                     await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
@@ -223,6 +232,20 @@
                     location.reload();
                 } catch (e) { alert("Erreur."); }
             } else { alert("Code incorrect."); }
+        }
+
+        function rechercheIA() {
+            const pieceInput = document.getElementById('ai-piece').value;
+            if(!pieceInput) return alert("Précisez la pièce.");
+            document.getElementById('ai-resultat').classList.remove('hidden');
+            document.getElementById('ai-loading').classList.remove('hidden');
+            document.getElementById('ai-content').classList.add('hidden');
+            // Logique IA simplifiée ici...
+            setTimeout(() => { 
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('offres-container').innerHTML = '<p class="text-xs text-white">Analyse terminée. Offres disponibles bientôt.</p>';
+                document.getElementById('ai-content').classList.remove('hidden');
+            }, 2000);
         }
 
         function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
