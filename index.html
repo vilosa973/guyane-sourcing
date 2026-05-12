@@ -92,6 +92,13 @@
                                 <span id="resCivilite"></span> <span id="resNomClient"></span>
                             </p>
                         </div>
+
+                        <div id="zoneValidation" class="hidden py-4 border-b border-slate-800">
+                            <p class="text-xs italic mb-2">Le devis vous convient ?</p>
+                            <button onclick="confirmerCommande()" id="btnConfirmer" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle"></i> Je débute ma commande
+                            </button>
+                        </div>
                         
                         <div>
                             <p class="text-[10px] opacity-50 uppercase mb-1">Statut du dossier</p>
@@ -115,6 +122,9 @@
     <script>
         const OPENAI_API_KEY = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV" + "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
+        
+        // REMPLACE CETTE URL PAR TON URL DE DEPLOIEMENT GOOGLE SCRIPT (COPIEE SUR LA PHOTO)
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxkSF1Lxnuvy3EukV2tZG2kRKyxdR6xsps7K1WOlj9Nnhs6J_iyzzGsoPIN93auz921/exec";
 
         function switchTab(tab) {
             document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
@@ -155,9 +165,7 @@
 
         async function chercherDossier() {
             const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idSaisiNettoye = document.getElementById('numDevis').value.trim().toUpperCase()
-                                    .replace("GSD", "")
-                                    .replace(/[- ]/g, "");
+            const idSaisiNettoye = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
             
             if(!nomSaisi || !idSaisiNettoye) return alert("Remplissez NOM et N° DEVIS.");
 
@@ -185,8 +193,11 @@
                         const stat = col[4] ? col[4].toUpperCase() : "ACTIF";
                         const sBox = document.getElementById('resStatut');
                         sBox.innerText = stat;
-                        sBox.style.backgroundColor = (stat.includes('PAYÉ')) ? '#059669' : '#D97706';
+                        sBox.style.backgroundColor = (stat.includes('PAYÉ') || stat.includes('CONFIRMÉE')) ? '#059669' : '#D97706';
                         
+                        // Afficher bouton de confirmation seulement si statut est en attente
+                        document.getElementById('zoneValidation').classList.toggle('hidden', !stat.includes('ATTENTE'));
+
                         let montant = col[8] || "0.00 €";
                         document.getElementById('resMontant').innerText = montant.includes('€') ? montant : montant + " €";
                         
@@ -204,6 +215,38 @@
                 }
                 if(!trouve) alert("Dossier introuvable. Vérifiez l'ID et le NOM.");
             } catch(e) { alert("Erreur réseau"); }
+        }
+
+        async function confirmerCommande() {
+            const idDevis = document.getElementById('resNumDevis').innerText;
+            const btn = document.getElementById('btnConfirmer');
+            
+            if(!confirm("Souhaitez-vous confirmer officiellement cette commande ?")) return;
+            
+            btn.disabled = true;
+            btn.innerText = "⏳ Validation...";
+
+            try {
+                // Appel au Google Apps Script pour changer le statut
+                await fetch(URL_WEB_APP, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ id: idDevis })
+                });
+
+                // Envoi d'une alerte Formspree pour te prévenir
+                const form = new FormData();
+                form.append("ALERTE", "COMMANDE VALIDÉE PAR LE CLIENT");
+                form.append("DEVIS", idDevis);
+                form.append("CLIENT", document.getElementById('resNomClient').innerText);
+                fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form });
+
+                alert("Merci ! Votre commande est confirmée. Joakim va maintenant générer votre lien de paiement.");
+                location.reload();
+            } catch (e) {
+                alert("Erreur de connexion.");
+                btn.disabled = false;
+            }
         }
 
         const toBase64 = file => new Promise((res, rej) => {
