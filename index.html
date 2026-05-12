@@ -111,13 +111,10 @@
                         <div id="zoneValidation" class="hidden py-4 border-b border-slate-800 space-y-4">
                             <div class="bg-blue-900/40 p-4 rounded-2xl border border-blue-500/50">
                                 <p class="text-sm font-black text-white uppercase leading-relaxed">✍️ Pour valider et signer votre commande :</p>
-                                <p class="text-[11px] mt-1 text-slate-300 italic">Choisissez votre mode de réception pour obtenir votre code de signature unique.</p>
+                                <p class="text-[11px] mt-1 text-slate-300 italic">Obtenez votre code de signature unique par WhatsApp.</p>
                             </div>
 
                             <div class="flex flex-col gap-4 max-w-sm mx-auto">
-                                <button onclick="envoyerCodeEmail()" id="btnEmail" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase flex items-center justify-center gap-3">
-                                    <i class="fas fa-envelope"></i> Par Email
-                                </button>
                                 <div class="space-y-3">
                                     <div class="flex gap-2">
                                         <select id="prefixeTel" class="bg-slate-800 text-white p-3 rounded-xl text-xs font-bold border border-slate-600 outline-none">
@@ -129,7 +126,7 @@
                                         <input type="tel" id="telClient" placeholder="Numéro" class="flex-1 p-3 rounded-xl text-center text-black font-bold outline-none">
                                     </div>
                                     <button onclick="demanderCodeWhatsApp()" id="btnWA" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase flex items-center justify-center gap-3">
-                                        <i class="fab fa-whatsapp text-lg"></i> Par WhatsApp
+                                        <i class="fab fa-whatsapp text-lg"></i> Recevoir mon code
                                     </button>
                                 </div>
                             </div>
@@ -162,8 +159,9 @@
     </div>
 
     <script>
+        // TES URLS MISES À JOUR
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxkSF1Lxnuvy3EukV2tZG2kRKyxdR6xsps7K1WOlj9Nnhs6J_iyzzGsoPIN93auz921/exec";
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwAubgMK3FnlpRY8fuUUlhtO4O_IueC9zi9M84pOn0JlIOa6Tb9UQsBvumpR5xz9He1/exec";
         let codeGenere = null;
 
         function switchTab(tab) {
@@ -184,10 +182,7 @@
                 let tr = false;
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
-                    
-                    // Correction : On saute les lignes vides ou incomplètes
                     if (col.length < 5) continue;
-
                     const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
                     if(idTab === idS && (nomS === (col[2]||"").toUpperCase())) {
                         tr = true;
@@ -212,32 +207,14 @@
             } catch(e) { alert("Erreur réseau."); }
         }
 
-        function genererCode() { 
-            codeGenere = Math.floor(1000 + Math.random() * 9000); 
-            return codeGenere; 
-        }
-
-        async function envoyerCodeEmail() {
-            const c = genererCode();
-            const btn = document.getElementById('btnEmail');
-            btn.disabled = true; btn.innerText = "⏳ ENVOI...";
-            try {
-                const f = new FormData();
-                f.append("CODE", c);
-                f.append("DEVIS", document.getElementById('resNumDevis').innerText);
-                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: f });
-                document.getElementById('inputCodeDossier').classList.remove('hidden');
-                alert("Code envoyé ! Vérifiez vos emails.");
-            } catch (e) { alert("Erreur."); btn.disabled = false; btn.innerText = "Par Email"; }
-        }
+        function genererCode() { codeGenere = Math.floor(1000 + Math.random() * 9000); return codeGenere; }
 
         function demanderCodeWhatsApp() {
             const c = genererCode();
             const p = document.getElementById('prefixeTel').value;
-            // Correction : Nettoyage plus strict du numéro
             let t = document.getElementById('telClient').value.trim().replace(/[\s.-]/g, '');
             if(t.startsWith('0')) t = t.substring(1);
-            if(!t || t.length < 9) return alert("Veuillez saisir un numéro de téléphone valide.");
+            if(!t || t.length < 9) return alert("Numéro invalide.");
             
             const numClientComplet = p + t;
             const message = encodeURIComponent(`GSD | Votre code de signature unique pour le devis ${document.getElementById('resNumDevis').innerText} est : ${c}`);
@@ -247,18 +224,19 @@
 
         async function validerCodeFinal() {
             const s = document.getElementById('codeSaisi').value;
+            const devisID = document.getElementById('resNumDevis').innerText;
             if (s == codeGenere) {
-                // Correction : Ajout d'un Try/Catch pour la validation Google App Script
                 try {
-                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
+                    const params = new URLSearchParams();
+                    params.append('id', devisID);
+                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: params });
                     alert("Signature validée ! Votre commande est confirmée.");
                     location.reload();
-                } catch(e) { alert("Erreur lors de la validation finale."); }
+                } catch(e) { alert("Erreur serveur."); }
             } else { alert("Code incorrect."); }
         }
 
         function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
-        
         function rechercheIA() {
             document.getElementById('ai-resultat').classList.remove('hidden');
             document.getElementById('ai-loading').classList.remove('hidden');
