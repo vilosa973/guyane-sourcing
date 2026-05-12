@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -73,11 +73,41 @@
                             <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
                         </div>
 
-                        <div id="zoneValidation" class="hidden py-4 border-b border-slate-800">
-                            <p class="text-xs italic mb-2">Le devis vous convient ?</p>
-                            <button onclick="confirmerCommande()" id="btnConfirmer" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-2">
-                                <i class="fas fa-check-circle"></i> Je débute ma commande
-                            </button>
+                        <div id="zoneValidation" class="hidden py-4 border-b border-slate-800 space-y-4">
+                            <p class="text-xs italic">Comment recevoir votre code de validation ?</p>
+                            
+                            <div class="flex flex-col gap-3">
+                                <button onclick="envoyerCodeEmail()" id="btnEmail" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-2">
+                                    <i class="fas fa-envelope"></i> Recevoir par Email
+                                </button>
+
+                                <div class="text-xs opacity-50 font-black uppercase">Ou</div>
+
+                                <div class="bg-white/10 p-3 rounded-2xl border border-white/20">
+                                    <div class="flex gap-2 mb-2">
+                                        <select id="prefixeTel" class="w-1/3 p-2 rounded-xl text-xs font-bold outline-none">
+                                            <optgroup label="Antilles-Guyane">
+                                                <option value="594" selected>🇬🇫 +594</option>
+                                                <option value="596">🇲🇶 +596</option>
+                                                <option value="590">🇬🇵 +590</option>
+                                                <option value="590">🇧🇱 +590</option>
+                                                <option value="590">🇲🇫 +590</option>
+                                            </optgroup>
+                                            <optgroup label="Europe">
+                                                <option value="33">🇫🇷 +33</option>
+                                            </optgroup>
+                                            <optgroup label="Océan Indien">
+                                                <option value="262">🇷🇪 +262</option>
+                                                <option value="262">🇾🇹 +262</option>
+                                            </optgroup>
+                                        </select>
+                                        <input type="tel" id="telClient" placeholder="Votre numéro" class="flex-1 p-2 rounded-xl text-center outline-none">
+                                    </div>
+                                    <button onclick="demanderCodeWhatsApp()" id="btnWA" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                                        <i class="fab fa-whatsapp text-lg"></i> Recevoir par WhatsApp
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         <div>
@@ -103,6 +133,8 @@
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxkSF1Lxnuvy3EukV2tZG2kRKyxdR6xsps7K1WOlj9Nnhs6J_iyzzGsoPIN93auz921/exec";
         const numeroGSD = "594694000000"; // REMPLACE PAR TON NUMÉRO (Sans le +)
+
+        let codeGenere = null;
 
         function switchTab(tab) {
             document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
@@ -147,41 +179,45 @@
             } catch(e) { alert("Erreur réseau"); }
         }
 
-        async function confirmerCommande() {
-            const idDevis = document.getElementById('resNumDevis').innerText;
-            const nomClient = document.getElementById('resNomClient').innerText;
-            const btn = document.getElementById('btnConfirmer');
-            
-            const choix = confirm("Comment recevoir votre code de validation ?\n\nOK : Par EMAIL\nANNULER : Par WHATSAPP");
-            const codeValidation = Math.floor(1000 + Math.random() * 9000);
-
-            if (choix) {
-                // OPTION EMAIL
-                btn.disabled = true;
-                btn.innerText = "⏳ Envoi par mail...";
-                try {
-                    const form = new FormData();
-                    form.append("OBJET", "CODE DE VALIDATION - GUYANE SOURCING DIRECT");
-                    form.append("DEVIS", idDevis);
-                    form.append("CODE", codeValidation);
-                    form.append("CLIENT", nomClient);
-                    await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form, headers: { 'Accept': 'application/json' }});
-                    finaliserSaisie(codeValidation, idDevis);
-                } catch (e) { alert("Erreur."); btn.disabled = false; }
-            } else {
-                // OPTION WHATSAPP
-                const txt = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${idDevis}. Merci de me transmettre mon code de validation.`);
-                alert("Demandez votre code sur WhatsApp. Saisissez-le ensuite sur le site.");
-                window.open(`https://wa.me/${numeroGSD}?text=${txt}`, '_blank');
-                finaliserSaisie(codeValidation, idDevis);
-            }
+        async function envoyerCodeEmail() {
+            codeGenere = Math.floor(1000 + Math.random() * 9000);
+            const btn = document.getElementById('btnEmail');
+            btn.disabled = true; btn.innerText = "⏳ Envoi...";
+            try {
+                const form = new FormData();
+                form.append("OBJET", "CODE DE VALIDATION - GUYANE SOURCING DIRECT");
+                form.append("DEVIS", document.getElementById('resNumDevis').innerText);
+                form.append("CODE", codeGenere);
+                form.append("CLIENT", document.getElementById('resNomClient').innerText);
+                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form, headers: { 'Accept': 'application/json' }});
+                finaliserSaisie();
+            } catch (e) { alert("Erreur."); btn.disabled = false; }
         }
 
-        async function finaliserSaisie(codeSecret, idDevis) {
+        function demanderCodeWhatsApp() {
+            codeGenere = Math.floor(1000 + Math.random() * 9000);
+            const prefixe = document.getElementById('prefixeTel').value;
+            let tel = document.getElementById('telClient').value.trim();
+            const idDevis = document.getElementById('resNumDevis').innerText;
+
+            if(!tel) return alert("Veuillez saisir votre numéro.");
+            
+            // Nettoyage complet (espaces, points, tirets et le 0 initial)
+            tel = tel.replace(/[\s.-]/g, '');
+            if(tel.startsWith('0')) tel = tel.substring(1);
+            if(isNaN(tel)) return alert("Numéro invalide.");
+
+            const message = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${idDevis}. Merci de me transmettre mon code de validation.`);
+            alert("Vous allez être redirigé vers WhatsApp. Saisissez ensuite le code sur le site.");
+            window.open(`https://wa.me/${numeroGSD}?text=${message}`, '_blank');
+            finaliserSaisie();
+        }
+
+        async function finaliserSaisie() {
             const saisie = prompt("Saisissez le code de validation reçu :");
-            if (saisie == codeSecret) {
+            if (saisie == codeGenere) {
                 try {
-                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: idDevis }) });
+                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
                     alert("Merci ! Votre commande est confirmée.");
                     location.reload();
                 } catch (e) { alert("Erreur."); }
