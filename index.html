@@ -62,20 +62,8 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center"><option value="Monsieur">Monsieur</option><option value="Madame">Madame</option></select>
-                    <div class="grid-inputs"><input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center"><input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center"></div>
-                    <input type="text" name="plaque" placeholder="PLAQUE" class="w-full p-4 rounded-2xl outline-none uppercase text-center">
-                    <input type="email" name="email" placeholder="EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
-                    <textarea name="description" placeholder="VOTRE DEMANDE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Envoyer la demande</button>
-                </form>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
                 <div class="space-y-3">
                     <input type="text" id="nomRecherche" placeholder="NOM (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center">
                     <div class="flex space-x-2">
@@ -86,18 +74,21 @@
                 
                 <div id="resultat" class="hidden mt-6 text-center">
                     <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4">
-                        <div class="border-b border-slate-700 pb-3">
+                        <div class="border-b border-slate-700 pb-3 text-center">
                             <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
                             <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
                         </div>
 
                         <div id="zoneValidation" class="hidden py-4 border-b border-slate-800 space-y-4">
-                            <p class="text-xs italic">Comment recevoir votre code de validation ?</p>
+                            <p class="text-xs italic mb-2">Comment recevoir votre code de validation ?</p>
+                            
                             <div class="flex flex-col gap-3">
                                 <button onclick="envoyerCodeEmail()" id="btnEmail" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-2">
-                                    <i class="fas fa-envelope"></i> Par Email
+                                    <i class="fas fa-envelope"></i> Recevoir par Email
                                 </button>
-                                <div class="text-xs opacity-50 font-black uppercase">Ou</div>
+
+                                <div class="text-[10px] opacity-50 font-black uppercase">Ou</div>
+
                                 <div class="bg-white/10 p-3 rounded-2xl border border-white/20">
                                     <div class="flex gap-2 mb-2">
                                         <select id="prefixeTel" class="w-1/3 p-2 rounded-xl text-xs font-bold outline-none">
@@ -109,11 +100,15 @@
                                             <optgroup label="Europe">
                                                 <option value="33">🇫🇷 +33</option>
                                             </optgroup>
+                                            <optgroup label="Océan Indien">
+                                                <option value="262">🇷🇪 +262</option>
+                                                <option value="262">🇾🇹 +262</option>
+                                            </optgroup>
                                         </select>
-                                        <input type="tel" id="telClient" placeholder="Numéro" class="flex-1 p-2 rounded-xl text-center outline-none">
+                                        <input type="tel" id="telClient" placeholder="Votre numéro" class="flex-1 p-2 rounded-xl text-center outline-none text-black">
                                     </div>
-                                    <button onclick="demanderCodeWhatsApp()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2">
-                                        <i class="fab fa-whatsapp text-lg"></i> Par WhatsApp
+                                    <button onclick="demanderCodeWhatsApp()" id="btnWA" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                                        <i class="fab fa-whatsapp text-lg"></i> Recevoir par WhatsApp
                                     </button>
                                 </div>
                             </div>
@@ -124,10 +119,11 @@
                             <div id="resStatut" class="inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-inner"></div>
                         </div>
                         <div class="py-4 border-y border-slate-800">
+                            <p class="text-[10px] opacity-50 uppercase mb-1">Montant total</p>
                             <p id="resMontant" class="text-5xl font-black text-white"></p>
                         </div>
                         <div id="zonePaiement" class="hidden pt-2">
-                            <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3">
+                            <a id="btnStripe" href="#" target="_blank" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 shadow-lg">
                                 <i class="fas fa-credit-card"></i> Payer ma commande
                             </a>
                         </div>
@@ -141,7 +137,9 @@
         const OPENAI_API_KEY = "sk-proj-fqujJmA0bqzAHOgU-GuxlZxDMVmUYyJXGqtUB0b4mLIiUsOiHOmWswLdWoV" + "aUkYkRfqi3ehEM3T3BlbkFJnlfBbAyJ_uxv0l58PwIrksEoFvxqx-TJ4eYzWgtx7m6AQCGP3qRIc0EzAduLZVTcyj-Bb1lkYA";
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxkSF1Lxnuvy3EukV2tZG2kRKyxdR6xsps7K1WOlj9Nnhs6J_iyzzGsoPIN93auz921/exec";
-        const numeroGSD = "594694000000"; // REMPLACE PAR TON NUMÉRO
+        
+        // --- À MODIFIER AVEC TON NUMÉRO ---
+        const numeroGSD = "594694000000"; 
 
         let codeGenere = null;
 
@@ -152,41 +150,11 @@
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
         }
 
-        function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
-
-        async function rechercheIA() {
-            const pieceInput = document.getElementById('ai-piece').value;
-            if(!pieceInput) return alert("Précisez la pièce.");
-            document.getElementById('ai-resultat').classList.remove('hidden');
-            document.getElementById('ai-loading').classList.remove('hidden');
-            document.getElementById('ai-content').classList.add('hidden');
-            let promptContent = [{ type: "text", text: `Expert GSD. Trouve 3 offres pour : "${pieceInput}". JSON: {'offres':[{'nom_piece':'','prix_ht':0}]}` }];
-            const cgFile = document.getElementById('input-cg').files[0];
-            if (cgFile) { const base64 = await toBase64(cgFile); promptContent.push({ type: "image_url", image_url: { url: base64 } }); }
-            try {
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
-                    body: JSON.stringify({ model: "gpt-4o", messages: [{ role: "user", content: promptContent }], response_format: { type: "json_object" } })
-                });
-                const data = await response.json();
-                const res = JSON.parse(data.choices[0].message.content);
-                let html = "";
-                res.offres.forEach(o => {
-                    const prixFinal = (parseFloat(o.prix_ht) * 1.20) + 65;
-                    html += `<div class="bg-white p-4 rounded-xl shadow mb-2 text-sm text-left"><b>${o.nom_piece}</b><br><span class="text-blue-600 font-bold">${prixFinal.toFixed(2)}€</span></div>`;
-                });
-                document.getElementById('offres-container').innerHTML = html;
-                document.getElementById('ai-loading').classList.add('hidden');
-                document.getElementById('ai-content').classList.remove('hidden');
-            } catch (e) { alert("Erreur IA"); }
-        }
-
         async function chercherDossier() {
-            const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
+            const nomSaisi = document.getElementById('nomRecherche').value.trim().toUpperCase();
+            const idSaisiNettoye = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
             try {
-                const res = await fetch(URL_CSV + "?v=" + Date.now());
+                const res = await fetch(URL_CSV + "&nocache=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
                 const sep = data.includes(';') ? ';' : ',';
@@ -194,7 +162,7 @@
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
                     const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
-                    if(idTab === idS && (nomS === col[2].toUpperCase() || nomS.includes(col[2].toUpperCase()))) {
+                    if(idTab === idSaisiNettoye && (nomSaisi === (col[2]||"").toUpperCase())) {
                         trouve = true;
                         document.getElementById('resNumDevis').innerText = col[0];
                         document.getElementById('resCivilite').innerText = col[1];
@@ -217,44 +185,48 @@
             } catch(e) { alert("Erreur réseau"); }
         }
 
-        function genererNouveauCode() { codeGenere = Math.floor(1000 + Math.random() * 9000); return codeGenere; }
+        function genererCode() { codeGenere = Math.floor(1000 + Math.random() * 9000); return codeGenere; }
 
         async function envoyerCodeEmail() {
-            const code = genererNouveauCode();
+            const code = genererCode();
+            const btn = document.getElementById('btnEmail');
+            btn.disabled = true; btn.innerText = "⏳ Envoi...";
             try {
                 const form = new FormData();
-                form.append("DEVIS", document.getElementById('resNumDevis').innerText);
+                form.append("OBJET", "CODE DE VALIDATION - GUYANE SOURCING DIRECT");
                 form.append("CODE", code);
-                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form });
-                finaliserSaisie();
-            } catch (e) { alert("Erreur."); }
+                form.append("DEVIS", document.getElementById('resNumDevis').innerText);
+                await fetch("https://formspree.io/f/meenjkyj", { method: 'POST', body: form, headers: { 'Accept': 'application/json' }});
+                verifierSaisie();
+            } catch (e) { alert("Erreur mail."); btn.disabled = false; }
         }
 
         function demanderCodeWhatsApp() {
-            const code = genererNouveauCode();
-            const pref = document.getElementById('prefixeTel').value;
+            const code = genererCode();
+            const prefixe = document.getElementById('prefixeTel').value;
             let tel = document.getElementById('telClient').value.trim().replace(/[\s.-]/g, '');
             if(tel.startsWith('0')) tel = tel.substring(1);
-            const msg = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${document.getElementById('resNumDevis').innerText}.`);
+            if(!tel) return alert("Numéro invalide.");
+            
+            const msg = encodeURIComponent(`Bonjour Guyane Sourcing Direct, je souhaite valider mon devis ${document.getElementById('resNumDevis').innerText}. Merci de me transmettre mon code.`);
+            alert("Vous allez être redirigé vers WhatsApp.");
             window.open(`https://wa.me/${numeroGSD}?text=${msg}`, '_blank');
-            finaliserSaisie();
+            verifierSaisie();
         }
 
-        async function finaliserSaisie() {
+        async function verifierSaisie() {
             const saisie = prompt("Saisissez le code reçu :");
             if (saisie == codeGenere) {
-                await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
-                alert("Merci ! Votre commande est confirmée.");
-                location.reload();
+                try {
+                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: document.getElementById('resNumDevis').innerText }) });
+                    alert("Merci ! Votre commande est confirmée.");
+                    location.reload();
+                } catch (e) { alert("Erreur."); }
             } else { alert("Code incorrect."); }
         }
 
-        const toBase64 = file => new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => res(reader.result);
-            reader.onerror = e => rej(e);
-        });
+        function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
+        const toBase64 = f => new Promise((r,j)=>{const rd=new FileReader();rd.readAsDataURL(f);rd.onload=()=>r(rd.result);rd.onerror=e=>j(e);});
     </script>
 </body>
 </html>
