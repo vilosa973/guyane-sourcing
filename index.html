@@ -58,23 +58,16 @@
                     </div>
 
                     <div id="bloc-secours-ia" class="hidden p-4 bg-amber-500/20 border-2 border-amber-500 rounded-2xl text-left space-y-3">
-                        <p class="text-xs font-black uppercase text-amber-800"><i class="fas fa-exclamation-triangle mr-1"></i> Lecture difficile. Veuillez confirmer manuellement votre véhicule :</p>
-                        <div class="grid grid-cols-3 gap-2">
-                            <select id="secours-marque" class="p-2 rounded-xl text-xs font-bold bg-white" onchange="remplirSecoursModele()">
-                                <option value="">MARQUE</option>
-                                <option value="DACIA">DACIA</option>
-                                <option value="RENAULT">RENAULT</option>
-                                <option value="PEUGEOT">PEUGEOT</option>
-                                <option value="CITROEN">CITROEN</option>
-                                <option value="TOYOTA">TOYOTA</option>
-                                <option value="VOLKSWAGEN">VOLKSWAGEN</option>
-                            </select>
-                            <select id="secours-modele" class="p-2 rounded-xl text-xs font-bold bg-white">
-                                <option value="">MODÈLE</option>
-                            </select>
-                            <input type="number" id="secours-annee" placeholder="ANNÉE" class="p-2 rounded-xl text-xs font-bold text-center bg-white">
+                        <p class="text-xs font-black uppercase text-amber-800"><i class="fas fa-exclamation-triangle mr-1"></i> Jarvis n'a pas pu lire la photo. Veuillez spécifier le véhicule :</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="secours-marque" placeholder="MARQUE (Ex: DACIA, AUDI...)" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
+                            <input type="text" id="secours-modele" placeholder="MODÈLE (Ex: SANDERO, A4...)" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
                         </div>
-                        <button onclick="validerSecoursIA()" class="w-full bg-amber-600 text-white py-2 rounded-xl font-black text-xs uppercase shadow-md">Valider ma fiche véhicule</button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="secours-moteur" placeholder="MOTORISATION (Ex: 1.5 DCI, 2.0 TDI...)" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
+                            <input type="number" id="secours-annee" placeholder="ANNÉE (Ex: 2015)" class="p-3 rounded-xl text-xs font-bold bg-white text-center">
+                        </div>
+                        <button onclick="validerSecoursIA()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-black text-xs uppercase shadow-md">Valider ma fiche véhicule</button>
                     </div>
 
                     <div class="space-y-4 border-t border-blue-100 pt-4">
@@ -211,15 +204,6 @@
         let donneesDernierVehicule = null;
         let panierArticle = null;
 
-        const modèlesSecours = {
-            "DACIA": ["SANDERO", "DUSTER", "LOGAN", "LODGY"],
-            "RENAULT": ["CLIO", "MEGANE", "SCENIC", "MASTER", "MASCOTT", "TRAFIC"],
-            "PEUGEOT": ["208", "308", "2008", "3008", "PARTNER", "BOXER"],
-            "CITROEN": ["C3", "C4", "BERLINGO", "JUMPER"],
-            "TOYOTA": ["YARIS", "COROLLA", "RAV4", "HILUX"],
-            "VOLKSWAGEN": ["GOLF", "POLO", "TIGUAN", "TRANSPORTER"]
-        };
-
         function switchTab(tab) {
             document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
             document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
@@ -228,24 +212,14 @@
             document.getElementById('bloc-secours-ia').classList.add('hidden');
         }
 
-        function remplirSecoursModele() {
-            const marque = document.getElementById('secours-marque').value;
-            const selectMod = document.getElementById('secours-modele');
-            selectMod.innerHTML = '<option value="">MODÈLE</option>';
-            if(marque && modèlesSecours[marque]) {
-                modèlesSecours[marque].forEach(m => {
-                    selectMod.innerHTML += `<option value="${m}">${m}</option>`;
-                });
-            }
-        }
-
         function validerSecoursIA() {
-            const mq = document.getElementById('secours-marque').value;
-            const mod = document.getElementById('secours-modele').value;
-            const an = document.getElementById('secours-annee').value;
-            if(!mq || !mod || !an) return alert("Veuillez remplir les 3 cases de secours.");
+            const mq = document.getElementById('secours-marque').value.trim().toUpperCase();
+            const mod = document.getElementById('secours-modele').value.trim().toUpperCase();
+            const mot = document.getElementById('secours-moteur').value.trim().toUpperCase();
+            const an = document.getElementById('secours-annee').value.trim();
+            if(!mq || !mod || !an) return alert("Veuillez remplir au moins la Marque, le Modèle et l'Année.");
             
-            donneesDernierVehicule.vehicule = `${mq} ${mod} | ${an} | 7 CV | MOTORISATION CONFIRMÉE`;
+            donneesDernierVehicule.vehicule = `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION SPECIFIEE'}`;
             document.getElementById('bloc-secours-ia').classList.add('hidden');
             document.getElementById('ai-content').classList.remove('hidden');
             afficherCatalogueOffres(donneesDernierVehicule);
@@ -273,7 +247,6 @@
                         const sBox = document.getElementById('resStatut');
                         sBox.innerText = stat;
                         sBox.style.backgroundColor = (stat.includes('PAYÉ') || stat.includes('CONFIRMÉE')) ? '#059669' : '#D97706';
-                        document.getElementById('zoneValidation').classList.toggle('hidden', !stat.includes('ATTENTE'));
                         document.getElementById('resMontant').innerText = col[8] || "0.00 €";
                         if(col[7] && col[7].startsWith('http')) {
                             document.getElementById('btnStripe').href = col[7];
@@ -285,35 +258,6 @@
                 }
                 if(!tr) alert("Dossier introuvable.");
             } catch(e) { alert("Erreur réseau."); }
-        }
-
-        function genererCode() { codeGenere = Math.floor(1000 + Math.random() * 9000); return codeGenere; }
-
-        function demanderCodeWhatsApp() {
-            const c = genererCode();
-            const p = document.getElementById('prefixeTel').value;
-            let t = document.getElementById('telClient').value.trim().replace(/[\s.-]/g, '');
-            if(t.startsWith('0')) t = t.substring(1);
-            if(!t || t.length < 9) return alert("Numéro invalide.");
-            
-            const numClientComplet = p + t;
-            const message = encodeURIComponent(`GSD | Votre code de signature unique pour le devis ${document.getElementById('resNumDevis').innerText} est : ${c}`);
-            window.open(`https://wa.me/${numClientComplet}?text=${message}`, '_blank');
-            document.getElementById('inputCodeDossier').classList.remove('hidden');
-        }
-
-        async function validerCodeFinal() {
-            const s = document.getElementById('codeSaisi').value;
-            const devisID = document.getElementById('resNumDevis').innerText;
-            if (s == codeGenere) {
-                try {
-                    const params = new URLSearchParams();
-                    params.append('id', devisID);
-                    await fetch(URL_WEB_APP, { method: 'POST', mode: 'no-cors', body: params });
-                    alert("Signature validée ! Votre commande est confirmée.");
-                    location.reload();
-                } catch(e) { alert("Erreur serveur."); }
-            } else { alert("Code incorrect."); }
         }
 
         function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
@@ -469,7 +413,7 @@
 
         function procederAuPaiement() {
             if(!panierArticle) return;
-            alert(`Lancement sécurisé du paiement pour un montant de : ${panierArticle.prix.toFixed(2)} €\n(Prochaine étape : Configuration de la brique automatisée Stripe)`);
+            alert(`Lancement sécurisé du paiement pour un montant de : ${panierArticle.prix.toFixed(2)} €\n(Prochaine étape : Liaison automatisée avec Stripe)`);
         }
     </script>
 </body>
