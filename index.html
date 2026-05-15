@@ -44,6 +44,10 @@
                     
                     <div id="form-modele" class="hidden grid-manual">
                         <div class="manual-row">
+                            <input type="text" id="m-immatriculation" placeholder="IMMATRICULATION" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                            <input type="text" id="m-vin" placeholder="N° VIN (CHÂSSIS)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                        </div>
+                        <div class="manual-row">
                             <input type="text" id="m-marque" placeholder="MARQUE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
@@ -159,7 +163,6 @@
     </div>
 
     <script>
-        // CONFIGURATION DE TES URLS (Lien Web App injecté avec succès !)
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxsKGx_q4wU46MI2z0TirB10QwdQJI6WCGyCfKtIq1ZQY8B-Jq0CH3TtWqcfDKuu6Km/exec";
         let codeGenere = null;
@@ -238,7 +241,6 @@
 
         function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
 
-        // Nouvelle fonction de recherche IA ultra-puissante connectée à OpenAI
         async function rechercheIA() {
             const inputCG = document.getElementById('input-cg');
             const piece = document.getElementById('ai-piece').value.trim();
@@ -256,7 +258,6 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
-            // Cas 1 : Mode Photo Carte Grise
             if (document.getElementById('tab-photo').classList.contains('active')) {
                 if (!inputCG.files[0]) {
                     alert("Veuillez charger une photo de votre carte grise.");
@@ -273,11 +274,12 @@
                     await envoyerDemandeIA(formData, loadingBox, contentBox, container);
                 };
             } else {
-                // Cas 2 : Mode Saisie Manuelle
-                formData.append('marque', document.getElementById('m-marque').value);
-                formData.append('modele', document.getElementById('m-modele').value);
-                formData.append('moteur', document.getElementById('m-moteur').value);
-                formData.append('annee', document.getElementById('m-annee').value);
+                formData.append('immatriculation', document.getElementById('m-immatriculation').value.trim());
+                formData.append('vin', document.getElementById('m-vin').value.trim());
+                formData.append('marque', document.getElementById('m-marque').value.trim());
+                formData.append('modele', document.getElementById('m-modele').value.trim());
+                formData.append('moteur', document.getElementById('m-moteur').value.trim());
+                formData.append('annee', document.getElementById('m-annee').value.trim());
                 await envoyerDemandeIA(formData, loadingBox, contentBox, container);
             }
         }
