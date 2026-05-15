@@ -164,7 +164,7 @@
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbzroLmB16om7JqNAXsnhanZ2QpAYcUfmXhX17_fqTppqXOo1Z3i1JI3YUSSvpt4p2Mq/exec";
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         let codeGenere = null;
 
         function switchTab(tab) {
@@ -294,7 +294,7 @@
                 content.classList.remove('hidden');
                 
                 if (json.status === "Succès") {
-                    // Découpage universel des données de la carte grise envoyées par Jarvis
+                    // Découpage universel des 4 données renvoyées par Jarvis
                     const details = json.vehicule.split(" | ");
                     const nomVehicule = details[0] || "VÉHICULE IDENTIFIÉ";
                     const annee = details[1] || "Année N.C";
@@ -305,10 +305,11 @@
                         <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
                             <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🔍 Fiche Véhicule Validée par Jarvis</p>
                             <h3 class="text-2xl font-black text-white tracking-wide uppercase">${nomVehicule}</h3>
-                            <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-[11px] font-black uppercase text-slate-300">
-                                <div class="bg-white/5 p-1.5 rounded-lg border border-white/10"><i class="fas fa-calendar-alt text-blue-400 mr-1"></i> ${annee}</div>
-                                <div class="bg-white/5 p-1.5 rounded-lg border border-white/10"><i class="fas fa-horse text-blue-400 mr-1"></i> ${puissance}</div>
-                                <div class="bg-white/5 p-1.5 rounded-lg border border-white/10"><i class="fas fa-oil-can text-blue-400 mr-1"></i> ${moteur}</div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-white/10 text-[10px] font-black uppercase text-slate-300">
+                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-calendar-alt text-blue-400"></i> <span>${annee}</span></div>
+                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-horse text-blue-400"></i> <span>${puissance}</span></div>
+                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-oil-can text-blue-400"></i> <span>${moteur}</span></div>
+                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span title="${formData.get('vin') || 'VIN AUTOMATIQUE'}">${formData.get('vin') || 'VIN LU'}</span></div>
                             </div>
                         </div>
                         <div class="space-y-3">
