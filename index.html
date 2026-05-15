@@ -159,9 +159,9 @@
     </div>
 
     <script>
-        // TES URLS MISES À JOUR
+        // CONFIGURATION DE TES URLS (Lien Web App injecté avec succès !)
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwAubgMK3FnlpRY8fuUUlhtO4O_IueC9zi9M84pOn0JlIOa6Tb9UQsBvumpR5xz9He1/exec";
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxsKGx_q4wU46MI2z0TirB10QwdQJI6WCGyCfKtIq1ZQY8B-Jq0CH3TtWqcfDKuu6Km/exec";
         let codeGenere = null;
 
         function switchTab(tab) {
@@ -237,14 +237,71 @@
         }
 
         function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
-        function rechercheIA() {
-            document.getElementById('ai-resultat').classList.remove('hidden');
-            document.getElementById('ai-loading').classList.remove('hidden');
-            setTimeout(() => { 
-                document.getElementById('ai-loading').classList.add('hidden');
-                document.getElementById('offres-container').innerHTML = '<div class="p-4 bg-white/90 rounded-xl border-l-4 border-blue-600 text-sm font-bold text-black uppercase text-center">Analyse terminée. Un conseiller GSD traite votre demande.</div>';
-                document.getElementById('ai-content').classList.remove('hidden');
-            }, 1500);
+
+        // Nouvelle fonction de recherche IA ultra-puissante connectée à OpenAI
+        async function rechercheIA() {
+            const inputCG = document.getElementById('input-cg');
+            const piece = document.getElementById('ai-piece').value.trim();
+            const resultBox = document.getElementById('ai-resultat');
+            const loadingBox = document.getElementById('ai-loading');
+            const contentBox = document.getElementById('ai-content');
+            const container = document.getElementById('offres-container');
+
+            if (!piece) return alert("Veuillez indiquer la pièce recherchée.");
+
+            resultBox.classList.remove('hidden');
+            loadingBox.classList.remove('hidden');
+            contentBox.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('piece', piece);
+
+            // Cas 1 : Mode Photo Carte Grise
+            if (document.getElementById('tab-photo').classList.contains('active')) {
+                if (!inputCG.files[0]) {
+                    alert("Veuillez charger une photo de votre carte grise.");
+                    loadingBox.classList.add('hidden');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.readAsDataURL(inputCG.files[0]);
+                reader.onloadend = async () => {
+                    const base64Data = reader.result.split(',')[1];
+                    formData.append('image', base64Data);
+                    formData.append('mimeType', inputCG.files[0].type);
+                    await envoyerDemandeIA(formData, loadingBox, contentBox, container);
+                };
+            } else {
+                // Cas 2 : Mode Saisie Manuelle
+                formData.append('marque', document.getElementById('m-marque').value);
+                formData.append('modele', document.getElementById('m-modele').value);
+                formData.append('moteur', document.getElementById('m-moteur').value);
+                formData.append('annee', document.getElementById('m-annee').value);
+                await envoyerDemandeIA(formData, loadingBox, contentBox, container);
+            }
+        }
+
+        async function envoyerDemandeIA(formData, loading, content, container) {
+            try {
+                const response = await fetch(URL_WEB_APP, {
+                    method: 'POST',
+                    body: new URLSearchParams(formData)
+                });
+                const json = await response.json();
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                
+                if (json.status === "Succès") {
+                    container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-green-600 text-sm font-bold text-black uppercase text-center">${json.message}</div>`;
+                } else {
+                    container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur : ${json.details || "Impossible de traiter la demande"}</div>`;
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur de connexion avec Jarvis.</div>`;
+            }
         }
     </script>
 </body>
