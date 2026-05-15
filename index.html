@@ -164,7 +164,7 @@
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxc3I7VQdCtt5Kh7GbjDawJZv6OfZznQoh01Cofkz0ufTiJLM2oMbWGMszX3NRFvTSy/exec";
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbzroLmB16om7JqNAXsnhanZ2QpAYcUfmXhX17_fqTppqXOo1Z3i1JI3YUSSvpt4p2Mq/exec";
         let codeGenere = null;
 
         function switchTab(tab) {
@@ -274,12 +274,11 @@
                     await envoyerDemandeIA(formData, loadingBox, contentBox, container);
                 };
             } else {
-                formData.append('immatriculation', document.getElementById('m-immatriculation').value.trim());
-                formData.append('vin', document.getElementById('m-vin').value.trim());
                 formData.append('marque', document.getElementById('m-marque').value.trim());
                 formData.append('modele', document.getElementById('m-modele').value.trim());
                 formData.append('moteur', document.getElementById('m-moteur').value.trim());
                 formData.append('annee', document.getElementById('m-annee').value.trim());
+                formData.append('vin', document.getElementById('m-vin').value.trim());
                 await envoyerDemandeIA(formData, loadingBox, contentBox, container);
             }
         }
@@ -295,10 +294,22 @@
                 content.classList.remove('hidden');
                 
                 if (json.status === "Succès") {
+                    // Découpage universel des données de la carte grise envoyées par Jarvis
+                    const details = json.vehicule.split(" | ");
+                    const nomVehicule = details[0] || "VÉHICULE IDENTIFIÉ";
+                    const annee = details[1] || "Année N.C";
+                    const puissance = details[2] || "Puissance N.C";
+                    const moteur = details[3] || "Moteur N.C";
+
                     let htmlOffres = `
-                        <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600">
-                            <p class="text-xs uppercase text-blue-400 font-bold">Véhicule identifié par Jarvis</p>
-                            <h3 class="text-xl font-black">${json.vehicule}</h3>
+                        <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
+                            <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🔍 Fiche Véhicule Validée par Jarvis</p>
+                            <h3 class="text-2xl font-black text-white tracking-wide uppercase">${nomVehicule}</h3>
+                            <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-[11px] font-black uppercase text-slate-300">
+                                <div class="bg-white/5 p-1.5 rounded-lg border border-white/10"><i class="fas fa-calendar-alt text-blue-400 mr-1"></i> ${annee}</div>
+                                <div class="bg-white/5 p-1.5 rounded-lg border border-white/10"><i class="fas fa-horse text-blue-400 mr-1"></i> ${puissance}</div>
+                                <div class="bg-white/5 p-1.5 rounded-lg border border-white/10"><i class="fas fa-oil-can text-blue-400 mr-1"></i> ${moteur}</div>
+                            </div>
                         </div>
                         <div class="space-y-3">
                     `;
@@ -318,7 +329,7 @@
                                 </div>
                                 <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-2 md:pt-0">
                                     <p class="text-2xl font-black text-slate-900">${offre.prix} €</p>
-                                    <a href="https://wa.me/33699337803?text=Bonjour,%20je%20souhaite%20commander%20la%20pièce%20[${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}]%20en%20état%20[${offre.type}]%20pour%20mon%20véhicule%20[${encodeURIComponent(json.vehicule)}]%20au%20tarif%20de%20${offre.prix}%20€" target="_blank" class="bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl flex items-center gap-1 shadow-md hover:bg-emerald-700 transition">
+                                    <a href="https://wa.me/33699337803?text=Bonjour,%20je%20souhaite%20commander%20la%20pièce%20[${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}]%20en%20état%20[${offre.type}]%20pour%20mon%20véhicule%20[${encodeURIComponent(nomVehicule)}%20${encodeURIComponent(annee)}]%20au%20tarif%20de%20${offre.prix}%20€" target="_blank" class="bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl flex items-center gap-1 shadow-md hover:bg-emerald-700 transition">
                                         <i class="fab fa-whatsapp"></i> Commander
                                     </a>
                                 </div>
