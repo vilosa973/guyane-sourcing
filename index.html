@@ -294,7 +294,6 @@
                 content.classList.remove('hidden');
                 
                 if (json.status === "Succès") {
-                    // Découpage universel des 4 données renvoyées par Jarvis
                     const details = json.vehicule.split(" | ");
                     const nomVehicule = details[0] || "VÉHICULE IDENTIFIÉ";
                     const annee = details[1] || "Année N.C";
@@ -309,7 +308,7 @@
                                 <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-calendar-alt text-blue-400"></i> <span>${annee}</span></div>
                                 <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-horse text-blue-400"></i> <span>${puissance}</span></div>
                                 <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-oil-can text-blue-400"></i> <span>${moteur}</span></div>
-                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span title="${formData.get('vin') || 'VIN AUTOMATIQUE'}">${formData.get('vin') || 'VIN LU'}</span></div>
+                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span>${formData.get('vin') || 'VIN LU'}</span></div>
                             </div>
                         </div>
                         <div class="space-y-3">
@@ -321,17 +320,27 @@
                         if(offre.type === "OCCASION") badgeColor = "bg-amber-600 text-black";
 
                         htmlOffres += `
-                            <div class="bg-white/95 p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div class="text-center md:text-left">
+                            <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div class="text-center md:text-left space-y-1 w-full md:w-auto">
                                     <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase ${badgeColor} mb-1">${offre.type}</span>
-                                    <h4 class="text-sm font-black text-slate-900 uppercase">${document.getElementById('ai-piece').value.toUpperCase()}</h4>
-                                    <p class="text-[11px] text-slate-500 font-bold">${offre.fournisseur}</p>
-                                    <p class="text-[10px] text-slate-700 mt-1"><i class="fas fa-truck mr-1"></i> Livraison : ${offre.delai} | <i class="fas fa-shield-alt mr-1"></i> Garantie : ${offre.garantie}</p>
+                                    <h4 class="text-base font-black text-slate-900 uppercase">${document.getElementById('ai-piece').value.toUpperCase()}</h4>
+                                    
+                                    <p class="text-xs font-bold text-slate-700">Marque de la pièce : <span class="font-black text-blue-700">${offre.marque_piece}</span></p>
+                                    <p class="text-xs font-bold text-slate-700">Numéro de référence article : <span class="font-black text-slate-900">${offre.reference_article}</span></p>
+                                    
+                                    <p class="text-[11px] text-slate-600 font-bold mt-1">
+                                        <i class="fas fa-truck text-blue-500 mr-1"></i> Livraison : estimation en entrepôt de départ jusqu'à l'arrivée chez le client (${offre.delai})
+                                    </p>
+                                    <p class="text-[11px] text-slate-600 font-bold">
+                                        <i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${offre.garantie}</span>
+                                    </p>
                                 </div>
-                                <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-2 md:pt-0">
-                                    <p class="text-2xl font-black text-slate-900">${offre.prix} €</p>
-                                    <a href="https://wa.me/33699337803?text=Bonjour,%20je%20souhaite%20commander%20la%20pièce%20[${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}]%20en%20état%20[${offre.type}]%20pour%20mon%20véhicule%20[${encodeURIComponent(nomVehicule)}%20${encodeURIComponent(annee)}]%20au%20tarif%20de%20${offre.prix}%20€" target="_blank" class="bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl flex items-center gap-1 shadow-md hover:bg-emerald-700 transition">
-                                        <i class="fab fa-whatsapp"></i> Commander
+                                <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
+                                    <div>
+                                        <p class="text-[22px] font-black text-slate-900"><span class="text-xs font-black text-slate-400">Prix : </span>${offre.prix} €</p>
+                                    </div>
+                                    <a href="https://wa.me/33699337803?text=Bonjour,%20je%20souhaite%20commander%20la%20pièce%20[${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}]%20de%20marque%20[${offre.marque_piece}]%20(Réf:%20${offre.reference_article})%20en%20état%20[${offre.type}]%20pour%20mon%20véhicule%20[${encodeURIComponent(nomVehicule)}]" target="_blank" class="bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl flex items-center gap-1 shadow-md hover:bg-emerald-700 transition">
+                                        <i class="fab fa-whatsapp text-xs"></i> Commander
                                     </a>
                                 </div>
                             </div>
