@@ -57,6 +57,26 @@
                         </div>
                     </div>
 
+                    <div id="bloc-secours-ia" class="hidden p-4 bg-amber-500/20 border-2 border-amber-500 rounded-2xl text-left space-y-3">
+                        <p class="text-xs font-black uppercase text-amber-800"><i class="fas fa-exclamation-triangle mr-1"></i> Lecture difficile. Veuillez confirmer manuellement votre véhicule :</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <select id="secours-marque" class="p-2 rounded-xl text-xs font-bold bg-white" onchange="remplirSecoursModele()">
+                                <option value="">MARQUE</option>
+                                <option value="DACIA">DACIA</option>
+                                <option value="RENAULT">RENAULT</option>
+                                <option value="PEUGEOT">PEUGEOT</option>
+                                <option value="CITROEN">CITROEN</option>
+                                <option value="TOYOTA">TOYOTA</option>
+                                <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+                            </select>
+                            <select id="secours-modele" class="p-2 rounded-xl text-xs font-bold bg-white">
+                                <option value="">MODÈLE</option>
+                            </select>
+                            <input type="number" id="secours-annee" placeholder="ANNÉE" class="p-2 rounded-xl text-xs font-bold text-center bg-white">
+                        </div>
+                        <button onclick="validerSecoursIA()" class="w-full bg-amber-600 text-white py-2 rounded-xl font-black text-xs uppercase shadow-md">Valider ma fiche véhicule</button>
+                    </div>
+
                     <div class="space-y-4 border-t border-blue-100 pt-4">
                         <input type="text" id="ai-piece" placeholder="QUELLE PIÈCE RECHERCHEZ-VOUS ?" class="w-full p-5 rounded-2xl outline-none border-2 border-blue-500 shadow-inner text-center font-black">
                         <button onclick="rechercheIA()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
@@ -70,6 +90,28 @@
                     </div>
                 </div>
             </section>
+
+            <div id="zone-panier" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-50">
+                <div class="bg-slate-950 text-white p-4 rounded-3xl shadow-2xl border-2 border-emerald-500 space-y-3 flex flex-col">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                        <p class="font-black text-sm uppercase tracking-wide text-emerald-400"><i class="fas fa-shopping-basket mr-1"></i> Mon Panier GSD</p>
+                        <button onclick="viderPanier()" class="text-[10px] uppercase font-black text-red-400 hover:underline">Vider</button>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <div>
+                            <p id="panier-nom-piece" class="font-black uppercase text-white truncate max-w-[210px]"></p>
+                            <p id="panier-details-piece" class="text-[10px] text-slate-400 font-bold"></p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-slate-400 uppercase font-black text-right">Total :</p>
+                            <p id="panier-total" class="text-2xl font-black text-emerald-400">0.00 €</p>
+                        </div>
+                    </div>
+                    <button onclick="procederAuPaiement()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg tracking-wider flex items-center justify-center gap-2 transition">
+                        <i class="fas fa-lock"></i> Procéder au paiement sécurisé
+                    </button>
+                </div>
+            </div>
 
             <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden">
                 <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video">
@@ -166,12 +208,47 @@
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         let codeGenere = null;
+        let donneesDernierVehicule = null;
+        let panierArticle = null;
+
+        const modèlesSecours = {
+            "DACIA": ["SANDERO", "DUSTER", "LOGAN", "LODGY"],
+            "RENAULT": ["CLIO", "MEGANE", "SCENIC", "MASTER", "MASCOTT", "TRAFIC"],
+            "PEUGEOT": ["208", "308", "2008", "3008", "PARTNER", "BOXER"],
+            "CITROEN": ["C3", "C4", "BERLINGO", "JUMPER"],
+            "TOYOTA": ["YARIS", "COROLLA", "RAV4", "HILUX"],
+            "VOLKSWAGEN": ["GOLF", "POLO", "TIGUAN", "TRANSPORTER"]
+        };
 
         function switchTab(tab) {
             document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
             document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
             document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            document.getElementById('bloc-secours-ia').classList.add('hidden');
+        }
+
+        function remplirSecoursModele() {
+            const marque = document.getElementById('secours-marque').value;
+            const selectMod = document.getElementById('secours-modele');
+            selectMod.innerHTML = '<option value="">MODÈLE</option>';
+            if(marque && modèlesSecours[marque]) {
+                modèlesSecours[marque].forEach(m => {
+                    selectMod.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            }
+        }
+
+        function validerSecoursIA() {
+            const mq = document.getElementById('secours-marque').value;
+            const mod = document.getElementById('secours-modele').value;
+            const an = document.getElementById('secours-annee').value;
+            if(!mq || !mod || !an) return alert("Veuillez remplir les 3 cases de secours.");
+            
+            donneesDernierVehicule.vehicule = `${mq} ${mod} | ${an} | 7 CV | MOTORISATION CONFIRMÉE`;
+            document.getElementById('bloc-secours-ia').classList.add('hidden');
+            document.getElementById('ai-content').classList.remove('hidden');
+            afficherCatalogueOffres(donneesDernierVehicule);
         }
 
         async function chercherDossier() {
@@ -254,6 +331,7 @@
             resultBox.classList.remove('hidden');
             loadingBox.classList.remove('hidden');
             contentBox.classList.add('hidden');
+            document.getElementById('bloc-secours-ia').classList.add('hidden');
 
             const formData = new FormData();
             formData.append('piece', piece);
@@ -291,73 +369,107 @@
                 });
                 const json = await response.json();
                 loading.classList.add('hidden');
-                content.classList.remove('hidden');
                 
                 if (json.status === "Succès") {
-                    const details = json.vehicule.split(" | ");
-                    const nomVehicule = details[0] || "VÉHICULE IDENTIFIÉ";
-                    const annee = details[1] || "Année N.C";
-                    const puissance = details[2] || "Puissance N.C";
-                    const moteur = details[3] || "Moteur N.C";
-
-                    let htmlOffres = `
-                        <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
-                            <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🔍 Fiche Véhicule Validée par Jarvis</p>
-                            <h3 class="text-2xl font-black text-white tracking-wide uppercase">${nomVehicule}</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-white/10 text-[10px] font-black uppercase text-slate-300">
-                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-calendar-alt text-blue-400"></i> <span>${annee}</span></div>
-                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-horse text-blue-400"></i> <span>${puissance}</span></div>
-                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-oil-can text-blue-400"></i> <span>${moteur}</span></div>
-                                <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span>${formData.get('vin') || 'VIN LU'}</span></div>
-                            </div>
-                        </div>
-                        <div class="space-y-3">
-                    `;
-                    
-                    json.offres.forEach(offre => {
-                        let badgeColor = "bg-green-600 text-white";
-                        if(offre.type === "RECONDITIONNÉ") badgeColor = "bg-blue-600 text-white";
-                        if(offre.type === "OCCASION") badgeColor = "bg-amber-600 text-black";
-
-                        htmlOffres += `
-                            <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div class="text-center md:text-left space-y-1 w-full md:w-auto">
-                                    <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase ${badgeColor} mb-1">${offre.type}</span>
-                                    <h4 class="text-base font-black text-slate-900 uppercase">${document.getElementById('ai-piece').value.toUpperCase()}</h4>
-                                    
-                                    <p class="text-xs font-bold text-slate-700">Marque de la pièce : <span class="font-black text-blue-700">${offre.marque_piece}</span></p>
-                                    <p class="text-xs font-bold text-slate-700">Numéro de référence article : <span class="font-black text-slate-900">${offre.reference_article}</span></p>
-                                    
-                                    <p class="text-[11px] text-slate-600 font-bold mt-1">
-                                        <i class="fas fa-truck text-blue-500 mr-1"></i> Livraison : estimation en entrepôt de départ jusqu'à l'arrivée chez le client (${offre.delai})
-                                    </p>
-                                    <p class="text-[11px] text-slate-600 font-bold">
-                                        <i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${offre.garantie}</span>
-                                    </p>
-                                </div>
-                                <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
-                                    <div>
-                                        <p class="text-[22px] font-black text-slate-900"><span class="text-xs font-black text-slate-400">Prix : </span>${offre.prix} €</p>
-                                    </div>
-                                    <a href="https://wa.me/33699337803?text=Bonjour,%20je%20souhaite%20commander%20la%20pièce%20[${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}]%20de%20marque%20[${offre.marque_piece}]%20(Réf:%20${offre.reference_article})%20en%20état%20[${offre.type}]%20pour%20mon%20véhicule%20[${encodeURIComponent(nomVehicule)}]" target="_blank" class="bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl flex items-center gap-1 shadow-md hover:bg-emerald-700 transition">
-                                        <i class="fab fa-whatsapp text-xs"></i> Commander
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    htmlOffres += `</div>`;
-                    container.innerHTML = htmlOffres;
-                    
+                    donneesDernierVehicule = json;
+                    if (json.vehicule.includes("DÉTECTION EN COURS")) {
+                        document.getElementById('bloc-secours-ia').classList.remove('hidden');
+                    } else {
+                        content.classList.remove('hidden');
+                        afficherCatalogueOffres(json);
+                    }
                 } else {
                     container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur : ${json.details || "Impossible de traiter la demande"}</div>`;
+                    content.classList.remove('hidden');
                 }
             } catch (e) {
                 loading.classList.add('hidden');
                 content.classList.remove('hidden');
                 container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur de connexion avec Jarvis.</div>`;
             }
+        }
+
+        function afficherCatalogueOffres(json) {
+            const container = document.getElementById('offres-container');
+            const details = json.vehicule.split(" | ");
+            const nomVehicule = details[0] || "VÉHICULE IDENTIFIÉ";
+            const annee = details[1] || "Année N.C";
+            const puissance = details[2] || "Puissance N.C";
+            const moteur = details[3] || "Moteur N.C";
+
+            let htmlOffres = `
+                <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
+                    <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🔍 Fiche Véhicule Validée par Jarvis</p>
+                    <h3 class="text-2xl font-black text-white tracking-wide uppercase">${nomVehicule}</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-white/10 text-[10px] font-black uppercase text-slate-300">
+                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-calendar-alt text-blue-400"></i> <span>${annee}</span></div>
+                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-horse text-blue-400"></i> <span>${puissance}</span></div>
+                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-oil-can text-blue-400"></i> <span>${moteur}</span></div>
+                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span>VIN AUTOMATIQUE</span></div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+            `;
+            
+            json.offres.forEach(offre => {
+                let badgeColor = "bg-green-600 text-white";
+                if(offre.type === "RECONDITIONNÉ") badgeColor = "bg-blue-600 text-white";
+                if(offre.type === "OCCASION") badgeColor = "bg-amber-600 text-black";
+
+                htmlOffres += `
+                    <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="text-center md:text-left space-y-1 w-full md:w-auto">
+                            <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase ${badgeColor} mb-1">${offre.type}</span>
+                            <h4 class="text-base font-black text-slate-900 uppercase">${document.getElementById('ai-piece').value.toUpperCase()}</h4>
+                            
+                            <p class="text-xs font-bold text-slate-700">Marque de la pièce : <span class="font-black text-blue-700">${offre.marque_piece}</span></p>
+                            <p class="text-xs font-bold text-slate-700">Numéro de référence article : <span class="font-black text-slate-900">${offre.reference_article}</span></p>
+                            
+                            <p class="text-[11px] text-slate-600 font-bold mt-1">
+                                <i class="fas fa-truck text-blue-500 mr-1"></i> Livraison : estimation en entrepôt de départ jusqu'à l'arrivée chez le client (${offre.delai})
+                            </p>
+                            <p class="text-[11px] text-slate-600 font-bold">
+                                <i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${offre.garantie}</span>
+                            </p>
+                        </div>
+                        <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
+                            <div>
+                                <p class="text-2xl font-black text-slate-900"><span class="text-xs font-black text-slate-400">Prix : </span>${offre.prix} €</p>
+                            </div>
+                            <button onclick="ajouterAuPanier('${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl flex items-center gap-1 shadow-md transition">
+                                <i class="fas fa-plus-circle"></i> Sélectionner
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            htmlOffres += `</div>`;
+            container.innerHTML = htmlOffres;
+        }
+
+        function ajouterAuPanier(piece, marque, prix, type) {
+            panierArticle = {
+                nom: decodeURIComponent(piece),
+                marque: marque,
+                prix: parseFloat(prix),
+                type: type
+            };
+            
+            document.getElementById('panier-nom-piece').innerText = panierArticle.nom;
+            document.getElementById('panier-details-piece').innerText = `${type} - ${marque}`;
+            document.getElementById('panier-total').innerText = `${panierArticle.prix.toFixed(2)} €`;
+            document.getElementById('zone-panier').classList.remove('hidden');
+        }
+
+        function viderPanier() {
+            panierArticle = null;
+            document.getElementById('zone-panier').classList.add('hidden');
+        }
+
+        function procederAuPaiement() {
+            if(!panierArticle) return;
+            alert(`Lancement sécurisé du paiement pour un montant de : ${panierArticle.prix.toFixed(2)} €\n(Prochaine étape : Configuration de la brique automatisée Stripe)`);
         }
     </script>
 </body>
