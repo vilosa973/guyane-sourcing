@@ -67,16 +67,40 @@
                             <input type="text" id="secours-modele" placeholder="MODÈLE (Ex: SANDERO, A4...)" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="secours-moteur" placeholder="MOTORISATION (Ex: 1.5 DCI, 2.0 TDI...)" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
-                            <input type="number" id="secours-annee" placeholder="ANNÉE (Ex: 2015)" class="p-3 rounded-xl text-xs font-bold bg-white text-center">
+                            <input type="text" id="secours-moteur" placeholder="MOTORISATION" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
+                            <input type="number" id="secours-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-xs font-bold bg-white text-center">
                         </div>
                         <button onclick="validerSecoursIA()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-black text-xs uppercase shadow-md">Valider ma fiche véhicule</button>
                     </div>
 
-                    <div class="space-y-4 border-t border-blue-100 pt-4">
-                        <input type="text" id="ai-piece" placeholder="QUELLE PIÈCE RECHERCHEZ-VOUS ?" class="w-full p-5 rounded-2xl outline-none border-2 border-blue-500 shadow-inner text-center font-black">
-                        <button onclick="rechercheIA()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3">
-                            <i class="fas fa-microchip"></i> ANALYSER & TROUVER
+                    <div class="space-y-4 border-t border-blue-100 pt-6 text-left">
+                        <div>
+                            <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">1. Domaine Général</label>
+                            <select id="gsd-generique" onchange="actualiserFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white">
+                                <option value="">-- Choisir un domaine --</option>
+                                <option value="chassis">1. Châssis & Freinage</option>
+                                <option value="moteur">2. Moteur & Technique</option>
+                                <option value="electricite">3. Électricité & Visibilité</option>
+                                <option value="transmission">4. Transmission & Fluides</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">2. Famille / Sous-Domaine</label>
+                            <select id="gsd-famille" onchange="actualiserPieces()" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white disabled:opacity-50">
+                                <option value="">-- Sélectionnez d'abord le domaine --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">3. Pièce exacte</label>
+                            <select id="gsd-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white disabled:opacity-50">
+                                <option value="">-- Sélectionnez d'abord la famille --</option>
+                            </select>
+                        </div>
+
+                        <button id="bouton-statut" onclick="rechercheIA()" class="w-full mt-4 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition active:scale-95">
+                            <i class="fas fa-microchip"></i> RECHERCHER LE PRIX REEL
                         </button>
                     </div>
 
@@ -197,10 +221,122 @@
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
+        
+        // 🛑 METS TON LIEN DE DEPLOIEMENT APPS SCRIPT CI-DESSOUS ICI (Celui qui finit par /exec)
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
+        
         let codeGenere = null;
         let donneesDernierVehicule = null;
         let panierArticlesTableau = [];
+
+        // Base de données structurée en cascade pour GSD
+        const basePiecesGSD = {
+            chassis: {
+                label: "Châssis & Freinage",
+                familles: {
+                    freinage: {
+                        label: "Freinage",
+                        pieces: ["Plaquettes de frein", "Disques de frein", "Étriers de frein", "Flexible de frein", "Maître-cylindre"]
+                    },
+                    suspension: {
+                        label: "Suspension & Amortissement",
+                        pieces: ["Amortisseurs", "Ressorts de suspension", "Coupelles d'amortisseur", "Triangle de suspension"]
+                    },
+                    direction: {
+                        label: "Direction & Roulement",
+                        pieces: ["Rotule de direction", "Biellette stabilisatrice", "Roulement de roue", "Crémaillère de direction"]
+                    }
+                }
+            },
+            moteur: {
+                label: "Moteur & Technique",
+                familles: {
+                    distribution: {
+                        label: "Distribution & Courroies",
+                        pieces: ["Courroie de distribution", "Pompe à eau", "Courroie d'accessoire", "Galet tendeur"]
+                    },
+                    injection: {
+                        label: "Carburation & Injection",
+                        pieces: ["Injecteur", "Pompe à carburant", "Turbocompresseur", "Boîtier papillon"]
+                    },
+                    echappement: {
+                        label: "Échappement & Antipollution",
+                        pieces: ["Silencieux d'échappement", "Catalyseur", "Vanne EGR", "Filtre à particules (FAP)"]
+                    }
+                }
+            },
+            electricite: {
+                label: "Électricité & Visibilité",
+                familles: {
+                    demarrage: {
+                        label: "Démarrage & Énergie",
+                        pieces: ["Batterie", "Alternateur", "Démarreur", "Bougies d'allumage", "Bougies de préchauffage"]
+                    },
+                    eclairage: {
+                        label: "Éclairage & Signalisation",
+                        pieces: ["Phare avant", "Feu arrière", "Clignotant", "Ampoule de phare"]
+                    },
+                    essuyage: {
+                        label: "Essuyage & Habitacle",
+                        pieces: ["Balais d'essuie-glace", "Moteur d'essuie-glace", "Filtre d'habitacle", "Commodo"]
+                    }
+                }
+            },
+            transmission: {
+                label: "Transmission & Fluides",
+                familles: {
+                    embrayage: {
+                        label: "Embrayage & Boîte",
+                        pieces: ["Kit d'embrayage", "Volant moteur", "Cardan", "Soufflet de cardan"]
+                    },
+                    fluides: {
+                        label: "Entretien & Filtration",
+                        pieces: ["Liquide de refroidissement", "Huile moteur", "Filtre à huile", "Filtre à air", "Filtre à carburant"]
+                    }
+                }
+            }
+        };
+
+        function actualiserFamilles() {
+            const generiqueSel = document.getElementById("gsd-generique").value;
+            const familleSelect = document.getElementById("gsd-famille");
+            const pieceSelect = document.getElementById("gsd-piece");
+            
+            familleSelect.innerHTML = '<option value="">-- Choisir la famille --</option>';
+            pieceSelect.innerHTML = '<option value="">-- Sélectionnez d\'abord la famille --</option>';
+            pieceSelect.disabled = true;
+
+            if (generiqueSel && basePiecesGSD[generiqueSel]) {
+                familleSelect.disabled = false;
+                const familles = basePiecesGSD[generiqueSel].familles;
+                for (let cle in familles) {
+                    familleSelect.innerHTML += `<option value="${generiqueSel}|${cle}">${familles[cle].label}</option>`;
+                }
+            } else {
+                familleSelect.disabled = true;
+                familleSelect.innerHTML = '<option value="">-- Sélectionnez d\'abord le domaine --</option>';
+            }
+        }
+
+        function actualiserPieces() {
+            const familleValeur = document.getElementById("gsd-famille").value;
+            const pieceSelect = document.getElementById("gsd-piece");
+            
+            pieceSelect.innerHTML = '<option value="">-- Choisir la pièce --</option>';
+
+            if (familleValeur) {
+                pieceSelect.disabled = false;
+                const [genKey, famKey] = familleValeur.split('|');
+                const pieces = basePiecesGSD[genKey].familles[famKey].pieces;
+                
+                pieces.forEach(piece => {
+                    pieceSelect.innerHTML += `<option value="${piece}">${piece}</option>`;
+                });
+            } else {
+                pieceSelect.disabled = true;
+                pieceSelect.innerHTML = '<option value="">-- Sélectionnez d\'abord la famille --</option>';
+            }
+        }
 
         function switchTab(tab) {
             document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
@@ -225,9 +361,150 @@
             const an = document.getElementById('secours-annee').value.trim();
             if(!mq || !mod || !an) return alert("Veuillez remplir au moins la Marque, le Modèle et l'Année.");
             
-            donneesDernierVehicule = { "status": "Succès", "vehicule": `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION SPECIFIEE'}` };
+            donneesDernierVehicule = { "status": "Succès", "vehicule": `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION'}` };
             document.getElementById('bloc-secours-ia').classList.add('hidden');
             rechercheIA();
+        }
+
+        async function rechercheIA() {
+            const piece = document.getElementById('gsd-piece').value;
+            const resultBox = document.getElementById('ai-resultat');
+            const loadingBox = document.getElementById('ai-loading');
+            const contentBox = document.getElementById('ai-content');
+            const container = document.getElementById('offres-container');
+
+            if (!piece || piece === "") {
+                return alert("Veuillez sélectionner une pièce exacte dans les 3 menus déroulants.");
+            }
+
+            resultBox.classList.remove('hidden');
+            loadingBox.classList.remove('hidden');
+            contentBox.classList.add('hidden');
+
+            // Détermination de la marque du véhicule
+            let marqueTexte = document.getElementById('m-marque').value.trim() || "Volkswagen";
+            if (donneesDernierVehicule && donneesDernierVehicule.vehicule) {
+                const details = donneesDernierVehicule.vehicule.split(" | ");
+                marqueTexte = details[0] || "Volkswagen";
+            }
+
+            // Exécution de l'appel GET propre vers l'Apps Script
+            const urlRechercheFinal = URL_WEB_APP + "?item=" + encodeURIComponent(piece) + "&vehicule=" + encodeURIComponent(marqueTexte);
+
+            try {
+                const response = await fetch(urlRechercheFinal);
+                const json = await response.json();
+                loadingBox.classList.add('hidden');
+                contentBox.classList.remove('hidden');
+                
+                if (json.prix_final && !json.prix_final.includes("Sur devis")) {
+                    container.innerHTML = `
+                        <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
+                            <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🔍 Fiche Véhicule</p>
+                            <h3 class="text-2xl font-black text-white tracking-wide uppercase">${marqueTexte}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div class="text-center md:text-left space-y-1 w-full md:w-auto">
+                                    <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-700 text-white border border-emerald-400 mb-1">NEUF REEL</span>
+                                    <h4 class="text-base font-black text-slate-900 uppercase">${json.libelle}</h4>
+                                    <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${json.gamme}</span></p>
+                                    <p class="text-xs font-bold text-slate-700">Réf Interne : <span class="font-black text-slate-900">${json.reference_interne}</span></p>
+                                    <p class="text-[11px] text-slate-600 font-bold mt-1"><i class="fas fa-truck text-blue-500 mr-1"></i> Livraison GSD : (${json.livraison})</p>
+                                    <p class="text-[11px] text-slate-600 font-bold"><i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${json.garantie}</span></p>
+                                </div>
+                                <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
+                                    <div>
+                                        <p class="text-2xl font-black text-slate-900"><span class="text-xs font-black text-slate-400">Prix GSD : </span>${json.prix_final}</p>
+                                    </div>
+                                    <button onclick="ajouterAuPanier('${encodeURIComponent(json.libelle)}', '${json.gamme}', '${parseFloat(json.prix_final)}', 'NEUF REEL', '#')" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl flex items-center gap-1 shadow-md transition">
+                                        <i class="fas fa-plus-circle"></i> Sélectionner
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                        <div class="p-4 bg-amber-500/10 border-2 border-amber-500 rounded-xl text-center font-bold text-amber-900 uppercase text-sm">
+                            <i class="fas fa-clock mr-2"></i> ${json.prix_final || "Sur devis (Calcul logistique en cours)"}
+                        </div>`;
+                }
+            } catch (e) {
+                loadingBox.classList.add('hidden');
+                contentBox.classList.remove('hidden');
+                container.innerHTML = `
+                    <div class="p-4 bg-amber-500/10 border-2 border-amber-500 rounded-xl text-center font-bold text-amber-900 uppercase text-sm">
+                        <i class="fas fa-user-shield mr-2"></i> Recherche en cours (Traitement Manuel sur Devis)
+                    </div>`;
+            }
+        }
+
+        function ajouterAuPanier(piece, marque, prix, type, sourceUrl) {
+            const article = {
+                nom: decodeURIComponent(piece),
+                marque: marque,
+                prix: parseFloat(prix),
+                type: type,
+                secretSource: sourceUrl
+            };
+            panierArticlesTableau.push(article);
+            mettreAJourRenduPanier();
+        }
+
+        function mettreAJourRenduPanier() {
+            const listeContainer = document.getElementById('panier-liste-articles');
+            const compteur = document.getElementById('panier-compteur');
+            const totalBox = document.getElementById('panier-total');
+            
+            listeContainer.innerHTML = "";
+            let prixTotalCumule = 0;
+            
+            panierArticlesTableau.forEach((art, index) => {
+                prixTotalCumule += art.prix;
+                listeContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-1.5 rounded-lg border border-white/5">
+                        <span class="truncate max-w-[240px] uppercase text-slate-200">🔹 ${art.nom}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span>
+                            <button onclick="retirerDuPanier(${index})" class="text-red-400 text-xs font-black px-1 hover:text-red-500">×</button>
+                        </div>
+                    </div>`;
+            });
+            
+            compteur.innerText = panierArticlesTableau.length;
+            totalBox.innerText = `${prixTotalCumule.toFixed(2)} €`;
+            
+            if(panierArticlesTableau.length > 0) {
+                document.getElementById('zone-panier').classList.remove('hidden');
+            } else {
+                document.getElementById('zone-panier').classList.add('hidden');
+            }
+        }
+
+        function retirarDuPanier(index) {
+            panierArticlesTableau.splice(index, 1);
+            mettreAJourRenduPanier();
+        }
+
+        function viderPanier() {
+            panierArticlesTableau = [];
+            mettreAJourRenduPanier();
+        }
+
+        function procederAuPaiement() {
+            if(panierArticlesTableau.length === 0) return;
+            let totalFinal = 0;
+            let rapportSourcingSecret = "🤫 RAPPORT SECRET ADMINISTRATEUR (GSD)\n\n🛒 Liens fournisseurs pour commander :\n";
+            
+            panierArticlesTableau.forEach(a => {
+                totalFinal += a.prix;
+                rapportSourcingSecret += `▪️ ${a.nom} -> Prix : ${a.prix.toFixed(2)} €\n`;
+            });
+
+            const lienWhatsAppAdmin = `https://wa.me/33699337803?text=${encodeURIComponent(rapportSourcingSecret)}`;
+            window.open(lienWhatsAppAdmin, '_blank');
+            
+            alert(`Lancement sécurisé du paiement pour un montant REEL de : ${totalFinal.toFixed(2)} €\n(Prochaine étape : Encaisser via l'API Stripe)`);
         }
 
         async function chercherDossier() {
@@ -263,218 +540,6 @@
                 }
                 if(!tr) alert("Dossier introuvable.");
             } catch(e) { alert("Erreur réseau."); }
-        }
-
-        async function rechercheIA() {
-            const inputCG = document.getElementById('input-cg');
-            const piece = document.getElementById('ai-piece').value.trim();
-            const resultBox = document.getElementById('ai-resultat');
-            const loadingBox = document.getElementById('ai-loading');
-            const contentBox = document.getElementById('ai-content');
-            const container = document.getElementById('offres-container');
-
-            if (!piece) return alert("Veuillez indiquer la pièce recherchée.");
-
-            resultBox.classList.remove('hidden');
-            loadingBox.classList.remove('hidden');
-            contentBox.classList.add('hidden');
-
-            const formData = new FormData();
-            formData.append('piece', piece);
-
-            // LOGIQUE MEMOIRE : Réutilisation des données du véhicule si déjà mémorisées
-            if (donneesDernierVehicule && donneesDernierVehicule.vehicule && !donneesDernierVehicule.vehicule.includes("VEHICULE IDENTIFIE")) {
-                const details = donneesDernierVehicule.vehicule.split(" | ");
-                const marqueMod = details[0].split(" ");
-                formData.append('marque', marqueMod[0] || "");
-                formData.append('modele', marqueMod[1] || "");
-                formData.append('annee', details[1] || "");
-                formData.append('moteur', details[3] || "");
-                await envoyerDemandeIA(formData, loadingBox, contentBox, container);
-                return;
-            }
-
-            if (document.getElementById('tab-photo').classList.contains('active')) {
-                if (!inputCG.files[0]) {
-                    alert("Veuillez charger une photo de votre carte grise.");
-                    loadingBox.classList.add('hidden');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.readAsDataURL(inputCG.files[0]);
-                reader.onloadend = async () => {
-                    const base64Data = reader.result.split(',')[1];
-                    formData.append('image', base64Data);
-                    formData.append('mimeType', inputCG.files[0].type);
-                    await envoyerDemandeIA(formData, loadingBox, contentBox, container);
-                };
-            } else {
-                const mq = document.getElementById('m-marque').value.trim();
-                const mod = document.getElementById('m-modele').value.trim();
-                formData.append('marque', mq);
-                formData.append('modele', mod);
-                formData.append('moteur', document.getElementById('m-moteur').value.trim());
-                formData.append('annee', document.getElementById('m-annee').value.trim());
-                formData.append('vin', document.getElementById('m-vin').value.trim());
-                await envoyerDemandeIA(formData, loadingBox, contentBox, container);
-            }
-        }
-
-        async function envoyerDemandeIA(formData, loading, content, container) {
-            try {
-                const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
-                const json = await response.json();
-                loading.classList.add('hidden');
-                
-                if (json.status === "Succès") {
-                    if (json.vehicule.includes("DÉTECTION EN COURS")) {
-                        donneesDernierVehicule = json;
-                        document.getElementById('bloc-secours-ia').classList.remove('hidden');
-                    } else {
-                        donneesDernierVehicule = json;
-                        document.getElementById('cg-status').classList.add('hidden');
-                        document.getElementById('cg-memo-badge').classList.remove('hidden');
-                        
-                        content.classList.remove('hidden');
-                        afficherCatalogueOffres(json);
-                    }
-                } else {
-                    container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur : ${json.details || "Impossible de traiter la demande"}</div>`;
-                    content.classList.remove('hidden');
-                }
-            } catch (e) {
-                loading.classList.add('hidden');
-                content.classList.remove('hidden');
-                container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur de connexion.</div>`;
-            }
-        }
-
-        function afficherCatalogueOffres(json) {
-            const container = document.getElementById('offres-container');
-            const details = json.vehicule.split(" | ");
-            const nomVehicule = details[0] || "VÉHICULE IDENTIFIÉ";
-            const annee = details[1] || "Année N.C";
-            const puissance = details[2] || "Puissance N.C";
-            const moteur = details[3] || "Moteur N.C";
-
-            let htmlOffres = `
-                <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
-                    <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🔍 Fiche Véhicule Validée par Jarvis</p>
-                    <h3 class="text-2xl font-black text-white tracking-wide uppercase">${nomVehicule}</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-white/10 text-[10px] font-black uppercase text-slate-300">
-                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-calendar-alt text-blue-400"></i> <span>${annee}</span></div>
-                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-horse text-blue-400"></i> <span>${puissance}</span></div>
-                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-oil-can text-blue-400"></i> <span>${moteur}</span></div>
-                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-shield-check text-blue-400"></i> <span>GSD Garanti</span></div>
-                    </div>
-                </div>
-                <div class="space-y-3">
-            `;
-            
-            json.offres.forEach(offre => {
-                let badgeColor = "bg-green-600 text-white";
-                if(offre.type.includes("NEUF Premium")) badgeColor = "bg-emerald-700 text-white border border-emerald-400";
-                if(offre.type.includes("NEUF Eco")) badgeColor = "bg-green-500 text-white";
-                if(offre.type.includes("RECONDITIONNÉ Pro")) badgeColor = "bg-blue-700 text-white border border-blue-400";
-                if(offre.type.includes("RECONDITIONNÉ Eco")) badgeColor = "bg-blue-500 text-white";
-                if(offre.type.includes("OCCASION Grade A+")) badgeColor = "bg-amber-600 text-black font-black";
-                if(offre.type.includes("OCCASION Grade B")) badgeColor = "bg-amber-500 text-black opacity-90";
-
-                htmlOffres += `
-                    <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="text-center md:text-left space-y-1 w-full md:w-auto">
-                            <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase ${badgeColor} mb-1">${offre.type}</span>
-                            <h4 class="text-base font-black text-slate-900 uppercase">${document.getElementById('ai-piece').value.toUpperCase()}</h4>
-                            <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${offre.marque_piece}</span></p>
-                            <p class="text-xs font-bold text-slate-700">Réf Interne : <span class="font-black text-slate-900">${offre.reference_article}</span></p>
-                            <p class="text-[11px] text-slate-600 font-bold mt-1"><i class="fas fa-truck text-blue-500 mr-1"></i> Livraison GSD : (${offre.delai})</p>
-                            <p class="text-[11px] text-slate-600 font-bold"><i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${offre.garantie}</span></p>
-                        </div>
-                        <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
-                            <div>
-                                <p class="text-2xl font-black text-slate-900"><span class="text-xs font-black text-slate-400">Prix : </span>${offre.prix} €</p>
-                            </div>
-                            <button onclick="ajouterAuPanier('${encodeURIComponent(document.getElementById('ai-piece').value.toUpperCase())}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}', '${offre.source_url}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl flex items-center gap-1 shadow-md transition">
-                                <i class="fas fa-plus-circle"></i> Sélectionner
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            htmlOffres += `</div>`;
-            container.innerHTML = htmlOffres;
-        }
-
-        function ajouterAuPanier(piece, marque, prix, type, sourceUrl) {
-            const article = {
-                nom: decodeURIComponent(piece),
-                marque: marque,
-                prix: parseFloat(prix),
-                type: type,
-                secretSource: sourceUrl
-            };
-            
-            panierArticlesTableau.push(article);
-            mettreAJourRenduPanier();
-        }
-
-        function mettreAJourRenduPanier() {
-            const listeContainer = document.getElementById('panier-liste-articles');
-            const compteur = document.getElementById('panier-compteur');
-            const totalBox = document.getElementById('panier-total');
-            
-            listeContainer.innerHTML = "";
-            let prixTotalCumule = 0;
-            
-            panierArticlesTableau.forEach((art, index) => {
-                prixTotalCumule += art.prix;
-                listeContainer.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/5 p-1.5 rounded-lg border border-white/5">
-                        <span class="truncate max-w-[240px] uppercase text-slate-200">🔹 ${art.nom} [${art.type}]</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span>
-                            <button onclick="retirerDuPanier(${index})" class="text-red-400 text-xs font-black px-1 hover:text-red-500">×</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            compteur.innerText = panierArticlesTableau.length;
-            totalBox.innerText = `${prixTotalCumule.toFixed(2)} €`;
-            
-            if(panierArticlesTableau.length > 0) {
-                document.getElementById('zone-panier').classList.remove('hidden');
-            } else {
-                document.getElementById('zone-panier').classList.add('hidden');
-            }
-        }
-
-        function retirarDuPanier(index) {
-            panierArticlesTableau.splice(index, 1);
-            mettreAJourRenduPanier();
-        }
-
-        function viderPanier() {
-            panierArticlesTableau = [];
-            mettreAJourRenduPanier();
-        }
-
-        function procederAuPaiement() {
-            if(panierArticlesTableau.length === 0) return;
-            
-            let totalFinal = 0;
-            let rapportSourcingSecret = "🤫 RAPPORT SECRET ADMINISTRATEUR (GSD)\n\n🛒 Liens fournisseurs pour commander :\n";
-            
-            panierArticlesTableau.forEach(a => {
-                totalFinal += a.prix;
-                rapportSourcingSecret += `▪️ ${a.nom} (${a.type}) -> Link: ${a.secretSource}\n`;
-            });
-
-            const lienWhatsAppAdmin = `https://wa.me/33699337803?text=${encodeURIComponent(rapportSourcingSecret)}`;
-            window.open(lienWhatsAppAdmin, '_blank');
-            
-            alert(`Lancement sécurisé du paiement pour un montant REEL de : ${totalFinal.toFixed(2)} €\n(Prochaine étape Mardi : Encaisser automatiquement via l'API Stripe)`);
         }
     </script>
 </body>
