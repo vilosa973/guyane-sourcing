@@ -210,7 +210,6 @@
             document.getElementById('bloc-secours-ia').classList.add('hidden');
         }
 
-        // Si on change volontairement de fichier image, on réinitialise la mémoire
         function previewCG(input) { 
             if(input.files[0]) {
                 donneesDernierVehicule = null;
@@ -283,7 +282,7 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
-            // CORRECTION LOGIQUE MEMOIRE : Si la voiture est déjà stockée en mémoire locale, on évite le re-scan de l'image !
+            // LOGIQUE MEMOIRE : Réutilisation des données du véhicule si déjà mémorisées
             if (donneesDernierVehicule && donneesDernierVehicule.vehicule && !donneesDernierVehicule.vehicule.includes("VEHICULE IDENTIFIE")) {
                 const details = donneesDernierVehicule.vehicule.split(" | ");
                 const marqueMod = details[0].split(" ");
@@ -332,7 +331,6 @@
                         donneesDernierVehicule = json;
                         document.getElementById('bloc-secours-ia').classList.remove('hidden');
                     } else {
-                        // On enregistre les données du véhicule pour qu'elles restent bloquées en mémoire
                         donneesDernierVehicule = json;
                         document.getElementById('cg-status').classList.add('hidden');
                         document.getElementById('cg-memo-badge').classList.remove('hidden');
@@ -476,7 +474,7 @@
             const lienWhatsAppAdmin = `https://wa.me/33699337803?text=${encodeURIComponent(rapportSourcingSecret)}`;
             window.open(lienWhatsAppAdmin, '_blank');
             
-            alert(`Lancement sécurisé du paiement pour un montant REEL de : ${totalFinal.toFixed(2)} €\n(Prochaine étape Mardi : Activation de l'API Stripe en mode automatique)`);
+            alert(`Lancement sécurisé du paiement pour un montant REEL de : ${totalFinal.toFixed(2)} €\n(Prochaine étape Mardi : Encaisser automatiquement via l'API Stripe)`);
         }
     </script>
 </body>
