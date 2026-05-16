@@ -40,6 +40,9 @@
                             <input type="file" accept="image/*" id="input-cg" class="hidden" onchange="previewCG(this)">
                         </label>
                         <div id="cg-status" class="hidden text-xs font-bold text-green-700 uppercase">Image chargée avec succès</div>
+                        <div id="cg-memo-badge" class="hidden text-xs font-black text-blue-800 uppercase bg-blue-500/20 p-2 rounded-xl border border-blue-500/30 text-center">
+                            <i class="fas fa-history mr-1"></i> 🚗 Véhicule mémorisé pour cette recherche
+                        </div>
                     </div>
                     
                     <div id="form-modele" class="hidden grid-manual">
@@ -207,6 +210,15 @@
             document.getElementById('bloc-secours-ia').classList.add('hidden');
         }
 
+        // Si on change volontairement de fichier image, on réinitialise la mémoire
+        function previewCG(input) { 
+            if(input.files[0]) {
+                donneesDernierVehicule = null;
+                document.getElementById('cg-memo-badge').classList.add('hidden');
+                document.getElementById('cg-status').classList.remove('hidden'); 
+            }
+        }
+
         function validerSecoursIA() {
             const mq = document.getElementById('secours-marque').value.trim().toUpperCase();
             const mod = document.getElementById('secours-modele').value.trim().toUpperCase();
@@ -214,7 +226,7 @@
             const an = document.getElementById('secours-annee').value.trim();
             if(!mq || !mod || !an) return alert("Veuillez remplir au moins la Marque, le Modèle et l'Année.");
             
-            donneesDernierVehicule = { vehicule: `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION SPECIFIEE'}` };
+            donneesDernierVehicule = { "status": "Succès", "vehicule": `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION SPECIFIEE'}` };
             document.getElementById('bloc-secours-ia').classList.add('hidden');
             rechercheIA();
         }
@@ -254,8 +266,6 @@
             } catch(e) { alert("Erreur réseau."); }
         }
 
-        function previewCG(input) { if(input.files[0]) document.getElementById('cg-status').classList.remove('hidden'); }
-
         async function rechercheIA() {
             const inputCG = document.getElementById('input-cg');
             const piece = document.getElementById('ai-piece').value.trim();
@@ -273,7 +283,19 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
-            if (document.getElementById('tab-photo').classList.contains('active') && (!donneesDernierVehicule)) {
+            // CORRECTION LOGIQUE MEMOIRE : Si la voiture est déjà stockée en mémoire locale, on évite le re-scan de l'image !
+            if (donneesDernierVehicule && donneesDernierVehicule.vehicule && !donneesDernierVehicule.vehicule.includes("VEHICULE IDENTIFIE")) {
+                const details = donneesDernierVehicule.vehicule.split(" | ");
+                const marqueMod = details[0].split(" ");
+                formData.append('marque', marqueMod[0] || "");
+                formData.append('modele', marqueMod[1] || "");
+                formData.append('annee', details[1] || "");
+                formData.append('moteur', details[3] || "");
+                await envoyerDemandeIA(formData, loadingBox, contentBox, container);
+                return;
+            }
+
+            if (document.getElementById('tab-photo').classList.contains('active')) {
                 if (!inputCG.files[0]) {
                     alert("Veuillez charger une photo de votre carte grise.");
                     loadingBox.classList.add('hidden');
@@ -288,8 +310,8 @@
                     await envoyerDemandeIA(formData, loadingBox, contentBox, container);
                 };
             } else {
-                const mq = donneesDernierVehicule ? donneesDernierVehicule.vehicule.split(" | ")[0].split(" ")[0] : document.getElementById('m-marque').value.trim();
-                const mod = donneesDernierVehicule ? donneesDernierVehicule.vehicule.split(" | ")[0].split(" ")[1] : document.getElementById('m-modele').value.trim();
+                const mq = document.getElementById('m-marque').value.trim();
+                const mod = document.getElementById('m-modele').value.trim();
                 formData.append('marque', mq);
                 formData.append('modele', mod);
                 formData.append('moteur', document.getElementById('m-moteur').value.trim());
@@ -310,6 +332,11 @@
                         donneesDernierVehicule = json;
                         document.getElementById('bloc-secours-ia').classList.remove('hidden');
                     } else {
+                        // On enregistre les données du véhicule pour qu'elles restent bloquées en mémoire
+                        donneesDernierVehicule = json;
+                        document.getElementById('cg-status').classList.add('hidden');
+                        document.getElementById('cg-memo-badge').classList.remove('hidden');
+                        
                         content.classList.remove('hidden');
                         afficherCatalogueOffres(json);
                     }
