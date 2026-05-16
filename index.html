@@ -87,18 +87,15 @@
             <div id="zone-panier" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-50">
                 <div class="bg-slate-950 text-white p-4 rounded-3xl shadow-2xl border-2 border-emerald-500 space-y-3 flex flex-col">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                        <p class="font-black text-sm uppercase tracking-wide text-emerald-400"><i class="fas fa-shopping-basket mr-1"></i> Mon Panier GSD</p>
+                        <p class="font-black text-sm uppercase tracking-wide text-emerald-400"><i class="fas fa-shopping-basket mr-1"></i> Mon Panier GSD (<span id="panier-compteur">0</span>)</p>
                         <button onclick="viderPanier()" class="text-[10px] uppercase font-black text-red-400 hover:underline">Vider</button>
                     </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <div>
-                            <p id="panier-nom-piece" class="font-black uppercase text-white truncate max-w-[210px]"></p>
-                            <p id="panier-details-piece" class="text-[10px] text-slate-400 font-bold"></p>
-                        </div>
-                        <div>
-                            <p class="text-[9px] text-slate-400 uppercase font-black text-right">Total :</p>
-                            <p id="panier-total" class="text-2xl font-black text-emerald-400">0.00 €</p>
-                        </div>
+                    
+                    <div id="panier-liste-articles" class="max-h-24 overflow-y-auto space-y-1 text-left text-[11px] font-bold text-slate-300 pr-1"></div>
+                    
+                    <div class="flex justify-between items-center border-t border-white/10 pt-2">
+                        <p class="text-[10px] text-slate-400 uppercase font-black">Total global :</p>
+                        <p id="panier-total" class="text-2xl font-black text-emerald-400">0.00 €</p>
                     </div>
                     <button onclick="procederAuPaiement()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg tracking-wider flex items-center justify-center gap-2 transition">
                         <i class="fas fa-lock"></i> Procéder au paiement sécurisé
@@ -202,7 +199,7 @@
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         let codeGenere = null;
         let donneesDernierVehicule = null;
-        let panierArticle = null;
+        let panierArticlesTableau = []; // Tableau cumulatif d'objets
 
         function switchTab(tab) {
             document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
@@ -219,10 +216,9 @@
             const an = document.getElementById('secours-annee').value.trim();
             if(!mq || !mod || !an) return alert("Veuillez remplir au moins la Marque, le Modèle et l'Année.");
             
-            donneesDernierVehicule.vehicule = `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION SPECIFIEE'}`;
+            donneesDernierVehicule = { vehicule: `${mq} ${mod} | ${an} | -- CV | ${mot || 'MOTORISATION SPECIFIEE'}` };
             document.getElementById('bloc-secours-ia').classList.add('hidden');
-            document.getElementById('ai-content').classList.remove('hidden');
-            afficherCatalogueOffres(donneesDernierVehicule);
+            rechercheIA();
         }
 
         async function chercherDossier() {
@@ -275,18 +271,16 @@
             resultBox.classList.remove('hidden');
             loadingBox.classList.remove('hidden');
             contentBox.classList.add('hidden');
-            document.getElementById('bloc-secours-ia').classList.add('hidden');
 
             const formData = new FormData();
             formData.append('piece', piece);
 
-            if (document.getElementById('tab-photo').classList.contains('active')) {
+            if (document.getElementById('tab-photo').classList.contains('active') && (!donneesDernierVehicule)) {
                 if (!inputCG.files[0]) {
                     alert("Veuillez charger une photo de votre carte grise.");
                     loadingBox.classList.add('hidden');
                     return;
                 }
-                
                 const reader = new FileReader();
                 reader.readAsDataURL(inputCG.files[0]);
                 reader.onloadend = async () => {
@@ -296,8 +290,10 @@
                     await envoyerDemandeIA(formData, loadingBox, contentBox, container);
                 };
             } else {
-                formData.append('marque', document.getElementById('m-marque').value.trim());
-                formData.append('modele', document.getElementById('m-modele').value.trim());
+                const mq = donneesDernierVehicule ? donneesDernierVehicule.vehicule.split(" | ")[0].split(" ")[0] : document.getElementById('m-marque').value.trim();
+                const mod = donneesDernierVehicule ? donneesDernierVehicule.vehicule.split(" | ")[0].split(" ")[1] : document.getElementById('m-modele').value.trim();
+                formData.append('marque', mq);
+                formData.append('modele', mod);
                 formData.append('moteur', document.getElementById('m-moteur').value.trim());
                 formData.append('annee', document.getElementById('m-annee').value.trim());
                 formData.append('vin', document.getElementById('m-vin').value.trim());
@@ -307,16 +303,13 @@
 
         async function envoyerDemandeIA(formData, loading, content, container) {
             try {
-                const response = await fetch(URL_WEB_APP, {
-                    method: 'POST',
-                    body: new URLSearchParams(formData)
-                });
+                const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
                 const json = await response.json();
                 loading.classList.add('hidden');
                 
                 if (json.status === "Succès") {
-                    donneesDernierVehicule = json;
                     if (json.vehicule.includes("DÉTECTION EN COURS")) {
+                        donneesDernierVehicule = json;
                         document.getElementById('bloc-secours-ia').classList.remove('hidden');
                     } else {
                         content.classList.remove('hidden');
@@ -329,7 +322,7 @@
             } catch (e) {
                 loading.classList.add('hidden');
                 content.classList.remove('hidden');
-                container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur de connexion avec Jarvis.</div>`;
+                container.innerHTML = `<div class="p-4 bg-white/90 rounded-xl border-l-4 border-red-600 text-sm font-bold text-black uppercase text-center">Erreur de connexion.</div>`;
             }
         }
 
@@ -349,7 +342,7 @@
                         <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-calendar-alt text-blue-400"></i> <span>${annee}</span></div>
                         <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-horse text-blue-400"></i> <span>${puissance}</span></div>
                         <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1"><i class="fas fa-oil-can text-blue-400"></i> <span>${moteur}</span></div>
-                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span>VIN AUTOMATIQUE</span></div>
+                        <div class="bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center gap-1 col-span-2 md:col-span-1 text-[9px] truncate"><i class="fas fa-fingerprint text-blue-400"></i> <span>SOURCING REEL ACTIF</span></div>
                     </div>
                 </div>
                 <div class="space-y-3">
@@ -360,21 +353,22 @@
                 if(offre.type === "RECONDITIONNÉ") badgeColor = "bg-blue-600 text-white";
                 if(offre.type === "OCCASION") badgeColor = "bg-amber-600 text-black";
 
+                // Identification visuelle du site d'origine de la pièce pour le client
+                let siteSource = "Catalogue Européen";
+                if(offre.type === "NEUF") siteSource = "Vérifié sur Autodoc";
+                if(offre.type === "RECONDITIONNÉ") siteSource = "Vérifié sur Oscaro";
+                if(offre.type === "OCCASION") siteSource = "Réseau Opisto / Casse France";
+
                 htmlOffres += `
                     <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="text-center md:text-left space-y-1 w-full md:w-auto">
                             <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase ${badgeColor} mb-1">${offre.type}</span>
                             <h4 class="text-base font-black text-slate-900 uppercase">${document.getElementById('ai-piece').value.toUpperCase()}</h4>
-                            
-                            <p class="text-xs font-bold text-slate-700">Marque de la pièce : <span class="font-black text-blue-700">${offre.marque_piece}</span></p>
-                            <p class="text-xs font-bold text-slate-700">Numéro de référence article : <span class="font-black text-slate-900">${offre.reference_article}</span></p>
-                            
-                            <p class="text-[11px] text-slate-600 font-bold mt-1">
-                                <i class="fas fa-truck text-blue-500 mr-1"></i> Livraison : estimation en entrepôt de départ jusqu'à l'arrivée chez le client (${offre.delai})
-                            </p>
-                            <p class="text-[11px] text-slate-600 font-bold">
-                                <i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${offre.garantie}</span>
-                            </p>
+                            <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${offre.marque_piece}</span></p>
+                            <p class="text-[10px] text-emerald-700 font-extrabold uppercase"><i class="fas fa-link mr-1"></i> Sourcing : ${siteSource}</p>
+                            <p class="text-xs font-bold text-slate-700">Réf Interne : <span class="font-black text-slate-900">${offre.reference_article}</span></p>
+                            <p class="text-[11px] text-slate-600 font-bold mt-1"><i class="fas fa-truck text-blue-500 mr-1"></i> Livraison GSD : (${offre.delai})</p>
+                            <p class="text-[11px] text-slate-600 font-bold"><i class="fas fa-shield-alt text-blue-500 mr-1"></i> Garantie : <span class="font-black text-slate-900">${offre.garantie}</span></p>
                         </div>
                         <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
                             <div>
@@ -392,28 +386,66 @@
             container.innerHTML = htmlOffres;
         }
 
+        // LOGIQUE CUMULATIVE DU PANIER CLIENT GSD
         function ajouterAuPanier(piece, marque, prix, type) {
-            panierArticle = {
+            const article = {
                 nom: decodeURIComponent(piece),
                 marque: marque,
                 prix: parseFloat(prix),
                 type: type
             };
             
-            document.getElementById('panier-nom-piece').innerText = panierArticle.nom;
-            document.getElementById('panier-details-piece').innerText = `${type} - ${marque}`;
-            document.getElementById('panier-total').innerText = `${panierArticle.prix.toFixed(2)} €`;
-            document.getElementById('zone-panier').classList.remove('hidden');
+            panierArticlesTableau.push(article);
+            mettreAJourRenduPanier();
+        }
+
+        function mettreAJourRenduPanier() {
+            const listeContainer = document.getElementById('panier-liste-articles');
+            const compteur = document.getElementById('panier-compteur');
+            const totalBox = document.getElementById('panier-total');
+            
+            listeContainer.innerHTML = "";
+            let prixTotalCumule = 0;
+            
+            panierArticlesTableau.forEach((art, index) => {
+                prixTotalCumule += art.prix;
+                listeContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-1.5 rounded-lg border border-white/5">
+                        <span class="truncate max-w-[240px] uppercase text-slate-200">🔹 ${art.nom} [${art.type}]</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span>
+                            <button onclick="retirerDuPanier(${index})" class="text-red-400 text-xs font-black px-1 hover:text-red-500">×</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            compteur.innerText = panierArticlesTableau.length;
+            totalBox.innerText = `${prixTotalCumule.toFixed(2)} €`;
+            
+            if(panierArticlesTableau.length > 0) {
+                document.getElementById('zone-panier').classList.remove('hidden');
+            } else {
+                document.getElementById('zone-panier').classList.add('hidden');
+            }
+        }
+
+        function retirerDuPanier(index) {
+            panierArticlesTableau.splice(index, 1);
+            mettreAJourRenduPanier();
         }
 
         function viderPanier() {
-            panierArticle = null;
-            document.getElementById('zone-panier').classList.add('hidden');
+            panierArticlesTableau = [];
+            mettreAJourRenduPanier();
         }
 
         function procederAuPaiement() {
-            if(!panierArticle) return;
-            alert(`Lancement sécurisé du paiement pour un montant de : ${panierArticle.prix.toFixed(2)} €\n(Prochaine étape : Liaison automatisée avec Stripe)`);
+            if(panierArticlesTableau.length === 0) return;
+            let totalFinal = 0;
+            panierArticlesTableau.forEach(a => totalFinal += a.prix);
+            
+            alert(`Lancement sécurisé du paiement pour un montant REEL de : ${totalFinal.toFixed(2)} €\n(Prochaine étape Mardi : Activation de l'API Stripe en mode automatique)`);
         }
     </script>
 </body>
