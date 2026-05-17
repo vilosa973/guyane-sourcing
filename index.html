@@ -7,10 +7,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
+        body { 
+            background-image: url('Font_Premium.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed; 
+            background-color: #1a1a1a; 
+        }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
-        section { backdrop-filter: blur(12px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
-        input, textarea, select { background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.4) !important; color: #000 !important; font-weight: 800; }
+        section { 
+            backdrop-filter: blur(12px); 
+            background-color: rgba(255, 255, 255, 0.4) !important; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            transition: all 0.3s ease; 
+        }
+        input, textarea, select { 
+            background-color: rgba(255, 255, 255, 0.4) !important; 
+            border: 1px solid rgba(255, 255, 255, 0.4) !important; 
+            color: #000 !important; 
+            font-weight: 800; 
+        }
         .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
         .grid-manual { display: flex; flex-direction: column; gap: 12px; }
         .manual-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -25,6 +41,18 @@
         </header>
 
         <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full mt-6">
+
+            <section class="rounded-3xl shadow-2xl p-4 border-2 border-blue-500 bg-white/40">
+                <div class="overflow-hidden rounded-2xl shadow-inner bg-black aspect-video flex items-center justify-center">
+                    <video id="video-presentation" controls class="w-full h-full object-cover">
+                        <source src="presentation.mp4" type="video/mp4">
+                        <p class="text-white text-xs font-bold">Votre navigateur ne supporte pas la lecture de vidéos.</p>
+                    </video>
+                </div>
+                <p class="text-[11px] font-black uppercase text-slate-700 mt-2 tracking-wider">
+                    <i class="fas fa-play-circle mr-1"></i> Tutoriel d'utilisation du système GSD Jarvis
+                </p>
+            </section>
 
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
@@ -58,7 +86,9 @@
                     </div>
 
                     <div id="bloc-secours-ia" class="hidden p-4 bg-amber-500/20 border-2 border-amber-500 rounded-2xl text-left space-y-3">
-                        <p class="text-xs font-black uppercase text-amber-800"><i class="fas fa-exclamation-triangle mr-1"></i> Mode Ajustement : Photo floue ou illisible. Remplis les données pour Jarvis :</p>
+                        <p class="text-xs font-black uppercase text-amber-800">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> Mode Ajustement : Photo floue ou illisible. Remplis les données pour Jarvis :
+                        </p>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="text" id="secours-marque" placeholder="MARQUE" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
                             <input type="text" id="secours-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
@@ -104,9 +134,8 @@
                     </div>
 
                     <div id="ai-resultat" class="hidden mt-4">
-                        <div id="ai-loading" class="py-6 bg-white/80 rounded-2xl text-center space-y-2">
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center">
                             <i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i>
-                            <p class="text-[10px] font-black text-slate-600 uppercase tracking-wider">Sourcing Jarvis : Oscaro, Autodoc, Mister Auto, Carter-Cash...</p>
                         </div>
                         <div id="ai-content" class="hidden space-y-4 text-left">
                             <div id="offres-container"></div>
@@ -118,7 +147,9 @@
             <div id="zone-panier" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-50">
                 <div class="bg-slate-950 text-white p-4 rounded-3xl shadow-2xl border-2 border-emerald-500 space-y-3 flex flex-col">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                        <p class="font-black text-sm uppercase tracking-wide text-emerald-400"><i class="fas fa-shopping-basket mr-1"></i> Mon Panier GSD (<span id="panier-compteur">0</span>)</p>
+                        <p class="font-black text-sm uppercase tracking-wide text-emerald-400">
+                            <i class="fas fa-shopping-basket mr-1"></i> Mon Panier GSD (<span id="panier-compteur">0</span>)
+                        </p>
                         <button onclick="viderPanier()" class="text-[10px] uppercase font-black text-red-400 hover:underline">Vider</button>
                     </div>
                     <div id="panier-liste-articles" class="max-h-24 overflow-y-auto space-y-1 text-left text-[11px] font-bold text-slate-300 pr-1"></div>
@@ -132,23 +163,38 @@
                 </div>
             </div>
 
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500 bg-white/40">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center">
+                    <i class="fas fa-file-invoice-dollar mr-3 text-orange-500"></i> Suivre mon dossier & Devis
+                </h2>
+                
                 <div class="space-y-3">
                     <input type="text" id="nomRecherche" placeholder="NOM DU CLIENT (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center uppercase font-black">
                     <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+                        <input type="text" id="numDevis" placeholder="N° DE DEVIS (EX: GSD-12345)" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
+                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg active:scale-95 transition">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
                 
                 <div id="resultat" class="hidden mt-6 text-center">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-6">
-                        <div class="border-b border-slate-700 pb-3">
-                            <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
-                            <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4 text-left">
+                        <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis Identifié</p>
+                                <p id="resNumDevis" class="text-sm font-black text-white"></p>
+                            </div>
+                            <span class="bg-green-600 text-white text-[9px] font-black uppercase px-3 py-1 rounded-full">Validé Jarvis</span>
                         </div>
-                        <div id="resMontant" class="py-4 border-y border-slate-800 text-5xl font-black text-white"></div>
+                        <div class="space-y-1">
+                            <p class="text-[10px] text-slate-400 uppercase font-black">Identité client :</p>
+                            <p class="text-lg font-black uppercase text-white"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-black">Montant Total TTC :</p>
+                            <div id="resMontant" class="text-4xl font-black text-emerald-400 mt-1">0.00 €</div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -162,7 +208,6 @@
         let donneesDernierVehicule = null;
         let panierArticlesTableau = [];
 
-        // 📦 CATALOGUE ENRICHI DE PIÈCES (CHÂSSIS, MOTEUR, ENTRETIEN, ÉLECTRICITÉ, ETC.)
         const basePiecesGSD = {
             chassis: {
                 label: "Châssis & Direction",
@@ -267,7 +312,7 @@
             const inputCG = document.getElementById('input-cg');
 
             if (!piece || piece === "" || piece.startsWith("--")) {
-                return alert("Veuillez sélectionner une pièce exacte dans la liste déroulante n°3.");
+                return alert("Veuillez sélectionner une pièce exacte.");
             }
 
             resultBox.classList.remove('hidden');
@@ -310,7 +355,6 @@
                 const json = await response.json();
                 loading.classList.add('hidden');
                 
-                // GESTION DU AJUSTEMENT REQUIS : Si Jarvis n'a pas lu la photo, on affiche le panneau jaune pour TOI
                 if (json.status === "Ajustement requis") {
                     donneesDernierVehicule = null;
                     document.getElementById('bloc-secours-ia').classList.remove('hidden');
@@ -330,7 +374,7 @@
 
                     blocSpecs = `
                         <div class="p-5 bg-slate-900 text-white rounded-3xl mb-6 border-b-4 border-blue-600 shadow-xl space-y-3">
-                            <p class="text-[10px] uppercase text-blue-400 font-black tracking-widest text-center">⚙️ FICHE VÉHICULE VALIDÉE PAR JARVIS</p>
+                            <p class="text-[10px] uppercase text-blue-400 font-black tracking-widest text-center">⚙️ FICHE VÉHICULE VALIDÉE</p>
                             <h3 class="text-2xl font-black text-white uppercase text-center tracking-wide">${nomComplet}</h3>
                             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
                                 <div class="bg-white/5 p-2 rounded-xl text-center font-bold">
@@ -381,7 +425,7 @@
                             </div>`;
                     });
                 } else {
-                    html += `<div class="p-4 bg-white rounded-xl font-bold text-center text-slate-700 uppercase">Aucune offre disponible actuellement.</div>`;
+                    html += `<div class="p-4 bg-white rounded-xl font-bold text-center text-slate-700 uppercase">Aucune offre disponible.</div>`;
                 }
                 
                 html += `</div>`;
@@ -389,7 +433,7 @@
                 
             } catch (e) {
                 loading.classList.add('hidden');
-                container.innerHTML = `<div class="p-4 bg-red-500/10 border-2 border-red-500 rounded-xl text-center font-bold text-red-900 uppercase">Ajustement réseau en cours... Relancez la recherche.</div>`;
+                container.innerHTML = `<div class="p-4 bg-red-500/10 border-2 border-red-500 rounded-xl text-center font-bold text-red-900 uppercase">Erreur de communication réseau.</div>`;
             }
         }
 
@@ -420,26 +464,35 @@
         function viderPanier() { panierArticlesTableau = []; mettreAJourRenduPanier(); }
         
         function procederAuPaiement() {
-            let rapport = "🛒 Commande GSD :\n";
-            panierArticlesTableau.forEach(a => { rapport += `▪️ ${a.nom} (${a.type}) -> ${a.prix}€\n`; });
+            let rapport = "🛒 Commande GSD :\\n";
+            panierArticlesTableau.forEach(a => { rapport += `▪️ ${a.nom} (${a.type}) -> ${a.prix}€\\n`; });
             window.open(`https://wa.me/33699337803?text=${encodeURIComponent(rapport)}`, '_blank');
         }
 
         async function chercherDossier() {
             const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
+            
+            if(!nomS || !idS) {
+                return alert("Veuillez remplir le Nom du client et le Numéro de devis.");
+            }
+            
             try {
                 const res = await fetch(URL_CSV + "&v=" + Date.now());
                 const data = await res.text();
-                const lignes = data.split(/\r?\n/);
+                const lignes = data.split(/\\r?\\n/);
                 const sep = data.includes(';') ? ';' : ',';
-                let tr = false;
+                let trouve = false;
+                
                 for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^\" \"]*\"){2})*[^\" \"]*$)`)).map(v => v.replace(/^\"|\"$/g, '').trim());
+                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^\\" \\"]*\\"){2})*[^\\" \\"]*$)`)).map(v => v.replace(/^\\"|\\"$/g, '').trim());
                     if (col.length < 5) continue;
+                    
                     const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
-                    if(idTab === idS && (nomS === (col[2]||"").toUpperCase())) {
-                        tr = true;
+                    const nomTab = (col[2] || "").toUpperCase();
+                    
+                    if(idTab === idS && nomS === nomTab) {
+                        trouve = true;
                         document.getElementById('resNumDevis').innerText = col[0];
                         document.getElementById('resNomClient').innerText = col[2] + " " + (col[3] || "");
                         document.getElementById('resCivilite').innerText = col[1];
@@ -448,8 +501,8 @@
                         break;
                     }
                 }
-                if(!tr) alert("Dossier introuvable.");
-            } catch(e) { alert("Erreur réseau."); }
+                if(!trouve) alert("Aucun devis correspondant trouvé.");
+            } catch(e) { alert("Erreur lors de la lecture de la base de données de devis."); }
         }
     </script>
 </body>
