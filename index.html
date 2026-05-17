@@ -246,7 +246,9 @@
             const container = document.getElementById('offres-container');
             const inputCG = document.getElementById('input-cg');
 
-            if (!piece || piece === "") return alert("Veuillez sélectionner une pièce.");
+            if (!piece || piece === "" || piece.startsWith("--")) {
+                return alert("Veuillez sélectionner une pièce exacte dans la liste déroulante n°3.");
+            }
 
             resultBox.classList.remove('hidden');
             loadingBox.classList.remove('hidden');
@@ -255,6 +257,7 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
+            // 🧠 RESTAURATION DE LA MÉMOIRE TAMPON : Si le véhicule a déjà été analysé, on réutilise ses données d'office !
             if (donneesDernierVehicule && donneesDernierVehicule.vehicule && donneesDernierVehicule.vehicule.includes(" | ")) {
                 const parts = donneesDernierVehicule.vehicule.split(" | ");
                 const mm = parts[0].split(" ");
@@ -266,6 +269,7 @@
                 return;
             }
 
+            // Si c'est la toute première recherche, on prend la photo ou la saisie manuelle
             if (document.getElementById('tab-photo').classList.contains('active') && inputCG.files[0]) {
                 const reader = new FileReader();
                 reader.readAsDataURL(inputCG.files[0]);
@@ -289,14 +293,41 @@
                 loading.classList.add('hidden');
                 content.classList.remove('hidden');
                 
-                donneesDernierVehicule = json; 
+                donneesDernierVehicule = json; // Sauvegarde dans la mémoire tampon pour les prochaines recherches
+                const chaineVev = json.vehicule || "";
+                let blocSpecs = "";
+
+                // Construction stylée des badges de caractéristiques de la voiture
+                if (chaineVev && chaineVev.includes("|")) {
+                    const fragments = chaineVev.split("|").map(t => t.trim());
+                    const nomComplet = fragments[0] || "Véhicule";
+                    const anneeAuto = fragments[1] || "N.C";
+                    const moteurAuto = fragments[2] || "N.C";
+
+                    blocSpecs = `
+                        <div class="p-5 bg-slate-900 text-white rounded-3xl mb-6 border-b-4 border-blue-600 shadow-xl space-y-3">
+                            <p class="text-[10px] uppercase text-blue-400 font-black tracking-widest text-center">⚙️ FICHE VÉHICULE VALIDÉE PAR JARVIS</p>
+                            <h3 class="text-2xl font-black text-white uppercase text-center tracking-wide">${nomComplet}</h3>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
+                                <div class="bg-white/5 p-2 rounded-xl text-center font-bold">
+                                    <span class="block text-[9px] text-slate-400 uppercase font-black">Année</span>
+                                    <span class="text-blue-300 font-black">${anneeAuto}</span>
+                                </div>
+                                <div class="bg-white/5 p-2 rounded-xl text-center font-bold">
+                                    <span class="block text-[9px] text-slate-400 uppercase font-black">Motorisation</span>
+                                    <span class="text-emerald-400 font-black truncate block">${moteurAuto}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    blocSpecs = `
+                        <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
+                            <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🚗 Véhicule Identifié</p>
+                            <h3 class="text-xl font-black text-white uppercase">${chaineVev || 'VÉHICULE'}</h3>
+                        </div>`;
+                }
                 
-                let html = `
-                    <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
-                        <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🚗 Fiche Véhicule Validée par Jarvis</p>
-                        <h3 class="text-xl font-black text-white uppercase">${json.vehicule || 'VÉHICULE IDENTIFIÉ'}</h3>
-                    </div>
-                    <div class="space-y-3">`;
+                let html = blocSpecs + `<div class="space-y-3">`;
 
                 if(json.offres && json.offres.length > 0) {
                     json.offres.forEach(offre => {
