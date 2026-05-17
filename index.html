@@ -57,6 +57,15 @@
                         </div>
                     </div>
 
+                    <div id="zone-confirmation-client" class="hidden p-5 bg-blue-600 text-white rounded-2xl space-y-4 text-center border-b-4 border-blue-800 shadow-xl">
+                        <p class="text-xs font-black uppercase tracking-wider text-blue-200">🔍 Es-ce bien votre véhicule ?</p>
+                        <h3 id="txt-vehicule-detecte" class="text-xl font-black uppercase tracking-wide"></h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="validerVehiculeClient()" class="bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-md transition">👍 Oui, c'est correct</button>
+                            <button onclick="refuserVehiculeClient()" class="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-md transition">👎 Non, recommencer</button>
+                        </div>
+                    </div>
+
                     <div class="space-y-4 border-t border-blue-100 pt-6 text-left">
                         <div>
                             <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">1. Domaine Général</label>
@@ -153,16 +162,12 @@
                 </div>
                 
                 <div id="resultat" class="hidden mt-6 text-center">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4 text-left">
-                        <div class="border-b border-slate-700 pb-2">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-6">
+                        <div class="border-b border-slate-700 pb-3">
                             <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
                             <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
                         </div>
-                        <div class="text-xs text-slate-300 font-bold space-y-1">
-                            <p>Statut : <span class="text-emerald-400 font-black" id="resStatut"></span></p>
-                            <p>Véhicule : <span class="text-blue-300 font-black" id="resVehicule"></span></p>
-                        </div>
-                        <div id="resMontant" class="py-2 text-4xl font-black text-white text-center border-t border-slate-800"></div>
+                        <div id="resMontant" class="py-4 border-y border-slate-800 text-5xl font-black text-white"></div>
                     </div>
                 </div>
             </section>
@@ -175,6 +180,8 @@
         
         let donneesDernierVehicule = null;
         let panierArticlesTableau = [];
+        let executionEnCoursRetry = false; 
+        let cacheOffresEnAttente = null; 
 
         const basePiecesGSD = {
             chassis: { label: "Châssis & Direction", familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière", "Ressorts de suspension"] }, trains: { label: "Trains", pieces: ["Triangle de suspension", "Rotule de suspension", "Biellette stabilisatrice"] } } },
@@ -215,6 +222,7 @@
             document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
             document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            document.getElementById('zone-confirmation-client').classList.add('hidden');
         }
 
         function previewCG(input) { if(input.files[0]) { document.getElementById('cg-status').classList.remove('hidden'); } }
@@ -224,7 +232,6 @@
             const resultBox = document.getElementById('ai-resultat');
             const loadingBox = document.getElementById('ai-loading');
             const contentBox = document.getElementById('ai-content');
-            const container = document.getElementById('offres-container');
             const inputCG = document.getElementById('input-cg');
 
             if (!piece || piece === "" || piece.startsWith("--")) return alert("Sélectionnez d'abord une pièce exacte.");
@@ -232,18 +239,18 @@
             resultBox.classList.remove('hidden');
             loadingBox.classList.remove('hidden');
             contentBox.classList.add('hidden');
+            document.getElementById('zone-confirmation-client').classList.add('hidden');
 
             const formData = new FormData();
             formData.append('piece', piece);
+            if (executionEnCoursRetry) formData.append('retry', 'true');
 
-            if (donneesDernierVehicule && donneesDernierVehicule.vehicule && donneesDernierVehicule.vehicule.includes(" | ")) {
-                const parts = donneesDernierVehicule.vehicule.split(" | ");
+            if (donneesDernierVehicule && !executionEnCoursRetry) {
+                const parts = donneesDernierVehicule.split(" | ");
                 const mm = parts[0].split(" ");
                 formData.append('marque', mm[0] || "");
                 formData.append('modele', mm[1] || "");
-                formData.append('annee', parts[1] || "");
-                formData.append('moteur', parts[2] || "");
-                await envoyerDemandePOST(formData, loadingBox, contentBox, container, piece);
+                await envoyerDemandePOST(formData, loadingBox, contentBox, piece);
                 return;
             }
 
@@ -252,58 +259,101 @@
                 reader.readAsDataURL(inputCG.files[0]);
                 reader.onloadend = async () => {
                     formData.append('image', reader.result.split(',')[1]);
-                    await envoyerDemandePOST(formData, loadingBox, contentBox, container, piece);
+                    await envoyerDemandePOST(formData, loadingBox, contentBox, piece);
                 };
             } else {
                 formData.append('marque', document.getElementById('m-marque').value.trim());
                 formData.append('modele', document.getElementById('m-modele').value.trim());
                 formData.append('moteur', document.getElementById('m-moteur').value.trim());
                 formData.append('annee', document.getElementById('m-annee').value.trim());
-                await envoyerDemandePOST(formData, loadingBox, contentBox, container, piece);
+                await envoyerDemandePOST(formData, loadingBox, contentBox, piece);
             }
         }
 
-        async function envoyerDemandePOST(formData, loading, content, container, nomPiece) {
+        async function envoyerDemandePOST(formData, loading, content, nomPiece) {
             try {
                 const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
                 const json = await response.json();
                 loading.classList.add('hidden');
-                content.classList.remove('hidden');
-                donneesDernierVehicule = json;
+                
+                if (json.status === "Inconnu") {
+                    alert("Jarvis n'a rien pu lire sur l'image. Veuillez utiliser la saisie manuelle.");
+                    return;
+                }
+
+                // Interception : On met en attente les offres et on demande validation au client
+                donneesDernierVehicule = json.vehicule;
+                cacheOffresEnAttente = json.offres;
+                
+                document.getElementById('txt-vehicule-detecte').innerText = json.vehicule;
+                document.getElementById('zone-confirmation-client').classList.remove('hidden');
+                executionEnCoursRetry = false;
+
+            } catch (e) {
+                loading.classList.add('hidden');
+                alert("Erreur réseau lors de la communication avec Jarvis.");
+            }
+        }
+
+        // Action 1 : Le client valide le véhicule -> On enregistre sur le Sheets et on affiche
+        async function validerVehiculeClient() {
+            document.getElementById('zone-confirmation-client').classList.add('hidden');
+            const resultBox = document.getElementById('ai-resultat');
+            const loadingBox = document.getElementById('ai-loading');
+            const contentBox = document.getElementById('ai-content');
+            const container = document.getElementById('offres-container');
+            const piece = document.getElementById('gsd-piece').value;
+
+            loadingBox.classList.remove('hidden');
+            resultBox.classList.remove('hidden');
+
+            // Envoi de l'ordre d'écriture au Google Sheets
+            try {
+                const saveForm = new URLSearchParams();
+                saveForm.append('action', 'save');
+                saveForm.append('vehicule', donneesDernierVehicule);
+                saveForm.append('piece', piece);
+                const res = await fetch(URL_WEB_APP, { method: 'POST', body: saveForm });
+                const confirmationSheets = await res.json();
+                
+                loadingBox.classList.add('hidden');
+                contentBox.classList.remove('hidden');
 
                 let html = `
                     <div class="p-5 bg-slate-900 text-white rounded-3xl mb-6 border-b-4 border-blue-600 shadow-xl space-y-2 text-center">
-                        <p class="text-[10px] uppercase text-blue-400 font-black tracking-widest">⚙️ FICHE AUTOMOBILE VALIDÉE</p>
-                        <h3 class="text-xl font-black text-white uppercase tracking-wide">${json.vehicule}</h3>
-                        <p class="text-[11px] font-bold text-emerald-400">ENREGISTRÉ SOUS L'ID : ${json.id_devis || 'N/A'}</p>
+                        <p class="text-[10px] uppercase text-emerald-400 font-black tracking-widest">⚙️ FICHE VALIDÉE & ENREGISTRÉE</p>
+                        <h3 class="text-xl font-black text-white uppercase tracking-wide">${donneesDernierVehicule}</h3>
+                        <p class="text-[11px] font-bold text-slate-400">ID SUIVI : ${confirmationSheets.id_devis || 'N/A'}</p>
                     </div><div class="space-y-3">`;
 
-                if(json.offres && json.offres.length > 0) {
-                    json.offres.forEach(offre => {
-                        html += `
-                            <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div class="text-center md:text-left space-y-1 w-full md:w-auto">
-                                    <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-600 text-white mb-1">${offre.type}</span>
-                                    <h4 class="text-base font-black text-slate-900 uppercase">${nomPiece.toUpperCase()}</h4>
-                                    <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${offre.marque_piece}</span> | Réf : ${offre.reference_article}</p>
-                                    <p class="text-[11px] text-slate-600 font-bold"><i class="fas fa-truck text-blue-500 mr-1"></i> Livraison : ${offre.delai}</p>
-                                </div>
-                                <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
-                                    <p class="text-2xl font-black text-slate-900">${offre.prix} €</p>
-                                    <button onclick="ajouterAuPanier('${encodeURIComponent(nomPiece)}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}')" class="bg-blue-600 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl shadow-md">Sélectionner</button>
-                                </div>
-                            </div>`;
-                    });
-                } else {
-                    html += `<div class="p-4 bg-white rounded-xl font-bold text-center text-slate-700 uppercase">Aucune offre disponible actuellement.</div>`;
-                }
-                
-                html += `</div>`;
+                cacheOffresEnAttente.forEach(offre => {
+                    html += `
+                        <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="text-center md:text-left space-y-1 w-full md:w-auto">
+                                <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-600 text-white mb-1">${offre.type}</span>
+                                <h4 class="text-base font-black text-slate-900 uppercase">${piece.toUpperCase()}</h4>
+                                <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${offre.marque_piece}</span> | Réf : ${offre.reference_article}</p>
+                            </div>
+                            <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4">
+                                <p class="text-2xl font-black text-slate-900">${offre.prix} €</p>
+                                <button onclick="ajouterAuPanier('${encodeURIComponent(piece)}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}')" class="bg-blue-600 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl shadow-md">Sélectionner</button>
+                            </div>
+                        </div>`;
+                });
                 container.innerHTML = html;
-            } catch (e) {
-                loading.classList.add('hidden');
-                container.innerHTML = `<div class="p-4 bg-red-500/10 border-2 border-red-500 rounded-xl text-center font-bold text-red-900 uppercase">Ajustement réseau en cours... Relancez.</div>`;
+            } catch(err) {
+                loadingBox.classList.add('hidden');
+                alert("Erreur lors de la validation finale.");
             }
+        }
+
+        // Action 2 : Le client refuse -> On efface la mémoire tampon et on force Jarvis à relire différemment
+        function refuserVehiculeClient() {
+            document.getElementById('zone-confirmation-client').classList.add('hidden');
+            donneesDernierVehicule = null;
+            cacheOffresEnAttente = null;
+            executionEnCoursRetry = true; // Active le paramètre de re-tentative
+            rechercheIA(); // Relance automatiquement
         }
 
         function ajouterAuPanier(piece, marque, prix, type) {
@@ -312,17 +362,14 @@
         }
 
         function mettreAJourRenduPanier() {
-            const listeContainer = document.getElementById('panier-liste-articles');
-            const compteur = document.getElementById('panier-compteur');
-            const totalBox = document.getElementById('panier-total');
-            listeContainer.innerHTML = "";
-            let total = 0;
-            panierArticlesTableau.forEach((art) => {
+            const list = document.getElementById('panier-liste-articles');
+            let total = 0; list.innerHTML = "";
+            panierArticlesTableau.forEach(art => {
                 total += art.prix;
-                listeContainer.innerHTML += `<div class="flex justify-between text-slate-200"><span>🔹 ${art.nom} [${art.type}]</span><span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span></div>`;
+                list.innerHTML += `<div class="flex justify-between"><span>🔹 ${art.nom} [${art.type}]</span><span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span></div>`;
             });
-            compteur.innerText = panierArticlesTableau.length;
-            totalBox.innerText = `${total.toFixed(2)} €`;
+            document.getElementById('panier-compteur').innerText = panierArticlesTableau.length;
+            document.getElementById('panier-total').innerText = `${total.toFixed(2)} €`;
             document.getElementById('zone-panier').classList.toggle('hidden', panierArticlesTableau.length === 0);
         }
 
@@ -349,17 +396,13 @@
                     if(idTab === idS && (col[2]||"").toUpperCase().includes(nomS)) {
                         tr = true;
                         document.getElementById('resNumDevis').innerText = col[0];
-                        document.getElementById('resCivilite').innerText = col[1];
-                        document.getElementById('resNomClient').innerText = col[2] + " " + (col[3] || "");
-                        document.getElementById('resStatut').innerText = col[4];
-                        document.getElementById('resVehicule').innerText = col[5];
                         document.getElementById('resMontant').innerText = col[8] || "0.00 €";
                         document.getElementById('resultat').classList.remove('hidden');
                         break;
                     }
                 }
                 if(!tr) alert("Dossier introuvable.");
-            } catch(e) { alert("Erreur de suivi réseau."); }
+            } catch(e) { alert("Erreur réseau."); }
         }
     </script>
 </body>
