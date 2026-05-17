@@ -57,24 +57,6 @@
                         </div>
                     </div>
 
-                    <div id="bloc-secours-ia" class="hidden p-4 bg-amber-500/20 border-2 border-amber-500 rounded-2xl text-left space-y-3">
-                        <p class="text-xs font-black uppercase text-amber-800"><i class="fas fa-exclamation-triangle mr-1"></i> Mode Ajustement : Remplis les données pour Jarvis :</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="secours-marque" placeholder="MARQUE" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
-                            <input type="text" id="secours-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="secours-moteur" placeholder="MOTORISATION" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
-                            <input type="number" id="secours-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-xs font-bold bg-white text-center">
-                        </div>
-                        <button onclick="validerSecoursIA()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-black text-xs uppercase shadow-md">Valider et Rechercher</button>
-                    </div>
-
-                    <div id="bloc-notification-devis" class="p-4 bg-yellow-500/20 border-2 border-yellow-500 text-yellow-900 rounded-2xl text-xs font-black uppercase tracking-wide flex items-center gap-3">
-                        <i class="fas fa-info-circle text-lg text-yellow-600 animate-pulse" id="notif-icone"></i>
-                        <span id="notif-texte">En attente de détection du véhicule pour générer et valider le devis...</span>
-                    </div>
-
                     <div class="space-y-4 border-t border-blue-100 pt-6 text-left">
                         <div>
                             <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">1. Domaine Général</label>
@@ -171,13 +153,13 @@
                 </div>
                 
                 <div id="resultat" class="hidden mt-6 text-center">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4">
-                        <div class="border-b border-slate-700 pb-3">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-4 text-left">
+                        <div class="border-b border-slate-700 pb-2">
                             <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
                             <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
                         </div>
-                        <div class="text-xs text-slate-300 font-bold text-left space-y-1">
-                            <p>Statut actuel : <span class="text-emerald-400 font-black" id="resStatut"></span></p>
+                        <div class="text-xs text-slate-300 font-bold space-y-1">
+                            <p>Statut : <span class="text-emerald-400 font-black" id="resStatut"></span></p>
                             <p>Véhicule : <span class="text-blue-300 font-black" id="resVehicule"></span></p>
                         </div>
                         <div id="resMontant" class="py-2 text-4xl font-black text-white text-center border-t border-slate-800"></div>
@@ -189,7 +171,6 @@
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv&gid=0";
-        // ⚠️ ENTRAINE TOI À REMPLACER CETTE URL PAR TON URL APP SCRIPT DÉPLOYÉE :
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         
         let donneesDernierVehicule = null;
@@ -234,26 +215,9 @@
             document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
             document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
-            document.getElementById('bloc-secours-ia').classList.add('hidden');
         }
 
-        function previewCG(input) { 
-            if(input.files[0]) { 
-                document.getElementById('cg-status').classList.remove('hidden'); 
-                document.getElementById('notif-texte').innerText = "Analyse de la carte grise lancée... Sélectionnez la pièce exacte.";
-            } 
-        }
-
-        function validerSecoursIA() {
-            const mq = document.getElementById('secours-marque').value.trim().toUpperCase();
-            const mod = document.getElementById('secours-modele').value.trim().toUpperCase();
-            const mot = document.getElementById('secours-moteur').value.trim().toUpperCase();
-            const an = document.getElementById('secours-annee').value.trim();
-            if(!mq || !mod) return alert("Indique au moins la marque et le modèle.");
-            donneesDernierVehicule = { "status": "Succès", "vehicule": `${mq} ${mod} | ${an || 'N.C'} | ${mot || 'N.C'}` };
-            document.getElementById('bloc-secours-ia').classList.add('hidden');
-            rechercheIA();
-        }
+        function previewCG(input) { if(input.files[0]) { document.getElementById('cg-status').classList.remove('hidden'); } }
 
         async function rechercheIA() {
             const piece = document.getElementById('gsd-piece').value;
@@ -263,7 +227,7 @@
             const container = document.getElementById('offres-container');
             const inputCG = document.getElementById('input-cg');
 
-            if (!piece || piece === "" || piece.startsWith("--")) return alert("Choisis d'abord la pièce exacte (Étape 3).");
+            if (!piece || piece === "" || piece.startsWith("--")) return alert("Sélectionnez d'abord une pièce exacte.");
 
             resultBox.classList.remove('hidden');
             loadingBox.classList.remove('hidden');
@@ -304,48 +268,41 @@
                 const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
                 const json = await response.json();
                 loading.classList.add('hidden');
-                
-                if (json.status === "Ajustement requis") {
-                    document.getElementById('bloc-secours-ia').classList.remove('hidden');
-                    document.getElementById('bloc-notification-devis').className = "p-4 bg-amber-500/20 border-2 border-amber-500 text-amber-900 rounded-2xl text-xs font-black uppercase tracking-wide flex items-center gap-3";
-                    document.getElementById('notif-texte').innerText = "Ajustement requis : Remplis manuellement les specs du véhicule.";
-                    return;
-                }
-
                 content.classList.remove('hidden');
                 donneesDernierVehicule = json;
 
-                // Message d'information automatique passant au VERT avec le numéro de devis enregistré sur le Sheets
-                document.getElementById('bloc-notification-devis').className = "p-4 bg-green-500/20 border-2 border-green-500 text-green-900 rounded-2xl text-xs font-black uppercase tracking-wide flex items-center gap-3";
-                document.getElementById('notif-texte').innerText = `Véhicule validé ! Devis enregistré sous le N° : ${json.id_devis || 'GSD-AUTO'}`;
-
                 let html = `
-                    <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
-                        <p class="text-xs uppercase text-blue-400 font-black tracking-wider mb-1">🚗 ID Devis : ${json.id_devis || 'N/A'}</p>
-                        <h3 class="text-lg font-black text-white uppercase">${json.vehicule}</h3>
+                    <div class="p-5 bg-slate-900 text-white rounded-3xl mb-6 border-b-4 border-blue-600 shadow-xl space-y-2 text-center">
+                        <p class="text-[10px] uppercase text-blue-400 font-black tracking-widest">⚙️ FICHE AUTOMOBILE VALIDÉE</p>
+                        <h3 class="text-xl font-black text-white uppercase tracking-wide">${json.vehicule}</h3>
+                        <p class="text-[11px] font-bold text-emerald-400">ENREGISTRÉ SOUS L'ID : ${json.id_devis || 'N/A'}</p>
                     </div><div class="space-y-3">`;
 
                 if(json.offres && json.offres.length > 0) {
                     json.offres.forEach(offre => {
                         html += `
-                            <div class="bg-white/95 p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center gap-4">
-                                <div class="text-left space-y-0.5">
-                                    <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-600 text-white">${offre.type}</span>
-                                    <h4 class="text-sm font-black text-slate-900 uppercase">${nomPiece}</h4>
-                                    <p class="text-xs text-slate-600 font-bold">Marque : ${offre.marque_piece} | Réf : ${offre.reference_article}</p>
+                            <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div class="text-center md:text-left space-y-1 w-full md:w-auto">
+                                    <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-600 text-white mb-1">${offre.type}</span>
+                                    <h4 class="text-base font-black text-slate-900 uppercase">${nomPiece.toUpperCase()}</h4>
+                                    <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${offre.marque_piece}</span> | Réf : ${offre.reference_article}</p>
+                                    <p class="text-[11px] text-slate-600 font-bold"><i class="fas fa-truck text-blue-500 mr-1"></i> Livraison : ${offre.delai}</p>
                                 </div>
-                                <div class="text-right space-y-1">
-                                    <p class="text-xl font-black text-slate-900">${offre.prix} €</p>
-                                    <button onclick="ajouterAuPanier('${encodeURIComponent(nomPiece)}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}')" class="bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">Sélectionner</button>
+                                <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 pt-3 md:pt-0">
+                                    <p class="text-2xl font-black text-slate-900">${offre.prix} €</p>
+                                    <button onclick="ajouterAuPanier('${encodeURIComponent(nomPiece)}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}')" class="bg-blue-600 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl shadow-md">Sélectionner</button>
                                 </div>
                             </div>`;
                     });
+                } else {
+                    html += `<div class="p-4 bg-white rounded-xl font-bold text-center text-slate-700 uppercase">Aucune offre disponible actuellement.</div>`;
                 }
+                
                 html += `</div>`;
                 container.innerHTML = html;
             } catch (e) {
                 loading.classList.add('hidden');
-                container.innerHTML = `<div class="p-4 bg-red-500/10 rounded-xl text-center font-bold text-red-900 uppercase">Erreur de connexion Jarvis. Relance.</div>`;
+                container.innerHTML = `<div class="p-4 bg-red-500/10 border-2 border-red-500 rounded-xl text-center font-bold text-red-900 uppercase">Ajustement réseau en cours... Relancez.</div>`;
             }
         }
 
@@ -362,7 +319,7 @@
             let total = 0;
             panierArticlesTableau.forEach((art) => {
                 total += art.prix;
-                listeContainer.innerHTML += `<div class="flex justify-between text-slate-200"><span>🔹 ${art.nom} [${art.type}]</span><span>${art.prix.toFixed(2)} €</span></div>`;
+                listeContainer.innerHTML += `<div class="flex justify-between text-slate-200"><span>🔹 ${art.nom} [${art.type}]</span><span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span></div>`;
             });
             compteur.innerText = panierArticlesTableau.length;
             totalBox.innerText = `${total.toFixed(2)} €`;
@@ -379,37 +336,30 @@
         async function chercherDossier() {
             const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
-            
-            if(!nomS || !idS) return alert("Remplis le nom et le numéro de devis.");
-
             try {
                 const res = await fetch(URL_CSV + "&v=" + Date.now());
                 const data = await res.text();
                 const lignes = data.split(/\r?\n/);
                 const sep = data.includes(';') ? ';' : ',';
                 let tr = false;
-                
                 for (let i = 1; i < lignes.length; i++) {
                     const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^\" \"]*\"){2})*[^\" \"]*$)`)).map(v => v.replace(/^\"|\"$/g, '').trim());
                     if (col.length < 5) continue;
-                    
                     const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
-                    const nomTab = (col[2] || "").toUpperCase();
-                    
-                    if(idTab === idS && nomTab.includes(nomS)) {
+                    if(idTab === idS && (col[2]||"").toUpperCase().includes(nomS)) {
                         tr = true;
-                        document.getElementById('resNumDevis').innerText = col[0]; // ID
-                        document.getElementById('resCivilite').innerText = col[1]; // CIVILITE
-                        document.getElementById('resNomClient').innerText = col[2] + " " + (col[3] || ""); // NOM + PRENOM
-                        document.getElementById('resStatut').innerText = col[4]; // STATUT
-                        document.getElementById('resVehicule').innerText = col[5]; // LIEN SITE (qui contient le véhicule)
-                        document.getElementById('resMontant').innerText = col[8] || "0.00 €"; // MONTANT A FACTURER
+                        document.getElementById('resNumDevis').innerText = col[0];
+                        document.getElementById('resCivilite').innerText = col[1];
+                        document.getElementById('resNomClient').innerText = col[2] + " " + (col[3] || "");
+                        document.getElementById('resStatut').innerText = col[4];
+                        document.getElementById('resVehicule').innerText = col[5];
+                        document.getElementById('resMontant').innerText = col[8] || "0.00 €";
                         document.getElementById('resultat').classList.remove('hidden');
                         break;
                     }
                 }
-                if(!tr) alert("Aucun dossier correspondant trouvé.");
-            } catch(e) { alert("Erreur lors de la lecture du fichier de suivi."); }
+                if(!tr) alert("Dossier introuvable.");
+            } catch(e) { alert("Erreur de suivi réseau."); }
         }
     </script>
 </body>
