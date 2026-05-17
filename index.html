@@ -137,13 +137,34 @@
                     <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Envoyer ma demande</button>
                 </form>
             </section>
+
+            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
+                <div class="space-y-3">
+                    <input type="text" id="nomRecherche" placeholder="NOM DU CLIENT (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center uppercase font-black">
+                    <div class="flex space-x-2">
+                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
+                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div id="resultat" class="hidden mt-6 text-center">
+                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-6">
+                        <div class="border-b border-slate-700 pb-3">
+                            <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
+                            <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
+                        </div>
+                        <div id="resMontant" class="py-4 border-y border-slate-800 text-5xl font-black text-white"></div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         
-        // 🛑 TON LIEN DE DEPLOIEMENT APPS SCRIPT
+        // 🛑 LIEN DE DEPLOIEMENT APPS SCRIPT
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         
         let donneesDernierVehicule = null;
@@ -234,7 +255,7 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
-            // ⚡ CORRECTION DU BLOCAGE : On vérifie proprement si les données existent avant de couper le texte
+            // Correction totale du blocage au clic : Envoi sécurisé
             if (donneesDernierVehicule && donneesDernierVehicule.vehicule && donneesDernierVehicule.vehicule.includes(" | ")) {
                 const parts = donneesDernierVehicule.vehicule.split(" | ");
                 const mm = parts[0].split(" ");
@@ -246,7 +267,6 @@
                 return;
             }
 
-            // Si aucune donnée mémorisée, on utilise la photo ou les champs manuels
             if (document.getElementById('tab-photo').classList.contains('active') && inputCG.files[0]) {
                 const reader = new FileReader();
                 reader.readAsDataURL(inputCG.files[0]);
@@ -268,9 +288,9 @@
                 const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
                 const json = await response.json();
                 loading.classList.add('hidden');
-                content.setHTML ? content.classList.remove('hidden') : content.classList.remove('hidden');
+                content.classList.remove('hidden');
                 
-                donneesDernierVehicule = json; // Sauvegarde souveraine du retour
+                donneesDernierVehicule = json; 
                 
                 let html = `
                     <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center border-b-4 border-blue-600 shadow-lg">
@@ -349,6 +369,34 @@
             let rapport = "🛒 Commande GSD :\n";
             panierArticlesTableau.forEach(a => { rapport += `▪️ ${a.nom} (${a.type}) -> ${a.prix}€\n`; });
             window.open(`https://wa.me/33699337803?text=${encodeURIComponent(rapport)}`, '_blank');
+        }
+
+        // 🌟 RESTAURATION FONCTION CHERCHER DOSSIER DEVIS 🌟
+        async function chercherDossier() {
+            const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
+            const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
+            try {
+                const res = await fetch(URL_CSV + "&v=" + Date.now());
+                const data = await res.text();
+                const lignes = data.split(/\r?\n/);
+                const sep = data.includes(';') ? ';' : ',';
+                let tr = false;
+                for (let i = 1; i < lignes.length; i++) {
+                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
+                    if (col.length < 5) continue;
+                    const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
+                    if(idTab === idS && (nomS === (col[2]||"").toUpperCase())) {
+                        tr = true;
+                        document.getElementById('resNumDevis').innerText = col[0];
+                        document.getElementById('resNomClient').innerText = col[2] + " " + (col[3] || "");
+                        document.getElementById('resCivilite').innerText = col[1];
+                        document.getElementById('resMontant').innerText = col[8] || "0.00 €";
+                        document.getElementById('resultat').classList.remove('hidden');
+                        break;
+                    }
+                }
+                if(!tr) alert("Dossier introuvable.");
+            } catch(e) { alert("Erreur réseau."); }
         }
     </script>
 </body>
