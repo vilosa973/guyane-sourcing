@@ -164,7 +164,7 @@
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
         
-        // 🛑 LIEN DE DEPLOIEMENT APPS SCRIPT
+        // 🛑 TON LIEN DE DEPLOIEMENT APPS SCRIPT
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         
         let donneesDernierVehicule = null;
@@ -255,7 +255,6 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
-            // Correction totale du blocage au clic : Envoi sécurisé
             if (donneesDernierVehicule && donneesDernierVehicule.vehicule && donneesDernierVehicule.vehicule.includes(" | ")) {
                 const parts = donneesDernierVehicule.vehicule.split(" | ");
                 const mm = parts[0].split(" ");
@@ -371,7 +370,6 @@
             window.open(`https://wa.me/33699337803?text=${encodeURIComponent(rapport)}`, '_blank');
         }
 
-        // 🌟 RESTAURATION FONCTION CHERCHER DOSSIER DEVIS 🌟
         async function chercherDossier() {
             const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
             const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
