@@ -57,15 +57,30 @@
                         </div>
                     </div>
 
+                    <div id="bloc-secours-ia" class="hidden p-4 bg-amber-500/20 border-2 border-amber-500 rounded-2xl text-left space-y-3">
+                        <p class="text-xs font-black uppercase text-amber-800"><i class="fas fa-exclamation-triangle mr-1"></i> Mode Ajustement : Photo floue ou illisible. Remplis les données pour Jarvis :</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="secours-marque" placeholder="MARQUE" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
+                            <input type="text" id="secours-modele" placeholder="MODÈLE" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="secours-moteur" placeholder="MOTORISATION" class="p-3 rounded-xl text-xs font-bold bg-white uppercase text-center">
+                            <input type="number" id="secours-annee" placeholder="ANNÉE" class="p-3 rounded-xl text-xs font-bold bg-white text-center">
+                        </div>
+                        <button onclick="validerSecoursIA()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-black text-xs uppercase shadow-md">Valider et Rechercher</button>
+                    </div>
+
                     <div class="space-y-4 border-t border-blue-100 pt-6 text-left">
                         <div>
                             <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">1. Domaine Général</label>
                             <select id="gsd-generique" onchange="actualiserFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white">
                                 <option value="">-- Choisir un domaine --</option>
-                                <option value="chassis">1. Châssis & Freinage</option>
-                                <option value="moteur">2. Moteur & Technique</option>
-                                <option value="electricite">3. Électricité & Visibilité</option>
-                                <option value="transmission">4. Transmission & Fluides</option>
+                                <option value="chassis">1. Châssis & Direction</option>
+                                <option value="freinage">2. Système de Freinage</option>
+                                <option value="moteur">3. Moteur & Technique</option>
+                                <option value="electricite">4. Électricité & Énergie</option>
+                                <option value="filtration">5. Entretien & Filtration</option>
+                                <option value="carrosserie">6. Carrosserie & Éclairage</option>
                             </select>
                         </div>
 
@@ -89,7 +104,10 @@
                     </div>
 
                     <div id="ai-resultat" class="hidden mt-4">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center"><i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i></div>
+                        <div id="ai-loading" class="py-6 bg-white/80 rounded-2xl text-center space-y-2">
+                            <i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i>
+                            <p class="text-[10px] font-black text-slate-600 uppercase tracking-wider">Sourcing Jarvis : Oscaro, Autodoc, Mister Auto, Carter-Cash...</p>
+                        </div>
                         <div id="ai-content" class="hidden space-y-4 text-left">
                             <div id="offres-container"></div>
                         </div>
@@ -113,30 +131,6 @@
                     </button>
                 </div>
             </div>
-
-            <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden">
-                <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video">
-                    <video controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video>
-                </div>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis manuel</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center">
-                        <option value="Monsieur">Monsieur</option>
-                        <option value="Madame">Madame</option>
-                    </select>
-                    <div class="manual-row">
-                        <input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center">
-                        <input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center">
-                    </div>
-                    <input type="text" name="plaque" placeholder="PLAQUE D'IMMATRICULATION" class="w-full p-4 rounded-2xl outline-none uppercase text-center">
-                    <input type="email" name="email" placeholder="VOTRE EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
-                    <textarea name="description" placeholder="VOTRE DEMANDE S'IL MANQUE UNE PIÈCE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Envoyer ma demande</button>
-                </form>
-            </section>
 
             <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
                 <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
@@ -163,43 +157,56 @@
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv";
-        
-        // 🛑 TON LIEN DE DEPLOIEMENT APPS SCRIPT
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         
         let donneesDernierVehicule = null;
         let panierArticlesTableau = [];
 
+        // 📦 CATALOGUE ENRICHI DE PIÈCES (CHÂSSIS, MOTEUR, ENTRETIEN, ÉLECTRICITÉ, ETC.)
         const basePiecesGSD = {
             chassis: {
-                label: "Châssis & Freinage",
+                label: "Châssis & Direction",
                 familles: {
-                    freinage: { label: "Freinage", pieces: ["Plaquettes de frein", "Disques de frein", "Étriers de frein", "Flexible de frein", "Maître-cylindre"] },
-                    suspension: { label: "Suspension & Amortissement", pieces: ["Amortisseurs", "Ressorts de suspension", "Triangle de suspension"] },
-                    direction: { label: "Direction & Roulement", pieces: ["Rotule de direction", "Biellette stabilisatrice", "Roulement de roue"] }
+                    suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière", "Ressorts de suspension", "Coupelles d'amortisseur"] },
+                    trains: { label: "Trains de roulement", pieces: ["Triangle de suspension", "Rotule de suspension", "Silent bloc de triangle", "Biellette stabilisatrice"] },
+                    direction: { label: "Direction & Roulements", pieces: ["Rotule de direction", "Biellette de direction", "Roulement de roue", "Cardan"] }
+                }
+            },
+            freinage: {
+                label: "Système de Freinage",
+                familles: {
+                    roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Plaquettes de frein arrière", "Disques de frein avant", "Disques de frein arrière", "Étriers de frein"] },
+                    hydraulique: { label: "Commandes & Hydraulique", pieces: ["Flexible de frein", "Maître-cylindre", "Câble de frein à main", "Liquide de frein"] }
                 }
             },
             moteur: {
                 label: "Moteur & Technique",
                 familles: {
-                    distribution: { label: "Distribution & Courroies", pieces: ["Courroie de distribution", "Pompe à eau", "Courroie d'accessoire"] },
-                    injection: { label: "Carburation & Injection", pieces: ["Injecteur", "Pompe à carburant", "Turbocompresseur"] },
-                    echappement: { label: "Échappement & Antipollution", pieces: ["Silencieux d'échappement", "Catalyseur", "Vanne EGR", "Filtre à particules (FAP)"] }
+                    distribution: { label: "Distribution & Courroies", pieces: ["Kit de distribution", "Pompe à eau", "Courroie d'accessoire", "Kit de courroie d'accessoire", "Galet tendeur"] },
+                    injection: { label: "Alimentation & Turbo", pieces: ["Injecteur", "Pompe à carburant", "Turbocompresseur", "Débitmètre d'air"] },
+                    echappement: { label: "Échappement & Antipollution", pieces: ["Vanne EGR", "Filtre à particules (FAP)", "Catalyseur", "Sonde Lambda"] },
+                    embrayage: { label: "Transmission & Embrayage", pieces: ["Kit d'embrayage", "Volant moteur", "Butée d'embrayage"] }
                 }
             },
             electricite: {
-                label: "Électricité & Visibilité",
+                label: "Électricité & Énergie",
                 familles: {
-                    demarrage: { label: "Démarrage & Énergie", pieces: ["Batterie", "Alternateur", "Démarreur", "Bougies d'allumage"] },
-                    eclairage: { label: "Éclairage & Signalisation", pieces: ["Phare avant", "Feu arrière", "Ampoule de phare"] },
-                    essuyage: { label: "Essuyage & Habitacle", pieces: ["Balais d'essuie-glace", "Moteur d'essuie-glace", "Filtre d'habitacle"] }
+                    demarrage: { label: "Démarrage & Charge", pieces: ["Batterie", "Alternateur", "Démarreur", "Bougies d'allumage", "Bougies de préchauffage"] },
+                    thermique: { label: "Refroidissement", pieces: ["Radiateur moteur", "Thermostat (Calorstat)", "Vase d'expansion"] }
                 }
             },
-            transmission: {
-                label: "Transmission & Fluides",
+            filtration: {
+                label: "Entretien & Filtration",
                 familles: {
-                    embrayage: { label: "Embrayage & Boîte", pieces: ["Kit d'embrayage", "Volant moteur", "Cardan"] },
-                    fluides: { label: "Entretien & Filtration", pieces: ["Liquide de refroidissement", "Huile moteur", "Filtre à huile", "Filtre à air"] }
+                    filtres: { label: "Filtres complets", pieces: ["Filtre à huile", "Filtre à air", "Filtre à carburant (Diesel/Essence)", "Filtre d'habitacle"] },
+                    huiles: { label: "Huiles & Fluides", pieces: ["Huile moteur 5W30", "Huile moteur 5W40", "Huile moteur 10W40", "Liquide de refroidissement"] }
+                }
+            },
+            carrosserie: {
+                label: "Carrosserie & Éclairage",
+                familles: {
+                    optiques: { label: "Éclairage complet", pieces: ["Phare avant gauche", "Phare avant droit", "Feu arrière gauche", "Feu arrière droit", "Balais d'essuie-glace"] },
+                    vitrage: { label: "Ouvrants & Miroirs", pieces: ["Rétroviseur gauche", "Rétroviseur droit", "Vérin de coffre", "Lève-vitre"] }
                 }
             }
         };
@@ -234,9 +241,22 @@
             document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
             document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
             document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            document.getElementById('bloc-secours-ia').classList.add('hidden');
         }
 
         function previewCG(input) { if(input.files[0]) { document.getElementById('cg-status').classList.remove('hidden'); } }
+
+        function validerSecoursIA() {
+            const mq = document.getElementById('secours-marque').value.trim().toUpperCase();
+            const mod = document.getElementById('secours-modele').value.trim().toUpperCase();
+            const mot = document.getElementById('secours-moteur').value.trim().toUpperCase();
+            const an = document.getElementById('secours-annee').value.trim();
+            if(!mq || !mod) return alert("Veuillez remplir au moins la Marque et le Modèle.");
+            
+            donneesDernierVehicule = { "status": "Succès", "vehicule": `${mq} ${mod} | ${an || 'N.C'} | ${mot || 'N.C'}` };
+            document.getElementById('bloc-secours-ia').classList.add('hidden');
+            rechercheIA();
+        }
 
         async function rechercheIA() {
             const piece = document.getElementById('gsd-piece').value;
@@ -257,7 +277,6 @@
             const formData = new FormData();
             formData.append('piece', piece);
 
-            // 🧠 RESTAURATION DE LA MÉMOIRE TAMPON : Si le véhicule a déjà été analysé, on réutilise ses données d'office !
             if (donneesDernierVehicule && donneesDernierVehicule.vehicule && donneesDernierVehicule.vehicule.includes(" | ")) {
                 const parts = donneesDernierVehicule.vehicule.split(" | ");
                 const mm = parts[0].split(" ");
@@ -269,7 +288,6 @@
                 return;
             }
 
-            // Si c'est la toute première recherche, on prend la photo ou la saisie manuelle
             if (document.getElementById('tab-photo').classList.contains('active') && inputCG.files[0]) {
                 const reader = new FileReader();
                 reader.readAsDataURL(inputCG.files[0]);
@@ -291,13 +309,19 @@
                 const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
                 const json = await response.json();
                 loading.classList.add('hidden');
-                content.classList.remove('hidden');
                 
-                donneesDernierVehicule = json; // Sauvegarde dans la mémoire tampon pour les prochaines recherches
+                // GESTION DU AJUSTEMENT REQUIS : Si Jarvis n'a pas lu la photo, on affiche le panneau jaune pour TOI
+                if (json.status === "Ajustement requis") {
+                    donneesDernierVehicule = null;
+                    document.getElementById('bloc-secours-ia').classList.remove('hidden');
+                    return;
+                }
+
+                content.classList.remove('hidden');
+                donneesDernierVehicule = json; 
                 const chaineVev = json.vehicule || "";
                 let blocSpecs = "";
 
-                // Construction stylée des badges de caractéristiques de la voiture
                 if (chaineVev && chaineVev.includes("|")) {
                     const fragments = chaineVev.split("|").map(t => t.trim());
                     const nomComplet = fragments[0] || "Véhicule";
@@ -411,7 +435,7 @@
                 const sep = data.includes(';') ? ';' : ',';
                 let tr = false;
                 for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(v => v.replace(/^"|"$/g, '').trim());
+                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^\" \"]*\"){2})*[^\" \"]*$)`)).map(v => v.replace(/^\"|\"$/g, '').trim());
                     if (col.length < 5) continue;
                     const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
                     if(idTab === idS && (nomS === (col[2]||"").toUpperCase())) {
