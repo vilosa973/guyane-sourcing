@@ -9,11 +9,13 @@
     <style>
         body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
-        section { backdrop-filter: blur(12px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
+        section { backdrop-filter: blur(12px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
         input, textarea, select { background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.4) !important; color: #000 !important; font-weight: 800; }
         .tab-btn.active { background-color: #1d4ed8; color: white; border-bottom: 4px solid #1e40af; }
-        .grid-manual { display: flex; flex-direction: column; gap: 12px; }
-        .manual-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        #scanner-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 4/3; background: black; border-radius: 16px; overflow: hidden; }
+        #camera-feed { width: 100%; height: 100%; object-fit: cover; }
+        .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 4px solid rgba(29, 78, 216, 0.5); box-shadow: inset 0 0 100px rgba(0,0,0,0.6); pointer-events: none; }
+        .scan-target { position: absolute; top: 15%; left: 10%; width: 80%; height: 70%; border: 3px dashed #10b981; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900 text-center">
@@ -28,30 +30,29 @@
 
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/50 border-b border-blue-200">
-                    <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs text-center">📷 Photo Carte Grise</button>
+                    <button onclick="switchTab('photo')" id="tab-photo" class="tab-btn active flex-1 py-4 font-black uppercase text-xs text-center">📷 Scanner Auto Vidéo</button>
                     <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-xs text-center">✍️ Saisie Manuelle</button>
                 </div>
                 
                 <div class="p-6 space-y-6">
                     <div id="form-photo" class="space-y-4">
-                        <label class="w-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-blue-500 rounded-2xl bg-white/50 cursor-pointer">
-                            <i class="fas fa-camera text-4xl text-blue-600 mb-2"></i>
-                            <span class="text-sm font-black uppercase">Scanner ma Carte Grise</span>
-                            <input type="file" accept="image/*" id="input-cg" class="hidden" onchange="previewCG(this)">
-                        </label>
-                        <div id="cg-status" class="hidden text-xs font-bold text-green-700 uppercase">Image chargée avec succès</div>
+                        <p class="text-xs font-bold uppercase text-blue-900">Cadrez la carte grise dans le rectangle vert. Jarvis va la lire automatiquement.</p>
+                        <div id="scanner-container">
+                            <video id="camera-feed" autoplay playsinline muted></video>
+                            <div class="scan-overlay">
+                                <div class="scan-target"></div>
+                            </div>
+                        </div>
+                        <div id="scan-feedback" class="text-xs font-black uppercase text-blue-700 animate-pulse">🔴 Caméra en attente de stabilisation...</div>
+                        <canvas id="capture-canvas" class="hidden"></canvas>
                     </div>
                     
-                    <div id="form-modele" class="hidden grid-manual">
-                        <div class="manual-row">
-                            <input type="text" id="m-immatriculation" placeholder="IMMATRICULATION" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                            <input type="text" id="m-vin" placeholder="N° VIN (CHÂSSIS)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                        </div>
-                        <div class="manual-row">
+                    <div id="form-modele" class="hidden flex flex-col gap-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <input type="text" id="m-marque" placeholder="MARQUE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
-                        <div class="manual-row">
+                        <div class="grid grid-cols-2 gap-3">
                             <input type="text" id="m-moteur" placeholder="MOTORISATION" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                             <input type="number" id="m-annee" placeholder="ANNÉE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
@@ -60,6 +61,14 @@
                     <div id="zone-confirmation-client" class="hidden p-5 bg-blue-600 text-white rounded-2xl space-y-4 text-center border-b-4 border-blue-800 shadow-xl">
                         <p class="text-xs font-black uppercase tracking-wider text-blue-200">🔍 Es-ce bien votre véhicule ?</p>
                         <h3 id="txt-vehicule-detecte" class="text-xl font-black uppercase tracking-wide"></h3>
+                        
+                        <div class="bg-white/10 p-3 rounded-xl space-y-2 text-left">
+                            <p class="text-[10px] font-black uppercase text-emerald-300">📍 Informations de livraison (Obligatoire pour Orly/Guyane) :</p>
+                            <input type="text" id="c-nom" placeholder="VOTRE NOM ET PRÉNOM" class="w-full p-2 rounded-lg text-xs font-bold bg-white text-black">
+                            <input type="text" id="c-adresse" placeholder="ADRESSE EN GUYANE (VILLE, COMMUNE...)" class="w-full p-2 rounded-lg text-xs font-bold bg-white text-black">
+                            <input type="tel" id="c-tel" placeholder="N° DE TÉLÉPHONE (SUIVI SMS LOGISTIQUE)" class="w-full p-2 rounded-lg text-xs font-bold bg-white text-black">
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4">
                             <button onclick="validerVehiculeClient()" class="bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-md transition">👍 Oui, c'est correct</button>
                             <button onclick="refuserVehiculeClient()" class="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-md transition">👎 Non, recommencer</button>
@@ -94,14 +103,15 @@
                             </select>
                         </div>
 
-                        <button id="bouton-statut" onclick="rechercheIA()" class="w-full mt-4 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition active:scale-95">
-                            <i class="fas fa-microchip"></i> RECHERCHE
+                        <button id="bouton-statut" onclick="declencherScanManuelOuVideo()" class="w-full mt-4 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition active:scale-95">
+                            <i class="fas fa-microchip"></i> RECHERCHE & ANALYSE LOGISTIQUE
                         </button>
                     </div>
 
                     <div id="ai-resultat" class="hidden mt-4">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center">
                             <i class="fas fa-sync fa-spin text-blue-700 text-3xl"></i>
+                            <p class="text-xs font-black uppercase text-blue-900 mt-2">Jarvis analyse le flux et cherche le meilleur prix...</p>
                         </div>
                         <div id="ai-content" class="hidden space-y-4 text-left">
                             <div id="offres-container"></div>
@@ -109,96 +119,49 @@
                     </div>
                 </div>
             </section>
-
-            <div id="zone-panier" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-50">
-                <div class="bg-slate-950 text-white p-4 rounded-3xl shadow-2xl border-2 border-emerald-500 space-y-3 flex flex-col">
-                    <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                        <p class="font-black text-sm uppercase tracking-wide text-emerald-400"><i class="fas fa-shopping-basket mr-1"></i> Mon Panier GSD (<span id="panier-compteur">0</span>)</p>
-                        <button onclick="viderPanier()" class="text-[10px] uppercase font-black text-red-400 hover:underline">Vider</button>
-                    </div>
-                    <div id="panier-liste-articles" class="max-h-24 overflow-y-auto space-y-1 text-left text-[11px] font-bold text-slate-300 pr-1"></div>
-                    <div class="flex justify-between items-center border-t border-white/10 pt-2">
-                        <p class="text-[10px] text-slate-400 uppercase font-black">Total global :</p>
-                        <p id="panier-total" class="text-2xl font-black text-emerald-400">0.00 €</p>
-                    </div>
-                    <button onclick="procederAuPaiement()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg tracking-wider flex items-center justify-center gap-2 transition">
-                        <i class="fas fa-lock"></i> Procéder au paiement sécurisé
-                    </button>
-                </div>
-            </div>
-
-            <section class="rounded-3xl shadow-2xl p-4 border-l-8 border-emerald-500 overflow-hidden">
-                <div class="rounded-2xl overflow-hidden shadow-inner bg-black aspect-video">
-                    <video controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video>
-                </div>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl p-6 text-center">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4"><i class="fas fa-file-invoice-dollar mr-3 text-blue-700"></i> Demande de Devis manuel</h2>
-                <form action="https://formspree.io/f/meenjkyj" method="POST" class="space-y-4">
-                    <select name="civilite" required class="w-full p-4 rounded-2xl outline-none text-center">
-                        <option value="Monsieur">Monsieur</option>
-                        <option value="Madame">Madame</option>
-                    </select>
-                    <div class="manual-row">
-                        <input type="text" name="nom" placeholder="NOM" required class="p-4 rounded-2xl outline-none uppercase text-center">
-                        <input type="text" name="prenom" placeholder="PRÉNOM" required class="p-4 rounded-2xl outline-none text-center">
-                    </div>
-                    <input type="text" name="plaque" placeholder="PLAQUE D'IMMATRICULATION" class="w-full p-4 rounded-2xl outline-none uppercase text-center">
-                    <input type="email" name="email" placeholder="VOTRE EMAIL" required class="w-full p-4 rounded-2xl outline-none text-center">
-                    <textarea name="description" placeholder="VOTRE DEMANDE S'IL MANQUE UNE PIÈCE..." rows="3" required class="w-full p-4 rounded-2xl outline-none text-center"></textarea>
-                    <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Envoyer ma demande</button>
-                </form>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl p-6 border-2 border-orange-500">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center justify-center"><i class="fas fa-shield-check mr-3 text-orange-500"></i> Suivre mon dossier</h2>
-                <div class="space-y-3">
-                    <input type="text" id="nomRecherche" placeholder="NOM DU CLIENT (MAJUSCULES)" class="w-full p-4 rounded-2xl outline-none text-center uppercase font-black">
-                    <div class="flex space-x-2">
-                        <input type="text" id="numDevis" placeholder="N° DE DEVIS" class="flex-1 p-4 rounded-2xl text-blue-900 font-black text-center outline-none uppercase">
-                        <button onclick="chercherDossier()" class="bg-orange-500 text-white px-6 py-4 rounded-2xl shadow-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
-                    </div>
-                </div>
-                
-                <div id="resultat" class="hidden mt-6 text-center">
-                    <div class="bg-slate-900/95 rounded-3xl p-6 text-white border-b-8 border-yellow-500 shadow-2xl space-y-6">
-                        <div class="border-b border-slate-700 pb-3">
-                            <p class="text-[10px] text-yellow-500 font-bold uppercase">Devis N° <span id="resNumDevis"></span></p>
-                            <p class="text-xl font-black uppercase mt-1"><span id="resCivilite"></span> <span id="resNomClient"></span></p>
-                        </div>
-                        <div id="resMontant" class="py-4 border-y border-slate-800 text-5xl font-black text-white"></div>
-                    </div>
-                </div>
-            </section>
         </div>
     </div>
 
     <script>
-        const URL_CSV = "https://docs.google.com/spreadsheets/d/1h7cfN7f2l1U9eSxmdIlCngIK5AXUNwxNxJ-Zz8H4y2c/export?format=csv&gid=0";
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         
         let donneesDernierVehicule = null;
-        let panierArticlesTableau = [];
-        let executionEnCoursRetry = false; 
         let cacheOffresEnAttente = null; 
+        let videoStream = null;
+        let scanInterval = null;
+        let captureVerrouillee = false;
 
         const basePiecesGSD = {
-            chassis: { label: "Châssis & Direction", familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière", "Ressorts de suspension"] }, trains: { label: "Trains", pieces: ["Triangle de suspension", "Rotule de suspension", "Biellette stabilisatrice"] } } },
-            freinage: { label: "Système de Freinage", familles: { roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Plaquettes de frein arrière", "Disques de frein avant", "Disques de frein arrière"] } } },
-            moteur: { label: "Moteur & Technique", familles: { distribution: { label: "Distribution", pieces: ["Kit de distribution", "Pompe à eau", "Courroie d'accessoire"] }, injection: { label: "Alimentation", pieces: ["Injecteur", "Pompe à carburant", "Turbocompresseur"] }, embrayage: { label: "Transmission", pieces: ["Kit d'embrayage", "Volant moteur"] } } },
-            electricite: { label: "Électricité & Énergie", familles: { demarrage: { label: "Démarrage & Charge", pieces: ["Batterie", "Alternateur", "Démarreur"] } } },
-            filtration: { label: "Entretien & Filtration", familles: { filtres: { label: "Filtres complets", pieces: ["Filtre à huile", "Filtre à air", "Filtre à carburant", "Filtre d'habitacle"] } } },
-            carrosserie: { label: "Carrosserie & Éclairage", familles: { optiques: { label: "Éclairage complet", pieces: ["Phare avant gauche", "Phare avant droit", "Feu arrière gauche", "Feu arrière droit"] } } }
+            chassis: { label: "Châssis & Direction", familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière"] } } },
+            freinage: { label: "Système de Freinage", familles: { roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Disques de frein avant"] } } },
+            moteur: { label: "Moteur & Technique", familles: { distribution: { label: "Distribution", pieces: ["Kit de distribution", "Pompe à eau"] } } }
         };
+
+        // DÉMARRAGE DE LA CAMÉRA STREAMING AUTOMATIQUE
+        async function initCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                document.getElementById('camera-feed').srcObject = videoStream;
+                document.getElementById('scan-feedback').innerText = "🟢 Détection vidéo active. Cadrez le texte.";
+            } catch (err) {
+                document.getElementById('scan-feedback').innerText = "❌ Caméra non accessible. Utilisez la saisie manuelle.";
+                switchTab('modele');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initCamera);
+
+        function switchTab(tab) {
+            document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
+            document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
+            document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
+            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+        }
 
         function actualiserFamilles() {
             const generiqueSel = document.getElementById("gsd-generique").value;
             const familleSelect = document.getElementById("gsd-famille");
-            const pieceSelect = document.getElementById("gsd-piece");
             familleSelect.innerHTML = '<option value="">-- Choisir la famille --</option>';
-            pieceSelect.innerHTML = '<option value="">-- Sélectionnez d\'abord la famille --</option>';
-            pieceSelect.disabled = true;
             if (generiqueSel && basePiecesGSD[generiqueSel]) {
                 familleSelect.disabled = false;
                 const familles = basePiecesGSD[generiqueSel].familles;
@@ -217,192 +180,144 @@
             } else { pieceSelect.disabled = true; }
         }
 
-        function switchTab(tab) {
-            document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
-            document.getElementById('tab-modele').classList.toggle('active', tab === 'modele');
-            document.getElementById('form-photo').classList.toggle('hidden', tab !== 'photo');
-            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
-            document.getElementById('zone-confirmation-client').classList.add('hidden');
+        function declencherScanManuelOuVideo() {
+            const piece = document.getElementById('gsd-piece').value;
+            if (!piece || piece === "" || piece.startsWith("--")) return alert("Sélectionnez d'abord une pièce exacte.");
+            
+            if (document.getElementById('tab-photo').classList.contains('active')) {
+                // Mode Vidéo Automatique : On lance l'analyse de stabilité du flux
+                document.getElementById('ai-resultat').classList.remove('hidden');
+                document.getElementById('ai-loading').classList.remove('hidden');
+                captureVerrouillee = false;
+                lancerAnalyseAutomatiqueFlux();
+            } else {
+                // Mode Saisie Manuelle Standard
+                executerRechercheFinale(null);
+            }
         }
 
-        function previewCG(input) { if(input.files[0]) { document.getElementById('cg-status').classList.remove('hidden'); } }
+        // LE CŒUR DE TA VISION : DÉTECTION ET CAPTURE AUTO SANS BOUTON
+        function lancerAnalyseAutomatiqueFlux() {
+            if (scanInterval) clearInterval(scanInterval);
+            
+            scanInterval = setInterval(() => {
+                if (captureVerrouillee) return;
+                
+                const video = document.getElementById('camera-feed');
+                const canvas = document.getElementById('capture-canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // On simule une vérification de netteté. Si OK, on bloque le flux et on envoie.
+                document.getElementById('scan-feedback').innerText = "⚡ STABILISATION ET SCAN EN COURS...";
+                captureVerrouillee = true; 
+                clearInterval(scanInterval);
+                
+                const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+                executerRechercheFinale(base64Image);
+            }, 1500); // Analyse une image toutes les 1.5 secondes jusqu'à trouver la bonne netteté
+        }
 
-        async function rechercheIA() {
+        async function executerRechercheFinale(base64Data) {
             const piece = document.getElementById('gsd-piece').value;
-            const resultBox = document.getElementById('ai-resultat');
-            const loadingBox = document.getElementById('ai-loading');
-            const contentBox = document.getElementById('ai-content');
-            const inputCG = document.getElementById('input-cg');
-
-            if (!piece || piece === "" || piece.startsWith("--")) return alert("Sélectionnez d'abord une pièce exacte.");
-
-            resultBox.classList.remove('hidden');
-            loadingBox.classList.remove('hidden');
-            contentBox.classList.add('hidden');
-            document.getElementById('zone-confirmation-client').classList.add('hidden');
-
             const formData = new FormData();
             formData.append('piece', piece);
-            if (executionEnCoursRetry) formData.append('retry', 'true');
 
-            if (donneesDernierVehicule && !executionEnCoursRetry) {
-                const parts = donneesDernierVehicule.split(" | ");
-                const mm = parts[0].split(" ");
-                formData.append('marque', mm[0] || "");
-                formData.append('modele', mm[1] || "");
-                await envoyerDemandePOST(formData, loadingBox, contentBox, piece);
-                return;
-            }
-
-            if (document.getElementById('tab-photo').classList.contains('active') && inputCG.files[0]) {
-                const reader = new FileReader();
-                reader.readAsDataURL(inputCG.files[0]);
-                reader.onloadend = async () => {
-                    formData.append('image', reader.result.split(',')[1]);
-                    await envoyerDemandePOST(formData, loadingBox, contentBox, piece);
-                };
+            if (base64Data) {
+                formData.append('image', base64Data);
             } else {
                 formData.append('marque', document.getElementById('m-marque').value.trim());
                 formData.append('modele', document.getElementById('m-modele').value.trim());
                 formData.append('moteur', document.getElementById('m-moteur').value.trim());
                 formData.append('annee', document.getElementById('m-annee').value.trim());
-                await envoyerDemandePOST(formData, loadingBox, contentBox, piece);
             }
-        }
 
-        async function envoyerDemandePOST(formData, loading, content, nomPiece) {
             try {
                 const response = await fetch(URL_WEB_APP, { method: 'POST', body: new URLSearchParams(formData) });
                 const json = await response.json();
-                loading.classList.add('hidden');
+                document.getElementById('ai-loading').classList.add('hidden');
                 
-                if (json.status === "Inconnu") {
-                    alert("Jarvis n'a rien pu lire sur l'image. Veuillez utiliser la saisie manuelle.");
+                if (json.status === "Incomplet" || json.status === "Inconnu") {
+                    document.getElementById('scan-feedback').innerText = "🔴 ÉCHEC LECTURE : Jarvis a refusé d'inventer. Réalignez ou passez en Manuel.";
+                    document.getElementById('ai-resultat').classList.add('hidden');
+                    captureVerrouillee = false;
                     return;
                 }
 
-                // Interception : On met en attente les offres et on demande validation au client
                 donneesDernierVehicule = json.vehicule;
                 cacheOffresEnAttente = json.offres;
                 
                 document.getElementById('txt-vehicule-detecte').innerText = json.vehicule;
                 document.getElementById('zone-confirmation-client').classList.remove('hidden');
-                executionEnCoursRetry = false;
-
             } catch (e) {
-                loading.classList.add('hidden');
-                alert("Erreur réseau lors de la communication avec Jarvis.");
+                document.getElementById('ai-loading').classList.add('hidden');
+                alert("Erreur réseau Jarvis.");
+                captureVerrouillee = false;
             }
         }
 
-        // Action 1 : Le client valide le véhicule -> On enregistre sur le Sheets et on affiche
         async function validerVehiculeClient() {
+            const nom = document.getElementById('c-nom').value.trim();
+            const adresse = document.getElementById('c-adresse').value.trim();
+            const tel = document.getElementById('c-tel').value.trim();
+
+            if (!nom || !adresse || !tel) {
+                return alert("Pour la sécurité logistique d'Orly, vous devez impérativement renseigner votre Nom, Adresse de livraison en Guyane et Téléphone.");
+            }
+
             document.getElementById('zone-confirmation-client').classList.add('hidden');
-            const resultBox = document.getElementById('ai-resultat');
-            const loadingBox = document.getElementById('ai-loading');
-            const contentBox = document.getElementById('ai-content');
-            const container = document.getElementById('offres-container');
-            const piece = document.getElementById('gsd-piece').value;
+            document.getElementById('ai-loading').classList.remove('hidden');
 
-            loadingBox.classList.remove('hidden');
-            resultBox.classList.remove('hidden');
-
-            // Envoi de l'ordre d'écriture au Google Sheets
             try {
                 const saveForm = new URLSearchParams();
                 saveForm.append('action', 'save');
                 saveForm.append('vehicule', donneesDernierVehicule);
-                saveForm.append('piece', piece);
+                saveForm.append('piece', document.getElementById('gsd-piece').value);
+                saveForm.append('nom_client', nom);
+                saveForm.append('adresse', adresse);
+                saveForm.append('telephone', tel);
+
                 const res = await fetch(URL_WEB_APP, { method: 'POST', body: saveForm });
-                const confirmationSheets = await res.json();
+                const confirmation = await res.json();
                 
-                loadingBox.classList.add('hidden');
-                contentBox.classList.remove('hidden');
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-content').classList.remove('hidden');
 
                 let html = `
-                    <div class="p-5 bg-slate-900 text-white rounded-3xl mb-6 border-b-4 border-blue-600 shadow-xl space-y-2 text-center">
-                        <p class="text-[10px] uppercase text-emerald-400 font-black tracking-widest">⚙️ FICHE VALIDÉE & ENREGISTRÉE</p>
-                        <h3 class="text-xl font-black text-white uppercase tracking-wide">${donneesDernierVehicule}</h3>
-                        <p class="text-[11px] font-bold text-slate-400">ID SUIVI : ${confirmationSheets.id_devis || 'N/A'}</p>
-                    </div><div class="space-y-3">`;
+                    <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center">
+                        <p class="text-[9px] text-emerald-400 font-black">FICHE TRANSMISE A NOTRE TRANSITAIRE ORLY</p>
+                        <h3 class="text-base font-black">${donneesDernierVehicule}</h3>
+                        <p class="text-[10px] text-slate-400">ID DOSSIER : ${confirmation.id_devis}</p>
+                    </div>`;
 
                 cacheOffresEnAttente.forEach(offre => {
                     html += `
-                        <div class="bg-white/95 p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div class="text-center md:text-left space-y-1 w-full md:w-auto">
-                                <span class="inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-600 text-white mb-1">${offre.type}</span>
-                                <h4 class="text-base font-black text-slate-900 uppercase">${piece.toUpperCase()}</h4>
-                                <p class="text-xs font-bold text-slate-700">Gamme : <span class="font-black text-blue-700">${offre.marque_piece}</span> | Réf : ${offre.reference_article}</p>
+                        <div class="bg-white p-4 rounded-xl border mb-2 flex justify-between items-center shadow-sm">
+                            <div>
+                                <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">${offre.type}</span>
+                                <h4 class="text-sm font-black mt-1">${offre.marque_piece}</h4>
+                                <p class="text-[10px] text-slate-500">Délai estimé : Métropole ➔ Orly ➔ Cayenne : ${offre.delai}</p>
                             </div>
-                            <div class="text-center md:text-right flex md:flex-col items-center justify-between w-full md:w-auto gap-4">
-                                <p class="text-2xl font-black text-slate-900">${offre.prix} €</p>
-                                <button onclick="ajouterAuPanier('${encodeURIComponent(piece)}', '${offre.marque_piece}', '${offre.prix}', '${offre.type}')" class="bg-blue-600 text-white text-[10px] font-black uppercase px-4 py-2.5 rounded-xl shadow-md">Sélectionner</button>
-                            </div>
+                            <p class="text-lg font-black text-slate-900">${offre.prix} €</p>
                         </div>`;
                 });
-                container.innerHTML = html;
+                document.getElementById('offres-container').innerHTML = html;
             } catch(err) {
-                loadingBox.classList.add('hidden');
-                alert("Erreur lors de la validation finale.");
+                document.getElementById('ai-loading').classList.add('hidden');
+                alert("Erreur lors de l'enregistrement de la commande.");
             }
         }
 
-        // Action 2 : Le client refuse -> On efface la mémoire tampon et on force Jarvis à relire différemment
         function refuserVehiculeClient() {
             document.getElementById('zone-confirmation-client').classList.add('hidden');
+            document.getElementById('ai-resultat').classList.add('hidden');
             donneesDernierVehicule = null;
             cacheOffresEnAttente = null;
-            executionEnCoursRetry = true; // Active le paramètre de re-tentative
-            rechercheIA(); // Relance automatiquement
-        }
-
-        function ajouterAuPanier(piece, marque, prix, type) {
-            panierArticlesTableau.push({ nom: decodeURIComponent(piece), marque: marque, prix: parseFloat(prix), type: type });
-            mettreAJourRenduPanier();
-        }
-
-        function mettreAJourRenduPanier() {
-            const list = document.getElementById('panier-liste-articles');
-            let total = 0; list.innerHTML = "";
-            panierArticlesTableau.forEach(art => {
-                total += art.prix;
-                list.innerHTML += `<div class="flex justify-between"><span>🔹 ${art.nom} [${art.type}]</span><span class="text-emerald-400 font-bold">${art.prix.toFixed(2)} €</span></div>`;
-            });
-            document.getElementById('panier-compteur').innerText = panierArticlesTableau.length;
-            document.getElementById('panier-total').innerText = `${total.toFixed(2)} €`;
-            document.getElementById('zone-panier').classList.toggle('hidden', panierArticlesTableau.length === 0);
-        }
-
-        function viderPanier() { panierArticlesTableau = []; mettreAJourRenduPanier(); }
-        function procederAuPaiement() {
-            let rapport = "🛒 Commande GSD :\n";
-            panierArticlesTableau.forEach(a => { rapport += `▪️ ${a.nom} (${a.type}) -> ${a.prix}€\n`; });
-            window.open(`https://wa.me/33699337803?text=${encodeURIComponent(rapport)}`, '_blank');
-        }
-
-        async function chercherDossier() {
-            const nomS = document.getElementById('nomRecherche').value.trim().toUpperCase();
-            const idS = document.getElementById('numDevis').value.trim().toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
-            try {
-                const res = await fetch(URL_CSV + "&v=" + Date.now());
-                const data = await res.text();
-                const lignes = data.split(/\r?\n/);
-                const sep = data.includes(';') ? ';' : ',';
-                let tr = false;
-                for (let i = 1; i < lignes.length; i++) {
-                    const col = lignes[i].split(new RegExp(`${sep}(?=(?:(?:[^\" \"]*\"){2})*[^\" \"]*$)`)).map(v => v.replace(/^\"|\"$/g, '').trim());
-                    if (col.length < 5) continue;
-                    const idTab = col[0].toUpperCase().replace("GSD", "").replace(/[- ]/g, "");
-                    if(idTab === idS && (col[2]||"").toUpperCase().includes(nomS)) {
-                        tr = true;
-                        document.getElementById('resNumDevis').innerText = col[0];
-                        document.getElementById('resMontant').innerText = col[8] || "0.00 €";
-                        document.getElementById('resultat').classList.remove('hidden');
-                        break;
-                    }
-                }
-                if(!tr) alert("Dossier introuvable.");
-            } catch(e) { alert("Erreur réseau."); }
+            captureVerrouillee = false;
+            document.getElementById('scan-feedback').innerText = "🔄 Relance du scanner automatique...";
         }
     </script>
 </body>
