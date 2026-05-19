@@ -32,12 +32,12 @@
             
             <section class="rounded-3xl p-4 shadow-xl border-2 border-slate-700 overflow-hidden bg-black/20">
                 <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-inner">
-                    <video id="videoPlayer" controls poster="Poster_Video.jpg" class="w-full h-full object-cover">
-                        <source src="Presentation_GSD.mp4" type="video/mp4">
+                    <video id="videoPlayer" controls class="w-full h-full object-cover">
+                        <source src="explication.mp4" type="video/mp4">
                         Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
                 </div>
-                <p class="text-[10px] font-black uppercase text-slate-700 mt-2" id="videoTitle"><i class="fas fa-play-circle mr-1"></i> COMMENT COMMANDER VOTRE PIÈCE EN 2 MINUTES ? REGARDEZ LE GUIDE</p>
+                <p class="text-[10px] font-black uppercase text-slate-700 mt-2"><i class="fas fa-play-circle mr-1"></i> COMMENT COMMANDER VOTRE PIÈCE EN 2 MINUTES ? REGARDEZ LE GUIDE</p>
             </section>
 
             <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
@@ -53,7 +53,7 @@
                 <div class="flex bg-white/40 border-b border-blue-200">
                     <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner en Portrait</button>
                     <button onclick="switchTab('gallery')" id="tab-gallery" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">🖼️ Galerie Photo</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Saisie Manuelle</button>
+                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍ shrink Saisie Manuelle</button>
                 </div>
                 
                 <div class="p-6 space-y-6">
@@ -63,7 +63,7 @@
                             <div class="scan-overlay"><div class="scan-target"></div></div>
                         </div>
                         <button onclick="prendrePhotoEtEnvoyer()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase"><i class="fas fa-camera mr-1"></i> Capturer le document</button>
-                        <div id="scan-feedback" class="text-xs font-black uppercase text-blue-700">🔴 Flux vidéo actif</div>
+                        <div id="scan-feedback" class="text-xs font-black uppercase text-blue-700">🔴 Caméra prête</div>
                     </div>
 
                     <div id="form-gallery" class="hidden space-y-4">
@@ -138,7 +138,7 @@
                                 <p>🔹 Moteur : <span id="info-moteur" class="text-white font-black"></span></p>
                             </div>
                             <div class="bg-emerald-500/10 p-2 rounded-lg text-center border border-emerald-500/30">
-                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Pièces certifiées 100% compatibles avec votre motorisation.</p>
+                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Pièces certifiées 100% compatibles avec votre véhicule.</p>
                             </div>
                         </div>
 
@@ -182,7 +182,7 @@
             try {
                 videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
                 document.getElementById('camera-feed').srcObject = videoStream;
-            } catch (err) { console.log("Caméra inaccessible"); }
+            } catch (err) { console.log("Caméra inaccessible en local."); }
         }
 
         function stopCamera() { if (videoStream) videoStream.getTracks().forEach(track => track.stop()); }
@@ -242,9 +242,6 @@
             document.getElementById('jarvis-success-msg').classList.add('hidden');
             document.getElementById('ai-content').classList.add('hidden');
 
-            let params = new URLSearchParams();
-            params.append('piece', piece);
-
             if (!document.getElementById('form-modele').classList.contains('hidden')) {
                 var mMarque = document.getElementById('m-marque').value.trim() || "PEUGEOT";
                 var mModele = document.getElementById('m-modele').value.trim() || "208";
@@ -254,10 +251,15 @@
                 afficherResultatsFiche(mMarque, mModele, mAnnee, mMoteur);
             } else {
                 if(!imageBase64EnAttente) return alert("Veuillez capturer une photo ou charger un document depuis votre galerie.");
-                params.append('image', imageBase64EnAttente);
+                
+                let bodyParams = "image=" + encodeURIComponent(imageBase64EnAttente) + "&piece=" + encodeURIComponent(piece);
                 
                 try {
-                    let res = await fetch(URL_WEB_APP, { method: 'POST', body: params });
+                    let res = await fetch(URL_WEB_APP, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: bodyParams 
+                    });
                     let json = await res.json();
                     
                     if(json.status === "Demande Confirmation") {
@@ -265,7 +267,7 @@
                         afficherResultatsFiche(blocs[0], blocs[1], blocs[2], blocs[3] || "Non spécifié");
                     } else {
                         document.getElementById('ai-loading').classList.add('hidden');
-                        alert("Lecture impossible. Document flou ou incorrect. Merci d'utiliser la Saisie Manuelle.");
+                        alert("Analyse impossible. Merci d'utiliser la Saisie Manuelle.");
                     }
                 } catch(e) {
                     document.getElementById('ai-loading').classList.add('hidden');
@@ -276,11 +278,10 @@
 
         function afficherResultatsFiche(marque, modele, annee, moteur) {
             document.getElementById('ai-loading').classList.add('hidden');
-            
-            document.getElementById('info-marque').innerText = marque.toUpperCase();
-            document.getElementById('info-modele').innerText = modele.toUpperCase();
-            document.getElementById('info-annee').innerText = annee;
-            document.getElementById('info-moteur').innerText = moteur.toUpperCase();
+            document.getElementById('info-marque').innerText = marque.toUpperCase().trim();
+            document.getElementById('info-modele').innerText = modele.toUpperCase().trim();
+            document.getElementById('info-annee').innerText = annee.trim();
+            document.getElementById('info-moteur').innerText = moteur.toUpperCase().trim();
             
             document.getElementById('jarvis-success-msg').classList.remove('hidden');
             document.getElementById('ai-content').classList.remove('hidden');
@@ -296,20 +297,18 @@
                         <div><span class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black">🥈 NEUF ÉCO</span><h5 class="text-xs font-black mt-1">Marque Alternative Certifiée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">54.50 €</p>
                     </div>
-
-                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠️ Catalogues Pièces Reconditionnées :</p>
+                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠 ... Pièces Reconditionnées :</p>
                     <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
                         <div><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">🥉 RECONDITIONNÉ PRO</span><h5 class="text-xs font-black mt-1">Échange Standard Remis à Neuf</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">65.00 €</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black">🏾 RECONDITIONNÉ ÉCO</span><h5 class="text-xs font-black mt-1">Gamme Reconditionnée Standard</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <div><span class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black">🏾 RECONDITIONNÉ ÉCO</span><h5 class="text-xs font-black mt-1">Alternative Reconditionnée Éco</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">42.00 €</p>
                     </div>
-
-                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 Catalogues Pièces d'Occasion :</p>
+                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 ... Pièces d'Occasion :</p>
                     <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black">🛞 OCCASION GRADE A</span><h5 class="text-xs font-black mt-1">Sélection testée en centre de recyclage</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <div><span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black">🛞 OCCASION GRADE A</span><h5 class="text-xs font-black mt-1">Sélection testée en centre agréé</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">30.00 €</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
