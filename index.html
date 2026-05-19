@@ -59,7 +59,7 @@
                     </div>
 
                     <div id="zone-confirmation-client" class="hidden p-5 bg-blue-600 text-white rounded-2xl space-y-4 text-center border-b-4 border-blue-800 shadow-xl">
-                        <p class="text-xs font-black uppercase tracking-wider text-blue-200">🔍 Es-ce bien votre véhicule ?</p>
+                        <p class="text-xs font-black uppercase tracking-wider text-blue-200">🔍 Est-ce bien votre véhicule / matériel ?</p>
                         <h3 id="txt-vehicule-detecte" class="text-xl font-black uppercase tracking-wide"></h3>
                         
                         <div class="bg-white/10 p-3 rounded-xl space-y-2 text-left">
@@ -80,12 +80,15 @@
                             <label class="block text-xs font-black uppercase tracking-wider text-blue-900 mb-1">1. Domaine Général</label>
                             <select id="gsd-generique" onchange="actualiserFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white">
                                 <option value="">-- Choisir un domaine --</option>
-                                <option value="chassis">1. Châssis & Direction</option>
-                                <option value="freinage">2. Système de Freinage</option>
-                                <option value="moteur">3. Moteur & Technique</option>
-                                <option value="electricite">4. Électricité & Énergie</option>
-                                <option value="filtration">5. Entretien & Filtration</option>
-                                <option value="carrosserie">6. Carrosserie & Éclairage</option>
+                                <option value="chassis">🚗 AUTO - Châssis & Direction</option>
+                                <option value="freinage">🚗 AUTO - Système de Freinage</option>
+                                <option value="moteur">🚗 AUTO - Moteur & Technique</option>
+                                <option value="electricite">🚗 AUTO - Électricité & Énergie</option>
+                                <option value="filtration">🚗 AUTO - Entretien & Filtration</option>
+                                <option value="carrosserie">🚗 AUTO - Carrosserie & Éclairage</option>
+                                <option value="agri_moteur">🚜 AGRI - Pièces Moteur Tracteur</option>
+                                <option value="agri_liaison">🚜 AGRI - Liaison au sol & Attelage</option>
+                                <option value="agri_recolte">🚜 AGRI - Pièces d'Usure & Récolte</option>
                             </select>
                         </div>
 
@@ -131,10 +134,71 @@
         let scanInterval = null;
         let captureVerrouillee = false;
 
+        // BASE DE DONNÉES COMPLÈTE DE TOUT TON SITE (AUTO + AGRICOLE)
         const basePiecesGSD = {
-            chassis: { label: "Châssis & Direction", familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière"] } } },
-            freinage: { label: "Système de Freinage", familles: { roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Disques de frein avant"] } } },
-            moteur: { label: "Moteur & Technique", familles: { distribution: { label: "Distribution", pieces: ["Kit de distribution", "Pompe à eau"] } } }
+            chassis: {
+                label: "Châssis & Direction",
+                familles: {
+                    suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière", "Ressorts de suspension"] },
+                    direction: { label: "Direction", pieces: ["Biellette de direction", "Rotule de direction", "Triangle de suspension"] }
+                }
+            },
+            freinage: {
+                label: "Système de Freinage",
+                familles: {
+                    roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Disques de frein avant", "Plaquettes de frein arrière", "Disques de frein arrière"] },
+                    hydraulique: { label: "Hydraulique", pieces: ["Étriers de frein", "Maître-cylindre", "Flexible de frein"] }
+                }
+            },
+            moteur: {
+                label: "Moteur & Technique",
+                familles: {
+                    distribution: { label: "Distribution", pieces: ["Kit de distribution", "Pompe à eau", "Courroie d'accessoire"] },
+                    echappement: { label: "Échappement", pieces: ["Silencieux arrière", "Catalyseur", "Vanne EGR", "FAP"] },
+                    embrayage: { label: "Embrayage", pieces: ["Kit d'embrayage", "Volant moteur", "Butée d'embrayage"] }
+                }
+            },
+            electricite: {
+                label: "Électricité & Énergie",
+                familles: {
+                    demarrage: { label: "Démarrage & Charge", pieces: ["Alternateur", "Démarreur", "Batterie 12V"] },
+                    allumage: { label: "Allumage", pieces: ["Bougies d'allumage", "Bougies de préchauffage", "Bobine d'allumage"] }
+                }
+            },
+            filtration: {
+                label: "Entretien & Filtration",
+                familles: {
+                    filtres: { label: "Filtres", pieces: ["Filtre à huile", "Filtre à air", "Filtre à carburant", "Filtre d'habitacle"] }
+                }
+            },
+            carrosserie: {
+                label: "Carrosserie & Éclairage",
+                familles: {
+                    eclairage: { label: "Éclairage", pieces: ["Phare avant", "Feu arrière", "Ampoule halogène"] },
+                    essuyage: { label: "Essuyage", pieces: ["Balais d'essuie-glace avant", "Moteur d'essuie-glace"] }
+                }
+            },
+            agri_moteur: {
+                label: "Pièces Moteur Tracteur",
+                familles: {
+                    moteur_tracteur: { label: "Moteur & Filtration Agri", pieces: ["Filtre hydraulique tracteur", "Pompe d'alimentation", "Joint de culasse tracteur"] },
+                    refroidissement_agri: { label: "Refroidissement Agri", pieces: ["Radiateur tracteur", "Pompe à eau agricole", "Durite renforcée"] }
+                }
+            },
+            agri_liaison: {
+                label: "Liaison au sol & Attelage",
+                familles: {
+                    relevage: { label: "Relevage & Attelage", pieces: ["Rotule de relevage", "Bras de liaison", "Barre de poussée 3ème point"] },
+                    pont_avant: { label: "Pont & Transmission", pieces: ["Croisillon de pont", "Rotule de direction agricole"] }
+                }
+            },
+            agri_recolte: {
+                label: "Pièces d'Usure & Récolte",
+                familles: {
+                    travail_sol: { label: "Travail du Sol", pieces: ["Socs de charrue", "Pointes de décompacteur", "Dents de herse rotative"] },
+                    fenaison: { label: "Fenaison & Récolte", pieces: ["Section de faucheuse", "Dents de faneuse", "Doigts de ramasseur (Pick-up)"] }
+                }
+            }
         };
 
         // DÉMARRAGE DE LA CAMÉRA STREAMING AUTOMATIQUE
@@ -144,7 +208,7 @@
                 document.getElementById('camera-feed').srcObject = videoStream;
                 document.getElementById('scan-feedback').innerText = "🟢 Détection vidéo active. Cadrez le texte.";
             } catch (err) {
-                document.getElementById('scan-feedback').innerText = "❌ Caméra non accessible. Utilisez la saisie manuelle.";
+                document.getElementById('scan-feedback').innerText = "❌ Caméra non accessible. Mode manuel activé.";
                 switchTab('modele');
             }
         }
@@ -185,18 +249,15 @@
             if (!piece || piece === "" || piece.startsWith("--")) return alert("Sélectionnez d'abord une pièce exacte.");
             
             if (document.getElementById('tab-photo').classList.contains('active')) {
-                // Mode Vidéo Automatique : On lance l'analyse de stabilité du flux
                 document.getElementById('ai-resultat').classList.remove('hidden');
                 document.getElementById('ai-loading').classList.remove('hidden');
                 captureVerrouillee = false;
                 lancerAnalyseAutomatiqueFlux();
             } else {
-                // Mode Saisie Manuelle Standard
                 executerRechercheFinale(null);
             }
         }
 
-        // LE CŒUR DE TA VISION : DÉTECTION ET CAPTURE AUTO SANS BOUTON
         function lancerAnalyseAutomatiqueFlux() {
             if (scanInterval) clearInterval(scanInterval);
             
@@ -211,14 +272,13 @@
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
-                // On simule une vérification de netteté. Si OK, on bloque le flux et on envoie.
                 document.getElementById('scan-feedback').innerText = "⚡ STABILISATION ET SCAN EN COURS...";
                 captureVerrouillee = true; 
                 clearInterval(scanInterval);
                 
                 const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
                 executerRechercheFinale(base64Image);
-            }, 1500); // Analyse une image toutes les 1.5 secondes jusqu'à trouver la bonne netteté
+            }, 1500); 
         }
 
         async function executerRechercheFinale(base64Data) {
@@ -233,6 +293,7 @@
                 formData.append('modele', document.getElementById('m-modele').value.trim());
                 formData.append('moteur', document.getElementById('m-moteur').value.trim());
                 formData.append('annee', document.getElementById('m-annee').value.trim());
+                formData.append('action', 'scan');
             }
 
             try {
@@ -265,7 +326,7 @@
             const tel = document.getElementById('c-tel').value.trim();
 
             if (!nom || !adresse || !tel) {
-                return alert("Pour la sécurité logistique d'Orly, vous devez impérativement renseigner votre Nom, Adresse de livraison en Guyane et Téléphone.");
+                return alert("Pour la sécurité logistique d'Orly, vous devez renseigner votre Nom, Adresse en Guyane et Téléphone.");
             }
 
             document.getElementById('zone-confirmation-client').classList.add('hidden');
@@ -288,7 +349,7 @@
 
                 let html = `
                     <div class="p-4 bg-slate-900 text-white rounded-2xl mb-4 text-center">
-                        <p class="text-[9px] text-emerald-400 font-black">FICHE TRANSMISE A NOTRE TRANSITAIRE ORLY</p>
+                        <p class="text-[9px] text-emerald-400 font-black">FICHE TRANSMISE À NOTRE TRANSITAIRE ORLY</p>
                         <h3 class="text-base font-black">${donneesDernierVehicule}</h3>
                         <p class="text-[10px] text-slate-400">ID DOSSIER : ${confirmation.id_devis}</p>
                     </div>`;
@@ -299,7 +360,7 @@
                             <div>
                                 <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">${offre.type}</span>
                                 <h4 class="text-sm font-black mt-1">${offre.marque_piece}</h4>
-                                <p class="text-[10px] text-slate-500">Délai estimé : Métropole ➔ Orly ➔ Cayenne : ${offre.delai}</p>
+                                <p class="text-[10px] text-slate-500">Logistique : Métropole ➔ Orly ➔ Cayenne : ${offre.delai}</p>
                             </div>
                             <p class="text-lg font-black text-slate-900">${offre.prix} €</p>
                         </div>`;
