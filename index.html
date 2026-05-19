@@ -53,7 +53,7 @@
                 <div class="flex bg-white/40 border-b border-blue-200">
                     <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner en Portrait</button>
                     <button onclick="switchTab('gallery')" id="tab-gallery" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">🖼️ Galerie Photo</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍ shrink Saisie Manuelle</button>
+                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Saisie Manuelle</button>
                 </div>
                 
                 <div class="p-6 space-y-6">
@@ -154,6 +154,9 @@
     <canvas id="capture-canvas" class="hidden"></canvas>
 
     <script>
+        // 🔒 URL ARCHIVE SYNCHRONISÉE ET VERROUILLÉE
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
+
         let videoStream = null;
         let imageBase64EnAttente = null;
 
@@ -297,7 +300,8 @@
                         <div><span class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black">🥈 NEUF ÉCO</span><h5 class="text-xs font-black mt-1">Marque Alternative Certifiée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">54.50 €</p>
                     </div>
-                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠 ... Pièces Reconditionnées :</p>
+
+                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠️ Catalogues Pièces Reconditionnées :</p>
                     <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
                         <div><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">🥉 RECONDITIONNÉ PRO</span><h5 class="text-xs font-black mt-1">Échange Standard Remis à Neuf</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">65.00 €</p>
@@ -306,7 +310,8 @@
                         <div><span class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black">🏾 RECONDITIONNÉ ÉCO</span><h5 class="text-xs font-black mt-1">Alternative Reconditionnée Éco</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">42.00 €</p>
                     </div>
-                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 ... Pièces d'Occasion :</p>
+
+                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 Catalogues Pièces d'Occasion :</p>
                     <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
                         <div><span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black">🛞 OCCASION GRADE A</span><h5 class="text-xs font-black mt-1">Sélection testée en centre agréé</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
                         <p class="text-base font-black text-slate-900">30.00 €</p>
