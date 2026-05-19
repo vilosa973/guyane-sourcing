@@ -76,13 +76,24 @@
                     </div>
                     
                     <div id="form-modele" class="hidden flex flex-col gap-3">
+                        <p class="text-[10px] font-bold uppercase text-blue-900">Complétez le maximum d'informations pour garantir la compatibilité de vos pièces.</p>
                         <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="m-marque" placeholder="MARQUE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                            <input type="text" id="m-modele" placeholder="MODÈLE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                            <input type="text" id="m-marque" placeholder="MARQUE (EX: CHEVROLET)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                            <input type="text" id="m-modele" placeholder="MODÈLE & FINITION (EX: CRUZE LS PLUS)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="m-moteur" placeholder="MOTORISATION (EX: 2.0 TD)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                            <input type="number" id="m-annee" placeholder="ANNÉE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                            <select id="m-carburant" class="w-full p-4 rounded-xl text-sm font-bold bg-white/70 border border-black/15 text-black">
+                                <option value="">-- ÉNERGIE --</option>
+                                <option value="ESSENCE">ESSENCE</option>
+                                <option value="DIESEL">DIESEL</option>
+                                <option value="HYBRIDE">HYBRIDE</option>
+                                <option value="ÉLECTRIQUE">ÉLECTRIQUE</option>
+                            </select>
+                            <input type="number" id="m-annee" placeholder="ANNÉE (EX: 2012)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="number" id="m-cv" placeholder="PUISSANCE FISCALE (CV)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                            <input type="number" id="m-ch" placeholder="PUISSANCE MOTEUR (CH / DIN)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
                     </div>
 
@@ -123,22 +134,22 @@
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
                         <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center">
                             <i class="fas fa-circle-notch fa-spin text-blue-700 text-3xl"></i>
-                            <p class="text-xs font-black uppercase text-blue-900 mt-2">Jarvis valide la conformité de votre carte grise...</p>
+                            <p class="text-xs font-black uppercase text-blue-900 mt-2">Jarvis valide la conformité de votre demande...</p>
                         </div>
                         
                         <div id="jarvis-success-msg" class="hidden p-5 bg-slate-950 text-white rounded-2xl border-b-4 border-slate-800 shadow-xl text-left space-y-3">
                             <div class="flex items-center gap-2 border-b border-white/20 pb-2">
                                 <i class="fas fa-check-circle text-emerald-400 text-lg"></i>
-                                <span class="text-xs font-black uppercase tracking-wider text-emerald-400">VÉHICULE IDENTIFIÉ AVEC SUCCÈS</span>
+                                <span class="text-xs font-black uppercase tracking-wider text-emerald-400">VÉHICULE ENREGISTRÉ</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase text-slate-300">
                                 <p>🔹 Marque : <span id="info-marque" class="text-white font-black"></span></p>
                                 <p>🔹 Modèle : <span id="info-modele" class="text-white font-black"></span></p>
                                 <p>🔹 Année : <span id="info-annee" class="text-white font-black"></span></p>
-                                <p>🔹 Moteur : <span id="info-moteur" class="text-white font-black"></span></p>
+                                <p>🔹 Profil Moteur : <span id="info-moteur" class="text-white font-black"></span></p>
                             </div>
                             <div class="bg-emerald-500/10 p-2 rounded-lg text-center border border-emerald-500/30">
-                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Pièces certifiées 100% compatibles avec votre véhicule.</p>
+                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Analyse de compatibilité stricte activée avec Jarvis.</p>
                             </div>
                         </div>
 
@@ -154,7 +165,6 @@
     <canvas id="capture-canvas" class="hidden"></canvas>
 
     <script>
-        // 🔒 URL ARCHIVE SYNCHRONISÉE ET VERROUILLÉE
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
 
         let videoStream = null;
@@ -245,13 +255,19 @@
             document.getElementById('jarvis-success-msg').classList.add('hidden');
             document.getElementById('ai-content').classList.add('hidden');
 
+            // ✍️ MODIFICATIONS : GESTION DES NOUVEAUX PARAMÈTRES POUR L'ENVOI SÉCURISÉ
             if (!document.getElementById('form-modele').classList.contains('hidden')) {
-                var mMarque = document.getElementById('m-marque').value.trim() || "PEUGEOT";
-                var mModele = document.getElementById('m-modele').value.trim() || "208";
-                var mAnnee = document.getElementById('m-annee').value.trim() || "2021";
-                var mMoteur = document.getElementById('m-moteur').value.trim() || "1.2 PURETECH";
+                var mMarque = document.getElementById('m-marque').value.trim() || "CHEVROLET";
+                var mModele = document.getElementById('m-modele').value.trim() || "CRUZE LS PLUS";
+                var mAnnee = document.getElementById('m-annee').value.trim() || "2012";
+                var mCarburant = document.getElementById('m-carburant').value || "ESSENCE";
+                var mCV = document.getElementById('m-cv').value.trim() || "7";
+                var mCH = document.getElementById('m-ch').value.trim() || "124";
                 
-                afficherResultatsFiche(mMarque, mModele, mAnnee, mMoteur);
+                var moteurFormatte = `${mCarburant} | ${mCV} CV | ${mCH} CH`;
+                
+                // On passe les détails enrichis à la fiche de validation
+                afficherResultatsFiche(mMarque, mModele, mAnnee, moteurFormatte);
             } else {
                 if(!imageBase64EnAttente) return alert("Veuillez capturer une photo ou charger un document depuis votre galerie.");
                 
