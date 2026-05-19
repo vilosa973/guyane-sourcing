@@ -11,7 +11,6 @@
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
         
-        /* CONTAINER SCANNER PORTRAIT COMPATIBLE */
         #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         #camera-feed { width: 100%; height: 100%; object-fit: cover; }
         .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 4px solid rgba(29, 78, 216, 0.3); pointer-events: none; }
@@ -33,26 +32,26 @@
             
             <section class="rounded-3xl p-4 shadow-xl border-2 border-slate-700 overflow-hidden bg-black/20">
                 <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-inner">
-                    <video id="video-explicative" controls poster="Poster_Video.jpg" class="w-full h-full object-cover">
+                    <video id="videoPlayer" controls poster="Poster_Video.jpg" class="w-full h-full object-cover">
                         <source src="Presentation_GSD.mp4" type="video/mp4">
                         Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
                 </div>
-                <p class="text-[10px] font-black uppercase text-slate-700 mt-2"><i class="fas fa-play-circle mr-1"></i> Comment commander votre pièce en 2 minutes ? Regardez le guide</p>
+                <p class="text-[10px] font-black uppercase text-slate-700 mt-2" id="videoTitle"><i class="fas fa-play-circle mr-1"></i> COMMENT COMMANDER VOTRE PIÈCE EN 2 MINUTES ? REGARDEZ LE GUIDE</p>
             </section>
 
             <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
                 <h2 class="text-xs font-black uppercase text-green-900 mb-3 tracking-tight"><i class="fas fa-truck-fast mr-2"></i> Suivi en temps réel de votre livraison</h2>
                 <div class="flex gap-2">
                     <input type="text" id="suivi-id" placeholder="ENTREZ VOTRE NUMÉRO DE DEVIS" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
-                    <button onclick="simulerSuiviClient()" class="bg-green-600 hover:bg-green-700 text-white px-5 rounded-xl font-black text-xs uppercase transition">Suivre</button>
+                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white px-5 rounded-xl font-black text-xs uppercase transition">Suivre</button>
                 </div>
                 <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left border border-green-300 space-y-2"></div>
             </section>
 
             <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
                 <div class="flex bg-white/40 border-b border-blue-200">
-                    <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner la carte grise</button>
+                    <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner en Portrait</button>
                     <button onclick="switchTab('gallery')" id="tab-gallery" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">🖼️ Galerie Photo</button>
                     <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Saisie Manuelle</button>
                 </div>
@@ -63,16 +62,17 @@
                             <video id="camera-feed" autoplay playsinline muted></video>
                             <div class="scan-overlay"><div class="scan-target"></div></div>
                         </div>
-                        <div id="scan-feedback" class="text-xs font-black uppercase text-blue-700 animate-pulse">🔴 Caméra prête pour l'analyse</div>
+                        <button onclick="prendrePhotoEtEnvoyer()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase"><i class="fas fa-camera mr-1"></i> Capturer le document</button>
+                        <div id="scan-feedback" class="text-xs font-black uppercase text-blue-700">🔴 Flux vidéo actif</div>
                     </div>
 
                     <div id="form-gallery" class="hidden space-y-4">
                         <label class="block w-full py-12 border-4 border-dashed border-blue-400 rounded-3xl cursor-pointer hover:bg-white/40 transition">
                             <i class="fas fa-images text-4xl text-blue-600 mb-2"></i>
-                            <span class="block text-xs font-black uppercase text-slate-800">Parcourir mes photos</span>
-                            <input type="file" accept="image/*" class="hidden" onchange="document.getElementById('gallery-feedback').classList.remove('hidden')">
+                            <span class="block text-xs font-black uppercase text-slate-800">Parcourir ma galerie photo</span>
+                            <input type="file" id="file-gallery" accept="image/*" class="hidden" onchange="traiterImageGalerie(this)">
                         </label>
-                        <div id="gallery-feedback" class="text-xs font-black uppercase text-emerald-700 hidden">✓ Document chargé avec succès</div>
+                        <div id="gallery-feedback" class="text-xs font-black uppercase text-emerald-700 hidden">✓ Fichier importé avec succès</div>
                     </div>
                     
                     <div id="form-modele" class="hidden flex flex-col gap-3">
@@ -81,7 +81,7 @@
                             <input type="text" id="m-modele" placeholder="MODÈLE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="m-moteur" placeholder="MOTORISATION (EX: 1.6 HDI)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
+                            <input type="text" id="m-moteur" placeholder="MOTORISATION (EX: 2.0 TD)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                             <input type="number" id="m-annee" placeholder="ANNÉE" class="w-full p-4 rounded-xl text-sm text-center uppercase">
                         </div>
                     </div>
@@ -115,21 +115,21 @@
                             </select>
                         </div>
 
-                        <button id="bouton-statut" onclick="declencherAnalyseGlobale()" class="w-full mt-4 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition active:scale-95">
+                        <button id="bouton-statut" onclick="lancerLaRechercheGlobaleGSD()" class="w-full mt-4 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition active:scale-95">
                             <i class="fas fa-search"></i> VÉRIFIER LA COMPATIBILITÉ & TROUVER LE PRIX
                         </button>
                     </div>
 
                     <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center space-y-3">
+                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center">
                             <i class="fas fa-circle-notch fa-spin text-blue-700 text-3xl"></i>
-                            <p class="text-xs font-black uppercase text-blue-900">Analyse de compatibilité en cours par Jarvis...</p>
+                            <p class="text-xs font-black uppercase text-blue-900 mt-2">Jarvis valide la conformité de votre carte grise...</p>
                         </div>
                         
                         <div id="jarvis-success-msg" class="hidden p-5 bg-slate-950 text-white rounded-2xl border-b-4 border-slate-800 shadow-xl text-left space-y-3">
                             <div class="flex items-center gap-2 border-b border-white/20 pb-2">
                                 <i class="fas fa-check-circle text-emerald-400 text-lg"></i>
-                                <span class="text-xs font-black uppercase tracking-wider text-emerald-400">VÉHICULE IDENTIFIÉ</span>
+                                <span class="text-xs font-black uppercase tracking-wider text-emerald-400">VÉHICULE IDENTIFIÉ AVEC SUCCÈS</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase text-slate-300">
                                 <p>🔹 Marque : <span id="info-marque" class="text-white font-black"></span></p>
@@ -138,7 +138,7 @@
                                 <p>🔹 Moteur : <span id="info-moteur" class="text-white font-black"></span></p>
                             </div>
                             <div class="bg-emerald-500/10 p-2 rounded-lg text-center border border-emerald-500/30">
-                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Pièces certifiées 100% compatibles avec votre modèle.</p>
+                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Pièces certifiées 100% compatibles avec votre motorisation.</p>
                             </div>
                         </div>
 
@@ -155,8 +155,8 @@
 
     <script>
         let videoStream = null;
+        let imageBase64EnAttente = null;
 
-        // RESTAURATION COMPLÈTE DE TOUTES TES CATÉGORIES ET LOGIQUE EN CASCADE
         const basePiecesGSD = {
             chassis: { label: "Châssis & Direction", familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière", "Ressorts de suspension"] }, direction: { label: "Direction", pieces: ["Biellette de direction", "Rotule de direction", "Triangle de suspension"] } } },
             freinage: { label: "Système de Freinage", familles: { roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Disques de frein avant", "Plaquettes de frein arrière", "Disques de frein arrière"] }, hydraulique: { label: "Hydraulique", pieces: ["Étriers de frein", "Maître-cylindre"] } } },
@@ -182,7 +182,7 @@
             try {
                 videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
                 document.getElementById('camera-feed').srcObject = videoStream;
-            } catch (err) { console.log("Caméra bloquée ou indisponible"); }
+            } catch (err) { console.log("Caméra inaccessible"); }
         }
 
         function stopCamera() { if (videoStream) videoStream.getTracks().forEach(track => track.stop()); }
@@ -212,81 +212,127 @@
             } else { pSel.disabled = true; }
         }
 
-        function declencherAnalyseGlobale() {
+        function prendrePhotoEtEnvoyer() {
+            const video = document.getElementById('camera-feed');
+            const canvas = document.getElementById('capture-canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            imageBase64EnAttente = canvas.toDataURL('image/jpeg').split(',')[1];
+            document.getElementById('scan-feedback').innerText = "✓ DOCUMENT CAPTURÉ AVEC SUCCÈS !";
+        }
+
+        function traiterImageGalerie(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageBase64EnAttente = e.target.result.split(',')[1];
+                    document.getElementById('gallery-feedback').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function lancerLaRechercheGlobaleGSD() {
             const piece = document.getElementById('gsd-piece').value;
-            if (!piece || piece === "" || piece.startsWith("--")) return alert("Veuillez sélectionner la pièce à rechercher.");
+            if (!piece || piece === "" || piece.startsWith("--")) return alert("Veuillez sélectionner une pièce.");
             
             document.getElementById('ai-resultat').classList.remove('hidden');
             document.getElementById('ai-loading').classList.remove('hidden');
             document.getElementById('jarvis-success-msg').classList.add('hidden');
             document.getElementById('ai-content').classList.add('hidden');
 
-            let marque = document.getElementById('m-marque').value.trim() || "PEUGEOT";
-            let modele = document.getElementById('m-modele').value.trim() || "208 II";
-            let moteur = document.getElementById('m-moteur').value.trim() || "1.2 PURETECH 100 CH";
-            let annee = document.getElementById('m-annee').value.trim() || "2021";
+            let params = new URLSearchParams();
+            params.append('piece', piece);
 
-            setTimeout(() => {
-                document.getElementById('ai-loading').classList.add('hidden');
+            if (!document.getElementById('form-modele').classList.contains('hidden')) {
+                var mMarque = document.getElementById('m-marque').value.trim() || "PEUGEOT";
+                var mModele = document.getElementById('m-modele').value.trim() || "208";
+                var mAnnee = document.getElementById('m-annee').value.trim() || "2021";
+                var mMoteur = document.getElementById('m-moteur').value.trim() || "1.2 PURETECH";
                 
-                document.getElementById('info-marque').innerText = marque.toUpperCase();
-                document.getElementById('info-modele').innerText = modele.toUpperCase();
-                document.getElementById('info-annee').innerText = annee;
-                document.getElementById('info-moteur').innerText = moteur.toUpperCase();
+                afficherResultatsFiche(mMarque, mModele, mAnnee, mMoteur);
+            } else {
+                if(!imageBase64EnAttente) return alert("Veuillez capturer une photo ou charger un document depuis votre galerie.");
+                params.append('image', imageBase64EnAttente);
                 
-                document.getElementById('jarvis-success-msg').classList.remove('hidden');
-                document.getElementById('ai-content').classList.remove('hidden');
-                
-                // INJECTION DU CATALOGUE UNIQUE DES 6 OFFRES DEMANDEES (2 NEUFS, 2 RECOND, 2 OCCASIONS)
-                document.getElementById('offres-container').innerHTML = `
-                    <div class="space-y-2">
-                        <p class="text-[10px] font-black text-blue-900 uppercase">🛒 Pièces Neuves :</p>
-                        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                            <div><span class="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-black">🥇 NEUF PREMIUM</span><h5 class="text-xs font-black mt-1">Marque d'Origine Constructeur</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                            <p class="text-base font-black text-slate-900">89.90 €</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                            <div><span class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black">🥈 NEUF ÉCO</span><h5 class="text-xs font-black mt-1">Gamme Économique Certifiée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                            <p class="text-base font-black text-slate-900">54.50 €</p>
-                        </div>
-
-                        <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠️ Pièces Reconditionnées à Neuf :</p>
-                        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                            <div><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">🥉 RECONDITIONNÉ PRO</span><h5 class="text-xs font-black mt-1">Échange Standard Usine</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                            <p class="text-base font-black text-slate-900">65.00 €</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                            <div><span class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black">🏾 RECONDITIONNÉ ÉCO</span><h5 class="text-xs font-black mt-1">Alternative Reconditionnée Éco</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                            <p class="text-base font-black text-slate-900">42.00 €</p>
-                        </div>
-
-                        <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 Pièces d'Occasion Certifiées :</p>
-                        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                            <div><span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black">🛞 OCCASION GRADE A</span><h5 class="text-xs font-black mt-1">Sélection issue de centres de recyclage agréés</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                            <p class="text-base font-black text-slate-900">30.00 €</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                            <div><span class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">🚲 OCCASION GRADE B</span><h5 class="text-xs font-black mt-1">Contrôlée et testée, usure normale</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                            <p class="text-base font-black text-slate-900">19.50 €</p>
-                        </div>
-                    </div>`;
-            }, 1500);
+                try {
+                    let res = await fetch(URL_WEB_APP, { method: 'POST', body: params });
+                    let json = await res.json();
+                    
+                    if(json.status === "Demande Confirmation") {
+                        let blocs = json.vehicule.split('|');
+                        afficherResultatsFiche(blocs[0], blocs[1], blocs[2], blocs[3] || "Non spécifié");
+                    } else {
+                        document.getElementById('ai-loading').classList.add('hidden');
+                        alert("Lecture impossible. Document flou ou incorrect. Merci d'utiliser la Saisie Manuelle.");
+                    }
+                } catch(e) {
+                    document.getElementById('ai-loading').classList.add('hidden');
+                    alert("Erreur de communication avec le serveur.");
+                }
+            }
         }
 
-        function simulerSuiviClient() {
+        function afficherResultatsFiche(marque, modele, annee, moteur) {
+            document.getElementById('ai-loading').classList.add('hidden');
+            
+            document.getElementById('info-marque').innerText = marque.toUpperCase();
+            document.getElementById('info-modele').innerText = modele.toUpperCase();
+            document.getElementById('info-annee').innerText = annee;
+            document.getElementById('info-moteur').innerText = moteur.toUpperCase();
+            
+            document.getElementById('jarvis-success-msg').classList.remove('hidden');
+            document.getElementById('ai-content').classList.remove('hidden');
+            
+            document.getElementById('offres-container').innerHTML = `
+                <div class="space-y-2">
+                    <p class="text-[10px] font-black text-blue-900 uppercase">🛒 Catalogues Pièces Neuves :</p>
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div><span class="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-black">🥇 NEUF PREMIUM</span><h5 class="text-xs font-black mt-1">Garantie Origine Constructeur</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <p class="text-base font-black text-slate-900">89.90 €</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div><span class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black">🥈 NEUF ÉCO</span><h5 class="text-xs font-black mt-1">Marque Alternative Certifiée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <p class="text-base font-black text-slate-900">54.50 €</p>
+                    </div>
+
+                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠️ Catalogues Pièces Reconditionnées :</p>
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">🥉 RECONDITIONNÉ PRO</span><h5 class="text-xs font-black mt-1">Échange Standard Remis à Neuf</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <p class="text-base font-black text-slate-900">65.00 €</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div><span class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black">🏾 RECONDITIONNÉ ÉCO</span><h5 class="text-xs font-black mt-1">Gamme Reconditionnée Standard</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <p class="text-base font-black text-slate-900">42.00 €</p>
+                    </div>
+
+                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 Catalogues Pièces d'Occasion :</p>
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div><span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black">🛞 OCCASION GRADE A</span><h5 class="text-xs font-black mt-1">Sélection testée en centre de recyclage</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <p class="text-base font-black text-slate-900">30.00 €</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div><span class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">🚲 OCCASION GRADE B</span><h5 class="text-xs font-black mt-1">Pièce d'Usure Normale Contrôlée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
+                        <p class="text-base font-black text-slate-900">19.50 €</p>
+                    </div>
+                </div>`;
+        }
+
+        function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
             if(!id) return alert("Veuillez entrer votre numéro de suivi.");
             const conteneur = document.getElementById('resultat-suivi-container');
             conteneur.classList.remove('hidden');
             conteneur.innerHTML = `
                 <div class="border-b pb-2 mb-2">
-                    <p class="text-[10px] font-black text-slate-500">STATUT DE VOTRE EXPÉDITION</p>
+                    <p class="text-[10px] font-black text-slate-500">SUIVI DU DOSSIER CLIENT</p>
                     <p class="text-sm font-black text-blue-700">📦 Commande en cours d'acheminement</p>
                 </div>
                 <div class="space-y-2 text-xs font-bold text-slate-700">
-                    <p class="flex items-center text-emerald-600"><i class="fas fa-check-circle mr-2"></i> Étape 1 : Pièce réceptionnée et contrôlée sur nos plateformes en métropole.</p>
-                    <p class="flex items-center text-blue-600 animate-pulse"><i class="fas fa-plane-departure mr-2"></i> Étape 2 : Transit international vers la Guyane amorcé.</p>
-                    <p class="flex items-center text-slate-400"><i class="fas fa-clock mr-2"></i> Étape 3 : Arrivée estimée à Cayenne et livraison prévue le <strong>Mardi 26 Mai 2026</strong>.</p>
+                    <p class="flex items-center text-emerald-600"><i class="fas fa-check-circle mr-2"></i> Étape 1 : Pièce réceptionnée et validée sur nos plateformes logistiques en métropole.</p>
+                    <p class="flex items-center text-blue-600 animate-pulse"><i class="fas fa-plane-departure mr-2"></i> Étape 2 : Acheminement international vers la Guyane engagé.</p>
+                    <p class="flex items-center text-slate-400"><i class="fas fa-clock mr-2"></i> Étape 3 : Arrivée à Cayenne estimée dans les prochains jours.</p>
                 </div>`;
         }
     </script>
