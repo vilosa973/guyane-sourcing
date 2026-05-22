@@ -337,7 +337,7 @@
                 </div>`;
         }
 
-        // 🛠️ SUIVI LOGISTIQUE FLEXIBLE ET DEMANDE EMAIL DIRECTE DU CLIENT
+        // 🛠️ SUIVI LOGISTIQUE AVEC SÉLECTEUR DE PRÉFIXE INTERNATIONAL RESTAURÉ
         async function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
             const nom = document.getElementById('suivi-nom').value.trim();
@@ -368,23 +368,34 @@
                         </div>
                     `;
 
-                    // 🔍 DÉTECTION PARFAITE : Le bouton apparaît UNIQUEMENT s'il faut l'ACCORD du client
+                    // 🔍 DÉTECTION ACCORD : Demande du numéro avec menu déroulant international
                     if (json.statut_general.toUpperCase().includes("ACCORD")) {
                         affichageStatut += `
                             <div class="mt-4 pt-4 border-t border-green-300 space-y-3" id="zone-otp-activation">
                                 <p class="text-xs font-black text-slate-900 uppercase">📢 VOTRE DEVIS EST DISPONIBLE :</p>
-                                <p class="text-[11px] text-slate-600 font-bold">Renseignez votre adresse e-mail personnelle ci-dessous pour recevoir votre code de validation sécurisé.</p>
+                                <p class="text-[11px] text-slate-600 font-bold">Sélectionnez votre préfixe et entrez votre numéro WhatsApp pour recevoir votre code sécurisé.</p>
                                 
                                 <div class="flex flex-col gap-2">
-                                    <input type="email" id="input-client-email" placeholder="VOTRE ADRESSE E-MAIL (EX: CLIENT@GMAIL.COM)" class="w-full p-3 rounded-xl text-center text-xs font-black bg-white border border-black/20">
-                                    <button onclick="declencherEnvoiCode('${id}', '${nom}')" id="btn-demande-otp" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-black text-xs uppercase transition shadow-md">
-                                        🚀 Recevoir mon code par e-mail
+                                    <div class="flex gap-1">
+                                        <select id="input-client-prefixe" class="p-3 rounded-xl text-xs font-black bg-white border border-black/20 w-1/3">
+                                            <option value="+594">🇬🇫 +594 (GF)</option>
+                                            <option value="+596">🇲🇶 +596 (MQ)</option>
+                                            <option value="+590">🇬🇵 +590 (GP)</option>
+                                            <option value="+33">🇫🇷 +33 (FR)</option>
+                                            <option value="+55">🇧🇷 +55 (BR)</option>
+                                            <option value="+509">🇭🇹 +509 (HT)</option>
+                                            <option value="+1">🇺🇸 +1 (US)</option>
+                                        </select>
+                                        <input type="tel" id="input-client-tel" placeholder="SANS LE 0 (EX: 694123456)" class="w-2/3 p-3 rounded-xl text-center text-xs font-black bg-white border border-black/20">
+                                    </div>
+                                    <button onclick="declencherEnvoiCodeWhatsApp('${id}', '${nom}')" id="btn-demande-otp" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black text-xs uppercase transition shadow-md">
+                                        🟢 Recevoir mon code par WhatsApp
                                     </button>
                                 </div>
 
                                 <div id="feedback-otp" class="hidden flex flex-col gap-2 mt-2">
                                     <input type="number" id="input-code-otp" placeholder="ENTREZ LE CODE À 4 CHIFFRES REÇU" class="w-full p-3 rounded-xl text-center text-sm font-black tracking-widest bg-white border">
-                                    <button onclick="envoyerVerificationCodeOTP('${id}', '${nom}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl font-black text-xs uppercase transition">
+                                    <button onclick="envoyerVerificationCodeOTP('${id}', '${nom}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-black text-xs uppercase transition">
                                         🔒 Confirmer mon code et valider ma commande
                                     </button>
                                 </div>
@@ -396,7 +407,7 @@
                 } else {
                     conteneur.innerHTML = `
                         <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur de nom ou d'identifiant.</p>
-                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom saisi ne correspond à aucun dossier actif dans notre système.</p>
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom saisi ne correspond à aucun dossier actif.</p>
                     `;
                 }
             } catch (e) {
@@ -404,42 +415,51 @@
             }
         }
 
-        // 📩 APPEL SERVEUR : DEMANDE D'ENVOI AU MAIL TAPÉ PAR LE CLIENT
-        async function declencherEnvoiCode(id, nom) {
-            const emailSaisi = document.getElementById('input-client-email').value.trim();
-            if(!emailSaisi || !emailSaisi.includes("@")) return alert("Veuillez entrer une adresse e-mail valide pour recevoir le code.");
+        // 📩 APPEL SERVEUR : TRANSMISSION DU NUMÉRO INTERNATIONAL ASSEMBLÉ
+        async function declencherEnvoiCodeWhatsApp(id, nom) {
+            const prefixe = document.getElementById('input-client-prefixe').value;
+            let telSaisi = document.getElementById('input-client-tel').value.trim();
+            
+            if (telSaisi.startsWith('0')) {
+                telSaisi = telSaisi.substring(1);
+            }
+            
+            if(!telSaisi || telSaisi.length < 6) return alert("Veuillez entrer un numéro de téléphone valide.");
+            
+            const telephoneComplet = prefixe + telSaisi;
 
             const btn = document.getElementById('btn-demande-otp');
             const zoneFeedback = document.getElementById('feedback-otp');
             btn.disabled = true;
-            btn.innerText = "Envoi du code en cours...";
+            btn.innerText = "Envoi du code WhatsApp en cours...";
 
             try {
                 let res = await fetch(URL_WEB_APP, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&client_email=" + encodeURIComponent(emailSaisi)
+                    body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&client_tel=" + encodeURIComponent(telephoneComplet)
                 });
                 let json = await res.json();
 
                 if (json.status === "CodeEnvoye") {
-                    document.getElementById('input-client-email').disabled = true;
+                    document.getElementById('input-client-prefixe').disabled = true;
+                    document.getElementById('input-client-tel').disabled = true;
                     btn.classList.add('hidden');
                     zoneFeedback.classList.remove('hidden');
-                    alert("🔑 Code envoyé ! Vérifiez votre boîte de réception (et vos spams) à l'adresse : " + emailSaisi);
+                    alert("🔑 Code envoyé ! Vérifiez votre application WhatsApp.");
                 } else {
                     btn.disabled = false;
-                    btn.innerText = "🚀 Recevoir mon code par e-mail";
-                    alert("Erreur : " + (json.message || "Impossible d'envoyer le code."));
+                    btn.innerText = "🟢 Recevoir mon code par WhatsApp";
+                    alert("Erreur : " + (json.message || "Impossible d'envoyer le code via Twilio."));
                 }
             } catch (e) {
                 btn.disabled = false;
-                btn.innerText = "🚀 Recevoir mon code par e-mail";
+                btn.innerText = "🟢 Recevoir mon code par WhatsApp";
                 alert("Erreur réseau lors de la génération du code.");
             }
         }
 
-        // 🔒 APPEL SERVEUR : VÉRIFICATION FINALE DU CODE ET RESTRUCTURATION DU FEUILLE SHEET
+        // 🔒 APPEL SERVEUR : VÉRIFICATION OTP FINALE
         async function envoyerVerificationCodeOTP(id, nom) {
             const codeSaisi = document.getElementById('input-code-otp').value.trim();
             if (!codeSaisi || codeSaisi.length !== 4) return alert("Veuillez entrer le code de sécurité complet à 4 chiffres.");
@@ -461,7 +481,7 @@
                     `;
                     setTimeout(consulterLeSuiviRelance, 2500);
                 } else {
-                    alert("❌ Code de validation incorrect ou expiré. Veuillez vérifier votre saisie.");
+                    alert("❌ Code de validation incorrect. Veuillez vérifier votre saisie.");
                 }
             } catch (e) {
                 alert("Erreur de traitement lors de l'authentification du code.");
