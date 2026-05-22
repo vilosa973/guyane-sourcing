@@ -42,9 +42,10 @@
 
             <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
                 <h2 class="text-xs font-black uppercase text-green-900 mb-3 tracking-tight"><i class="fas fa-truck-fast mr-2"></i> Suivi en temps réel de votre livraison</h2>
-                <div class="flex gap-2">
-                    <input type="text" id="suivi-id" placeholder="ENTREZ VOTRE NUMÉRO DE DEVIS" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
-                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white px-5 rounded-xl font-black text-xs uppercase transition">Suivre</button>
+                <div class="flex flex-col gap-2 sm:flex-row">
+                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="flex-1 p-3 rounded-xl text-xs uppercase text-center">
+                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="flex-1 p-3 rounded-xl text-xs uppercase text-center">
+                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-black text-xs uppercase transition">Suivre</button>
                 </div>
                 <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left border border-green-300 space-y-2"></div>
             </section>
@@ -336,29 +337,30 @@
                 </div>`;
         }
 
-        // 🛠️ MISE À JOUR HISTORIQUE : REQUÊTE ET AFFICHAGE DU SUIVI DEPUIS GOOGLE SHEETS
+        // 🛠️ MISE À JOUR SÉCURISÉE : ENVOI DU NUMÉRO DE SUIVI + NOM DU CLIENT AU SERVEUR
         async function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
-            if(!id) return alert("Veuillez entrer votre numéro de suivi.");
+            const nom = document.getElementById('suivi-nom').value.trim();
+            
+            if(!id || !nom) return alert("Veuillez entrer votre numéro de devis ET votre nom de famille pour vous identifier.");
             
             const conteneur = document.getElementById('resultat-suivi-container');
             conteneur.classList.remove('hidden');
-            conteneur.innerHTML = `<p class="text-xs font-black uppercase text-blue-700 animate-pulse"><i class="fas fa-spinner fa-spin mr-2"></i> Recherche sur notre base de données Sheets...</p>`;
+            conteneur.innerHTML = `<p class="text-xs font-black uppercase text-blue-700 animate-pulse"><i class="fas fa-spinner fa-spin mr-2"></i> Contrôle de sécurité et recherche en cours...</p>`;
             
             try {
-                // Envoi de la requête de suivi réelle au serveur Apps Script
+                // Envoi sécurisé des deux paramètres
                 let res = await fetch(URL_WEB_APP, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: "action=track&suivi_id=" + encodeURIComponent(id)
+                    body: "action=track&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom)
                 });
                 let json = await res.json();
                 
                 if (json.status === "Trouvé") {
-                    // Restitution dynamique propre avec le design à étapes d'origine
                     conteneur.innerHTML = `
                         <div class="border-b pb-2 mb-2">
-                            <p class="text-[10px] font-black text-slate-500 uppercase">SUIVI DU DOSSIER CLIENT N° ${id}</p>
+                            <p class="text-[10px] font-black text-slate-500 uppercase">SUIVI DU DOSSIER CLIENT N° ${id} - ${nom.toUpperCase()}</p>
                             <p class="text-sm font-black text-blue-700">📦 ${json.statut_general.toUpperCase()}</p>
                         </div>
                         <div class="space-y-2 text-xs font-bold text-slate-700">
@@ -368,8 +370,8 @@
                     `;
                 } else {
                     conteneur.innerHTML = `
-                        <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Aucun dossier trouvé pour la référence "${id}".</p>
-                        <p class="text-[10px] text-slate-500 font-bold mt-1">Merci de vérifier votre numéro de devis ou de contacter notre équipe.</p>
+                        <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Correspondance introuvable.</p>
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom saisi ne correspond à aucun dossier actif dans notre système.</p>
                     `;
                 }
             } catch (e) {
