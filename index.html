@@ -43,8 +43,8 @@
             <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
                 <h2 class="text-xs font-black uppercase text-green-900 mb-3 tracking-tight"><i class="fas fa-truck-fast mr-2"></i> Suivi en temps réel de votre livraison</h2>
                 <div class="flex flex-col gap-2 sm:flex-row">
-                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="flex-1 p-3 rounded-xl text-xs uppercase text-center">
-                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="flex-1 p-3 rounded-xl text-xs uppercase text-center">
+                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
+                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
                     <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-black text-xs uppercase transition">Suivre</button>
                 </div>
                 <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left border border-green-300 space-y-2"></div>
@@ -337,19 +337,18 @@
                 </div>`;
         }
 
-        // 🛠️ MISE À JOUR SÉCURISÉE : ENVOI DU NUMÉRO DE SUIVI + NOM DU CLIENT AU SERVEUR
+        // 🛠️ SUIVI LOGISTIQUE AVEC DOUBLE RECHERCHE STRICTE + AUTOMATISATION OTP INTEGRÉE
         async function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
             const nom = document.getElementById('suivi-nom').value.trim();
             
-            if(!id || !nom) return alert("Veuillez entrer votre numéro de devis ET votre nom de famille pour vous identifier.");
+            if(!id || !nom) return alert("Veuillez entrer votre numéro de devis ET votre nom de famille.");
             
             const conteneur = document.getElementById('resultat-suivi-container');
             conteneur.classList.remove('hidden');
             conteneur.innerHTML = `<p class="text-xs font-black uppercase text-blue-700 animate-pulse"><i class="fas fa-spinner fa-spin mr-2"></i> Contrôle de sécurité et recherche en cours...</p>`;
             
             try {
-                // Envoi sécurisé des deux paramètres
                 let res = await fetch(URL_WEB_APP, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -358,7 +357,7 @@
                 let json = await res.json();
                 
                 if (json.status === "Trouvé") {
-                    conteneur.innerHTML = `
+                    let affichageStatut = `
                         <div class="border-b pb-2 mb-2">
                             <p class="text-[10px] font-black text-slate-500 uppercase">SUIVI DU DOSSIER CLIENT N° ${id} - ${nom.toUpperCase()}</p>
                             <p class="text-sm font-black text-blue-700">📦 ${json.statut_general.toUpperCase()}</p>
@@ -368,14 +367,96 @@
                             <p class="flex items-center text-slate-500"><i class="fas fa-clock mr-2"></i> Statut mis à jour automatiquement par nos plateformes logistiques.</p>
                         </div>
                     `;
+
+                    // Si le devis est en attente d'accord, on greffe le système de validation à l'écran
+                    if (json.statut_general.toUpperCase() === "EN ATTENTE D'ACCORD CLIENT") {
+                        affichageStatut += `
+                            <div class="mt-4 pt-4 border-t border-green-300 space-y-3" id="zone-otp-activation">
+                                <p class="text-xs font-black text-slate-900 uppercase">📢 VOTRE DEVIS EST DISPONIBLE :</p>
+                                <p class="text-[11px] text-slate-600 font-bold">Cliquez ci-dessous pour recevoir un code de vérification sur votre adresse e-mail Gmail enregistrée et lancer immédiatement votre commande.</p>
+                                <button onclick="declencherEnvoiCode('${id}', '${nom}')" id="btn-demande-otp" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-black text-xs uppercase transition shadow-md">
+                                    🚀 Valider et débuter ma commande
+                                </button>
+                                <div id="feedback-otp" class="hidden flex flex-col gap-2 mt-2">
+                                    <input type="number" id="input-code-otp" placeholder="ENTREZ LE CODE REÇU PAR MAIL (4 CHIFFRES)" class="w-full p-3 rounded-xl text-center text-sm font-black tracking-widest bg-white border">
+                                    <button onclick="envoyerVerificationCodeOTP('${id}', '${nom}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl font-black text-xs uppercase transition">
+                                        🔒 Confirmer mon code de sécurité
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    conteneur.innerHTML = affichageStatut;
                 } else {
                     conteneur.innerHTML = `
-                        <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Correspondance introuvable.</p>
-                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom saisi ne correspond à aucun dossier actif dans notre système.</p>
+                        <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur de nom ou d'identifiant.</p>
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom de famille saisi ne correspond à aucun dossier actif.</p>
                     `;
                 }
             } catch (e) {
                 conteneur.innerHTML = `<p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-times mr-2"></i> Erreur lors de la synchronisation avec le serveur logistique.</p>`;
+            }
+        }
+
+        // 📩 APPEL SERVEUR : DEMANDE DE CRÉATION ET D'ENVOI DU MAIL DE SÉCURITÉ
+        async function declencherEnvoiCode(id, nom) {
+            const btn = document.getElementById('btn-demande-otp');
+            const zoneFeedback = document.getElementById('feedback-otp');
+            btn.disabled = true;
+            btn.innerText = "Génération du jeton sécurisé...";
+
+            try {
+                let res = await fetch(URL_WEB_APP, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom)
+                });
+                let json = await res.json();
+
+                if (json.status === "CodeEnvoye") {
+                    btn.classList.add('hidden');
+                    zoneFeedback.classList.remove('hidden');
+                    alert("🔑 Code de sécurité envoyé à votre adresse e-mail. Pensez à vérifier votre boîte de réception ainsi que vos courriers indésirables.");
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = "🚀 Valider et débuter ma commande";
+                    alert("Erreur : " + (json.message || "Impossible de générer le jeton. Merci de contacter le support GSD."));
+                }
+            } catch (e) {
+                btn.disabled = false;
+                btn.innerText = "🚀 Valider et débuter ma commande";
+                alert("Erreur réseau lors de la génération du code.");
+            }
+        }
+
+        // 🔒 APPEL SERVEUR : VÉRIFICATION FINALE DU CODE ET RESTRUCTURATION DU FEUILLE SHEET
+        async function envoyerVerificationCodeOTP(id, nom) {
+            const codeSaisi = document.getElementById('input-code-otp').value.trim();
+            if (!codeSaisi || codeSaisi.length !== 4) return alert("Veuillez entrer le code de sécurité complet à 4 chiffres.");
+
+            try {
+                let res = await fetch(URL_WEB_APP, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: "action=verifier_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&code_validation=" + encodeURIComponent(codeSaisi)
+                });
+                let json = await res.json();
+
+                if (json.status === "ValidationSucces") {
+                    document.getElementById('zone-otp-activation').innerHTML = `
+                        <div class="bg-emerald-500/20 p-4 rounded-xl border border-emerald-500 text-center space-y-2 mt-2">
+                            <p class="text-xs font-black text-emerald-700 uppercase"><i class="fas fa-check-double mr-1"></i> COMMANDE VALIDÉE AVEC SUCCÈS !</p>
+                            <p class="text-[11px] text-slate-700 font-bold">Votre accord a bien été enregistré. Jarvis a modifié votre dossier en direct sur notre base logistique.</p>
+                        </div>
+                    `;
+                    // Actualisation automatique du suivi après 2,5 secondes pour afficher le nouveau statut mis à jour
+                    setTimeout(consulterLeSuiviRelance, 2500);
+                } else {
+                    alert("❌ Code de validation incorrect ou expiré. Veuillez vérifier votre saisie.");
+                }
+            } catch (e) {
+                alert("Erreur de traitement lors de l'authentification du code.");
             }
         }
     </script>
