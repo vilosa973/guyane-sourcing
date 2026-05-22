@@ -255,7 +255,6 @@
             document.getElementById('jarvis-success-msg').classList.add('hidden');
             document.getElementById('ai-content').classList.add('hidden');
 
-            // ✍️ MODIFICATIONS : GESTION DES NOUVEAUX PARAMÈTRES POUR L'ENVOI SÉCURISÉ
             if (!document.getElementById('form-modele').classList.contains('hidden')) {
                 var mMarque = document.getElementById('m-marque').value.trim() || "CHEVROLET";
                 var mModele = document.getElementById('m-modele').value.trim() || "CRUZE LS PLUS";
@@ -265,8 +264,6 @@
                 var mCH = document.getElementById('m-ch').value.trim() || "124";
                 
                 var moteurFormatte = `${mCarburant} | ${mCV} CV | ${mCH} CH`;
-                
-                // On passe les détails enrichis à la fiche de validation
                 afficherResultatsFiche(mMarque, mModele, mAnnee, moteurFormatte);
             } else {
                 if(!imageBase64EnAttente) return alert("Veuillez capturer une photo ou charger un document depuis votre galerie.");
@@ -339,21 +336,45 @@
                 </div>`;
         }
 
-        function consulterLeSuiviRelance() {
+        // 🛠️ MISE À JOUR HISTORIQUE : REQUÊTE ET AFFICHAGE DU SUIVI DEPUIS GOOGLE SHEETS
+        async function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
             if(!id) return alert("Veuillez entrer votre numéro de suivi.");
+            
             const conteneur = document.getElementById('resultat-suivi-container');
             conteneur.classList.remove('hidden');
-            conteneur.innerHTML = `
-                <div class="border-b pb-2 mb-2">
-                    <p class="text-[10px] font-black text-slate-500">SUIVI DU DOSSIER CLIENT</p>
-                    <p class="text-sm font-black text-blue-700">📦 Commande en cours d'acheminement</p>
-                </div>
-                <div class="space-y-2 text-xs font-bold text-slate-700">
-                    <p class="flex items-center text-emerald-600"><i class="fas fa-check-circle mr-2"></i> Étape 1 : Pièce réceptionnée et validée sur nos plateformes logistiques en métropole.</p>
-                    <p class="flex items-center text-blue-600 animate-pulse"><i class="fas fa-plane-departure mr-2"></i> Étape 2 : Acheminement international vers la Guyane engagé.</p>
-                    <p class="flex items-center text-slate-400"><i class="fas fa-clock mr-2"></i> Étape 3 : Arrivée à Cayenne estimée dans les prochains jours.</p>
-                </div>`;
+            conteneur.innerHTML = `<p class="text-xs font-black uppercase text-blue-700 animate-pulse"><i class="fas fa-spinner fa-spin mr-2"></i> Recherche sur notre base de données Sheets...</p>`;
+            
+            try {
+                // Envoi de la requête de suivi réelle au serveur Apps Script
+                let res = await fetch(URL_WEB_APP, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: "action=track&suivi_id=" + encodeURIComponent(id)
+                });
+                let json = await res.json();
+                
+                if (json.status === "Trouvé") {
+                    // Restitution dynamique propre avec le design à étapes d'origine
+                    conteneur.innerHTML = `
+                        <div class="border-b pb-2 mb-2">
+                            <p class="text-[10px] font-black text-slate-500 uppercase">SUIVI DU DOSSIER CLIENT N° ${id}</p>
+                            <p class="text-sm font-black text-blue-700">📦 ${json.statut_general.toUpperCase()}</p>
+                        </div>
+                        <div class="space-y-2 text-xs font-bold text-slate-700">
+                            <p class="flex items-center text-emerald-600"><i class="fas fa-check-circle mr-2"></i> Étape Actuelle : ${json.commentaire_etape}</p>
+                            <p class="flex items-center text-slate-500"><i class="fas fa-clock mr-2"></i> Statut mis à jour automatiquement par nos plateformes logistiques.</p>
+                        </div>
+                    `;
+                } else {
+                    conteneur.innerHTML = `
+                        <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Aucun dossier trouvé pour la référence "${id}".</p>
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">Merci de vérifier votre numéro de devis ou de contacter notre équipe.</p>
+                    `;
+                }
+            } catch (e) {
+                conteneur.innerHTML = `<p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-times mr-2"></i> Erreur lors de la synchronisation avec le serveur logistique.</p>`;
+            }
         }
     </script>
 </body>
