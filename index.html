@@ -337,12 +337,12 @@
                 </div>`;
         }
 
-        // 🛠️ SUIVI LOGISTIQUE AVEC DOUBLE RECHERCHE STRICTE + AUTOMATISATION OTP INTEGRÉE
+        // 🛠️ SUIVI LOGISTIQUE DYNAMIQUE AVEC CONDITION SOUPLE ET ETAPES OTP INTEGRÉES
         async function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
             const nom = document.getElementById('suivi-nom').value.trim();
             
-            if(!id || !nom) return alert("Veuillez entrer votre numéro de devis ET votre nom de famille.");
+            if(!id || !nom) return alert("Veuillez entrer votre numéro de devis ET votre nom de famille pour vous identifier.");
             
             const conteneur = document.getElementById('resultat-suivi-container');
             conteneur.classList.remove('hidden');
@@ -368,8 +368,8 @@
                         </div>
                     `;
 
-                    // Si le devis est en attente d'accord, on greffe le système de validation à l'écran
-                    if (json.statut_general.toUpperCase() === "EN ATTENTE D'ACCORD CLIENT") {
+                    // 🔍 DÉTECTION SOUPLE : Si la cellule contient le mot clé "EN ATTENTE" (Ex: En attente d'accord du client)
+                    if (json.statut_general.toUpperCase().includes("EN ATTENTE")) {
                         affichageStatut += `
                             <div class="mt-4 pt-4 border-t border-green-300 space-y-3" id="zone-otp-activation">
                                 <p class="text-xs font-black text-slate-900 uppercase">📢 VOTRE DEVIS EST DISPONIBLE :</p>
@@ -391,7 +391,7 @@
                 } else {
                     conteneur.innerHTML = `
                         <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur de nom ou d'identifiant.</p>
-                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom de famille saisi ne correspond à aucun dossier actif.</p>
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom de famille saisi ne correspond à aucun dossier actif dans notre système.</p>
                     `;
                 }
             } catch (e) {
@@ -450,7 +450,6 @@
                             <p class="text-[11px] text-slate-700 font-bold">Votre accord a bien été enregistré. Jarvis a modifié votre dossier en direct sur notre base logistique.</p>
                         </div>
                     `;
-                    // Actualisation automatique du suivi après 2,5 secondes pour afficher le nouveau statut mis à jour
                     setTimeout(consulterLeSuiviRelance, 2500);
                 } else {
                     alert("❌ Code de validation incorrect ou expiré. Veuillez vérifier votre saisie.");
