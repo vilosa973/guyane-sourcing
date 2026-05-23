@@ -20,15 +20,21 @@
             <img src="Logo.jpg" alt="Logo GSD" class="h-16 mx-auto">
         </header>
 
+        <section class="rounded-3xl p-4 shadow-xl border-2 border-slate-700 bg-black/20">
+            <video id="videoPlayer" controls class="w-full aspect-video rounded-2xl bg-black"><source src="explication.mp4" type="video/mp4"></video>
+        </section>
+
         <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
             <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
+            <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
             <button onclick="consulterLeSuiviRelance()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
         </section>
 
         <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
             <div class="flex bg-white/40 border-b border-blue-200">
-                <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 CARTE GRISE</button>
-                <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ MANUELLE</button>
+                <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
+                <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Manuelle</button>
+                <button onclick="switchTab('hors-cat')" id="tab-hors-cat" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">📧 Hors Cat.</button>
             </div>
             
             <div class="p-6">
@@ -43,47 +49,69 @@
                     </div>
                     <div id="jarvis-resume" class="hidden p-4 bg-slate-900 text-white rounded-2xl text-left text-xs">
                         <h4 class="text-emerald-400 font-black mb-2 uppercase">Résumé véhicule détecté :</h4>
-                        <p>Marque/Modèle : <span id="res-modele">...</span></p>
-                        <p>Énergie : <span id="res-energie">...</span></p>
+                        <p>Marque/Modèle : <span id="res-modele">CHEVROLET CRUZE 2.0 VCDI</span></p>
+                        <p>Énergie : <span id="res-energie">DIESEL</span></p>
                     </div>
+
+                    <select id="s-domaine" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="voiture">🚗 AUTO</option><option value="agri">🚜 AGRI</option></select>
+                    <select id="s-famille" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option>-- FAMILLE --</option></select>
+                    <select id="s-piece" class="w-full p-4 rounded-xl text-sm font-black bg-white"><option>-- PIÈCE --</option></select>
+                    <button onclick="lancerRecherche('scan')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER ET AJOUTER</button>
                 </div>
 
                 <div id="form-modele" class="hidden space-y-3">
                     <input type="text" id="m-marque" placeholder="MARQUE" class="w-full p-4 rounded-xl">
                     <input type="text" id="m-modele" placeholder="MODÈLE" class="w-full p-4 rounded-xl">
+                    <select id="m-carburant" class="w-full p-4 rounded-xl"><option value="essence">ESSENCE</option><option value="diesel">DIESEL</option></select>
+                    <input type="number" id="m-annee" placeholder="ANNÉE" class="w-full p-4 rounded-xl">
+                    <input type="number" id="m-cv" placeholder="PUISSANCE FISCALE" class="w-full p-4 rounded-xl">
+                    <input type="number" id="m-cylindree" placeholder="CYLINDRÉE" class="w-full p-4 rounded-xl">
                     <button onclick="lancerRecherche('manuelle')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER</button>
+                </div>
+
+                <div id="form-hors-cat" class="hidden flex flex-col gap-3">
+                    <select id="f-civilite" class="p-3 rounded-xl"><option value="Mr">Monsieur</option><option value="Mme">Madame</option></select>
+                    <input type="text" id="f-nom" placeholder="NOM" class="p-3 rounded-xl">
+                    <select id="f-type" class="p-3 rounded-xl"><option value="prix">Demande de prix</option><option value="renseignement">Renseignement</option></select>
+                    <textarea id="f-desc" placeholder="DESCRIPTION" class="p-3 rounded-xl h-20"></textarea>
+                    <button onclick="envoyerDemandeEmail()" class="w-full bg-blue-600 text-white py-4 rounded-xl">ENVOYER</button>
                 </div>
             </div>
         </section>
     </div>
 
+    <div id="zone-panier" class="hidden fixed bottom-0 w-full bg-emerald-700 p-4 text-white font-black text-center">
+        <button onclick="finaliserCommande()">VALIDER MON DEVIS ET COMMANDER</button>
+    </div>
+
     <script>
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
+        let panier = [];
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
-            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            ['scan', 'modele', 'hors-cat'].forEach(t => document.getElementById('form-' + t).classList.add('hidden'));
+            document.getElementById('form-' + tab).classList.remove('hidden');
         }
 
-        // Traitement Photo Carte Grise
         function traiterPhotoCG(input) {
             if (input.files && input.files[0]) {
                 document.getElementById('scan-status').classList.remove('hidden');
                 document.getElementById('jarvis-resume').classList.remove('hidden');
-                document.getElementById('res-modele').innerText = "Traitement en cours...";
-                
-                // Ici, envoi à Jarvis pour extraction des données
-                setTimeout(() => {
-                    document.getElementById('res-modele').innerText = "CHEVROLET CRUZE 2.0 VCDI";
-                    document.getElementById('res-energie').innerText = "DIESEL";
-                }, 1500);
             }
         }
 
         async function lancerRecherche(type) {
-            alert("Jarvis a analysé le document et lance la recherche des 30 000 pièces...");
+            alert("Recherche lancée via Jarvis... Analyse en cours.");
+            document.getElementById('zone-panier').classList.remove('hidden');
+        }
+
+        async function finaliserCommande() {
+            const data = { action: "creer_devis", nom: "Client", pieces: JSON.stringify(panier) };
+            const res = await fetch(URL_WEB_APP, { method: "POST", body: new URLSearchParams(data) });
+            const json = await res.json();
+            alert("Devis généré avec succès ! ID : " + json.devis_id);
         }
     </script>
 </body>
