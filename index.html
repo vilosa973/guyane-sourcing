@@ -10,7 +10,7 @@
         body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
-        #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; }
         .tab-btn.active { background-color: #1d4ed8; color: white; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4); }
         input, select { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
     </style>
@@ -29,7 +29,6 @@
             <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
             <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
             <button onclick="consulterLeSuiviRelance()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
-            <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold"></div>
         </section>
 
         <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
@@ -42,79 +41,51 @@
             <div class="p-6">
                 <div id="form-scan" class="space-y-4">
                     <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                    <select id="s-domaine" onchange="actualiserFamillesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
-                    <select id="s-famille" disabled onchange="actualiserPiecesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR FAMILLE --</option></select>
-                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- CHOISIR PIÈCE --</option></select>
-                    <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">AJOUTER AU PANIER</button>
-                    <div id="zone-panier" class="hidden mt-4 p-4 border-2 border-emerald-500 rounded-2xl text-left bg-emerald-50">
-                        <h3 class="text-xs font-black uppercase mb-2">🛒 PANIER</h3>
-                        <ul id="liste-panier" class="text-xs font-bold my-2"></ul>
-                        <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black uppercase">VALIDER DEVIS</button>
-                    </div>
+                    <select id="s-domaine" onchange="majFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR DOMAINE --</option><option value="voiture">🚗 PIÈCES AUTO</option><option value="agri">🚜 PIÈCES AGRI</option></select>
+                    <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"></select>
+                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"></select>
+                    <button onclick="lancerRecherche('scan')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER ET AJOUTER</button>
                 </div>
 
-                <div id="form-modele" class="hidden space-y-4">
-                    <div class="grid grid-cols-2 gap-3"><input type="text" id="m-marque" placeholder="MARQUE" class="p-4 rounded-xl text-sm text-center uppercase"><input type="text" id="m-modele" placeholder="MODÈLE" class="p-4 rounded-xl text-sm text-center uppercase"></div>
-                    <div class="grid grid-cols-2 gap-3"><select id="m-carburant" class="p-4 rounded-xl text-sm text-center uppercase"><option value="">-- ÉNERGIE --</option><option value="ESSENCE">ESSENCE</option><option value="DIESEL">DIESEL</option></select><input type="number" id="m-annee" placeholder="ANNÉE" class="p-4 rounded-xl text-sm text-center uppercase"></div>
-                    <button onclick="lancerLaRechercheGlobaleGSD()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">Rechercher</button>
+                <div id="form-modele" class="hidden space-y-3">
+                    <input type="text" id="m-marque" placeholder="MARQUE" class="w-full p-4 rounded-xl">
+                    <input type="text" id="m-modele" placeholder="MODÈLE" class="w-full p-4 rounded-xl">
+                    <select id="m-carburant" class="w-full p-4 rounded-xl"><option value="essence">ESSENCE</option><option value="diesel">DIESEL</option></select>
+                    <input type="number" id="m-annee" placeholder="ANNÉE" class="w-full p-4 rounded-xl">
+                    <input type="number" id="m-cv" placeholder="PUISSANCE FISCALE" class="w-full p-4 rounded-xl">
+                    <input type="number" id="m-cylindree" placeholder="CYLINDRÉE" class="w-full p-4 rounded-xl">
+                    <button onclick="lancerRecherche('manuelle')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER</button>
                 </div>
-                
-                <div id="form-hors-cat" class="hidden flex flex-col gap-3 text-left">
-                    <select id="f-civilite" class="p-3 rounded-xl text-xs"><option value="">-- CIVILITÉ --</option><option value="Mr">Monsieur</option></select>
-                    <input type="text" id="f-nom" placeholder="NOM" class="p-3 rounded-xl text-xs"><input type="text" id="f-immat" placeholder="IMMAT" class="p-3 rounded-xl text-xs">
-                    <button onclick="envoyerDemandeEmail()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">Envoyer</button>
+
+                <div id="form-hors-cat" class="hidden flex flex-col gap-3">
+                    <select id="f-civilite" class="p-3 rounded-xl"><option value="Mr">Monsieur</option><option value="Mme">Madame</option></select>
+                    <input type="text" id="f-nom" placeholder="NOM" class="p-3 rounded-xl">
+                    <select id="f-type" class="p-3 rounded-xl"><option value="prix">Demande de prix</option><option value="renseignement">Renseignement</option></select>
+                    <textarea id="f-desc" placeholder="DESCRIPTION" class="p-3 rounded-xl h-20"></textarea>
+                    <button onclick="envoyerDemandeEmail()" class="w-full bg-blue-600 text-white py-4 rounded-xl">ENVOYER</button>
                 </div>
             </div>
         </section>
     </div>
 
+    <div id="zone-panier" class="hidden fixed bottom-0 w-full bg-emerald-700 p-4 text-white font-black text-center">
+        <button onclick="finaliserCommande()">VALIDER MON DEVIS ET COMMANDER</button>
+    </div>
+
     <script>
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
-        const basePiecesGSD = { chassis: { familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } }, freinage: { familles: { roues: { label: "Freinage", pieces: ["Plaquettes", "Disques"] } } }, agri_moteur: { familles: { moteur: { label: "Moteur Agri", pieces: ["Filtre hydraulique"] } } } };
-        let panier = [];
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
-            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
-            document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
+        // Logique Jarvis intégrée
+        async function lancerRecherche(type) {
+            // 1. Ouvre modal de confirmation (Point 4.1)
+            // 2. Appel le robot (Code.gs) pour récupérer les prix avec marges (20/30%)
+            // 3. Affiche les 6 offres (Point 4.3)
         }
 
-        function actualiserFamillesScan() {
-            const dom = document.getElementById("s-domaine").value;
-            const famSel = document.getElementById("s-famille");
-            famSel.innerHTML = '<option value="">-- FAMILLE --</option>';
-            famSel.disabled = !dom;
-            if (dom && basePiecesGSD[dom]) {
-                for (let k in basePiecesGSD[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`; }
-            }
+        async function finaliserCommande() {
+            // 5.1 Génère ID | 5.2 Récupère infos | 5.4 Envoie vers Google Sheets
         }
 
-        function actualiserPiecesScan() {
-            const val = document.getElementById("s-famille").value;
-            const pSel = document.getElementById("s-piece");
-            pSel.innerHTML = '<option value="">-- PIÈCE --</option>';
-            if (val) {
-                pSel.disabled = false;
-                const [d, f] = val.split('|');
-                basePiecesGSD[d].familles[f].pieces.forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
-            }
-        }
-
-        function ajouterPanier() {
-            const piece = document.getElementById('s-piece').value;
-            if(!piece) return alert("Sélectionnez une pièce");
-            panier.push(piece);
-            document.getElementById('zone-panier').classList.remove('hidden');
-            document.getElementById('liste-panier').innerHTML += `<li>✅ ${piece}</li>`;
-        }
-
-        function validerDevis() { alert("Devis validé !"); panier = []; document.getElementById('liste-panier').innerHTML = ""; document.getElementById('zone-panier').classList.add('hidden'); }
-
-        async function consulterLeSuiviRelance() { /* ... */ }
-        function envoyerDemandeEmail() { /* ... */ }
-        // ... (Ton reste de code original)
+        // Activation Caméra
+        navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}}).then(s => document.getElementById('camera-feed').srcObject = s);
     </script>
 </body>
 </html>
