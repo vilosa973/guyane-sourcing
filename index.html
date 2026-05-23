@@ -2,98 +2,90 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guyane Sourcing Direct | Officiel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
-        .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
-        section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
-        #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; }
-        .tab-btn.active { background-color: #1d4ed8; color: white; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4); }
-        input, select, textarea { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
+        body { background-image: url('Font_Premium.jpg'); background-size: cover; background-attachment: fixed; background-color: #1a1a1a; }
+        .tab-btn.active { background-color: #1d4ed8; color: white; }
+        select, button { background-color: rgba(255, 255, 255, 0.9) !important; font-weight: 900 !important; }
+        #scanner-container { background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; aspect-ratio: 3/4; }
     </style>
 </head>
-<body class="font-sans antialiased text-slate-900 text-center">
-    <div class="content-overlay p-4 max-w-2xl mx-auto space-y-6">
-        <header class="bg-white/95 p-4 border-b-4 border-green-600 shadow-lg sticky top-0 z-50 rounded-b-2xl">
-            <img src="Logo.jpg" alt="Logo GSD" class="h-16 mx-auto">
-        </header>
-
-        <section class="rounded-3xl p-4 shadow-xl bg-black/20">
-            <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black"><video id="videoPlayer" controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video></div>
-        </section>
-
-        <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
-            <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
-            <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
-            <button onclick="consulterLeSuiviRelance()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
-            <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold"></div>
-        </section>
-
-        <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
-            <div class="flex bg-white/40 border-b border-blue-200">
-                <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
-                <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Manuelle</button>
-                <button onclick="switchTab('hors-cat')" id="tab-hors-cat" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">📧 Hors Cat.</button>
-            </div>
+<body class="font-sans text-center p-4">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <div class="flex bg-white/40 rounded-t-2xl overflow-hidden border-2 border-blue-600">
+            <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
+            <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Manuelle</button>
+        </div>
+        
+        <div id="form-scan" class="bg-white/80 p-6 rounded-b-3xl shadow-2xl space-y-4">
+            <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
             
-            <div class="p-6">
-                <div id="form-scan" class="space-y-4">
-                    <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                    <select id="s-domaine" onchange="actualiserFamillesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR UN DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
-                    <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR LA FAMILLE --</option></select>
-                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- CHOISIR LA PIÈCE --</option></select>
-                    <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER & AJOUTER AU PANIER</button>
-                </div>
-                
-                <div id="zone-panier" class="hidden mt-6 p-4 border-2 border-blue-500 rounded-2xl text-left">
-                    <h3 class="text-xs font-black uppercase mb-2">🛒 PANIER</h3>
-                    <ul id="liste-panier" class="text-xs font-bold my-2"></ul>
-                    <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black uppercase">VALIDER MON DEVIS</button>
-                </div>
+            <select id="s-domaine" onchange="majFamilles()" class="w-full p-4 rounded-xl text-sm"><option value="">-- 1. CHOISIR DOMAINE --</option></select>
+            <select id="s-famille" onchange="majPieces()" disabled class="w-full p-4 rounded-xl text-sm"><option value="">-- 2. CHOISIR FAMILLE --</option></select>
+            <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black"><option value="">-- 3. CHOISIR LA PIÈCE --</option></select>
+            
+            <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">AJOUTER AU PANIER</button>
+        </div>
 
-                <div id="form-modele" class="hidden space-y-4">...</div>
-                <div id="form-hors-cat" class="hidden flex flex-col gap-3 text-left">...</div>
-            </div>
-        </section>
+        <div id="zone-panier" class="hidden p-6 bg-emerald-100 rounded-3xl text-left border-2 border-emerald-500">
+            <h3 class="font-black uppercase mb-2">🛒 PANIER</h3>
+            <ul id="liste-panier" class="text-sm font-bold"></ul>
+            <button onclick="validerDevis()" class="w-full mt-4 bg-emerald-600 text-white py-3 rounded-xl font-black uppercase">VALIDER MON DEVIS</button>
+        </div>
     </div>
 
     <script>
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
-        const basePiecesGSD = { chassis: { familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } }, freinage: { familles: { roues: { label: "Freinage", pieces: ["Plaquettes", "Disques"] } } }, agri_moteur: { familles: { moteur: { label: "Moteur Agri", pieces: ["Filtre hydraulique"] } } } };
-        let panier = [];
+        // STRUCTURE DES 3000 PIÈCES (Exemple de structure)
+        const dbPieces = {
+            "chassis": {
+                "suspension": ["Amortisseur Avant", "Amortisseur Arrière", "Ressort court", "Coupelle"],
+                "direction": ["Crémaillère", "Rotule de direction", "Biellette"]
+            },
+            "freinage": {
+                "disques": ["Disque ventilé", "Disque plein", "Disque sport"],
+                "plaquettes": ["Jeu avant", "Jeu arrière"]
+            }
+        };
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
-            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
-            document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
+        // INITIALISATION SCANNER
+        async function startScanner() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                document.getElementById('camera-feed').srcObject = stream;
+            } catch (err) { console.error("Erreur caméra", err); }
+        }
+        startScanner();
+
+        // LOGIQUE DES MENUS
+        function majFamilles() {
+            const dom = document.getElementById("s-domaine").value;
+            const fam = document.getElementById("s-famille");
+            fam.innerHTML = '<option value="">-- 2. FAMILLE --</option>';
+            if(dbPieces[dom]) {
+                fam.disabled = false;
+                for(let f in dbPieces[dom]) fam.innerHTML += `<option value="${dom}|${f}">${f.toUpperCase()}</option>`;
+            }
         }
 
-        function actualiserFamillesScan() {
-            const dom = document.getElementById("s-domaine").value;
-            const famSel = document.getElementById("s-famille");
-            famSel.innerHTML = '<option value="">-- CHOISIR LA FAMILLE --</option>';
-            famSel.disabled = !dom;
-            if (dom && basePiecesGSD[dom]) {
-                for (let k in basePiecesGSD[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`; }
+        function majPieces() {
+            const val = document.getElementById("s-famille").value;
+            const piece = document.getElementById("s-piece");
+            piece.innerHTML = '<option value="">-- 3. PIÈCE --</option>';
+            if(val) {
+                piece.disabled = false;
+                const [d, f] = val.split('|');
+                dbPieces[d][f].forEach(p => piece.innerHTML += `<option value="${p}">${p}</option>`);
             }
         }
 
         function ajouterPanier() {
-            const piece = document.getElementById('s-piece').value;
-            if(!piece) return alert("Sélectionnez une pièce");
-            panier.push(piece);
+            const p = document.getElementById('s-piece').value;
+            if(!p) return alert("Sélectionnez une pièce");
+            panier.push(p);
             document.getElementById('zone-panier').classList.remove('hidden');
-            document.getElementById('liste-panier').innerHTML += `<li>✅ ${piece}</li>`;
+            document.getElementById('liste-panier').innerHTML += `<li>✅ ${p}</li>`;
         }
-
-        function validerDevis() { alert("Panier validé. Envoi en cours."); panier = []; document.getElementById('zone-panier').classList.add('hidden'); }
-        
-        // ... (Reste de ton code original)
     </script>
 </body>
 </html>
