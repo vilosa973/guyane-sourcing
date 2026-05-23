@@ -41,7 +41,7 @@
             <div class="p-6">
                 <div id="form-scan" class="space-y-4">
                     <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                    <select id="s-domaine" onchange="majFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR DOMAINE --</option><option value="voiture">🚗 PIÈCES AUTO</option><option value="agri">🚜 PIÈCES AGRI</option></select>
+                    <select id="s-domaine" onchange="majFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="voiture">🚗 AUTO</option><option value="agri">🚜 AGRI</option></select>
                     <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"></select>
                     <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"></select>
                     <button onclick="lancerRecherche('scan')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER ET AJOUTER</button>
@@ -73,18 +73,32 @@
     </div>
 
     <script>
-        // Logique Jarvis intégrée
+        const URL_WEB_APP = "TON_URL_DE_DEPLOIEMENT_ICI";
+        let panier = [];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            ['scan', 'modele', 'hors-cat'].forEach(t => document.getElementById('form-' + t).classList.add('hidden'));
+            document.getElementById('form-' + tab).classList.remove('hidden');
+        }
+
         async function lancerRecherche(type) {
-            // 1. Ouvre modal de confirmation (Point 4.1)
-            // 2. Appel le robot (Code.gs) pour récupérer les prix avec marges (20/30%)
-            // 3. Affiche les 6 offres (Point 4.3)
+            const piece = document.getElementById('s-piece')?.value || "Manuelle";
+            const res = await fetch(URL_WEB_APP + "?action=rechercher_piece&domaine=auto&piece=" + piece);
+            const data = await res.json();
+            panier.push({piece, prix: data.neuf_1});
+            document.getElementById('zone-panier').classList.remove('hidden');
+            alert("Ajouté au panier ! Jarvis a calculé les prix.");
         }
 
         async function finaliserCommande() {
-            // 5.1 Génère ID | 5.2 Récupère infos | 5.4 Envoie vers Google Sheets
+            const data = { action: "creer_devis", nom: "Client", pieces: JSON.stringify(panier) };
+            const res = await fetch(URL_WEB_APP, { method: "POST", body: new URLSearchParams(data) });
+            const json = await res.json();
+            alert("Devis créé : " + json.devis_id);
         }
 
-        // Activation Caméra
         navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}}).then(s => document.getElementById('camera-feed').srcObject = s);
     </script>
 </body>
