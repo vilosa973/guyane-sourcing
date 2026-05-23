@@ -10,13 +10,6 @@
         body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
-        
-        #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        #camera-feed { width: 100%; height: 100%; object-fit: cover; }
-        .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 4px solid rgba(29, 78, 216, 0.3); pointer-events: none; }
-        .scan-target { position: absolute; top: 15%; left: 10%; width: 80%; height: 70%; border: 2px dashed #10b981; border-radius: 16px; }
-
-        .tab-btn.active { background-color: #1d4ed8; color: white; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4); }
         input, select { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
     </style>
 </head>
@@ -28,464 +21,77 @@
             <p class="text-green-700 text-[10px] font-black uppercase tracking-widest">Sourcing • Logistique • Agricole • Auto</p>
         </header>
 
-        <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full mt-6">
-            
-            <section class="rounded-3xl p-4 shadow-xl border-2 border-slate-700 overflow-hidden bg-black/20">
-                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-inner">
-                    <video id="videoPlayer" controls class="w-full h-full object-cover">
-                        <source src="explication.mp4" type="video/mp4">
-                        Votre navigateur ne supporte pas la lecture de vidéos.
-                    </video>
-                </div>
-                <p class="text-[10px] font-black uppercase text-slate-700 mt-2"><i class="fas fa-play-circle mr-1"></i> COMMENT COMMANDER VOTRE PIÈCE EN 2 MINUTES ? REGARDEZ LE GUIDE</p>
-            </section>
-
+        <div class="max-w-2xl mx-auto p-4 space-y-6">
             <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
-                <h2 class="text-xs font-black uppercase text-green-900 mb-3 tracking-tight"><i class="fas fa-truck-fast mr-2"></i> Suivi en temps réel de votre livraison</h2>
-                <div class="flex flex-col gap-2 sm:flex-row">
-                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
-                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
-                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-black text-xs uppercase transition">Suivre</button>
+                <h2 class="text-xs font-black uppercase text-green-900 mb-3"><i class="fas fa-truck-fast mr-2"></i> Suivi de votre livraison</h2>
+                <div class="flex flex-col gap-2">
+                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="p-3 rounded-xl text-xs uppercase text-center">
+                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="p-3 rounded-xl text-xs uppercase text-center">
+                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-black text-xs uppercase transition">Suivre</button>
                 </div>
-                <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left border border-green-300 space-y-2"></div>
-            </section>
-
-            <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
-                <div class="flex bg-white/40 border-b border-blue-200">
-                    <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner en Portrait</button>
-                    <button onclick="switchTab('gallery')" id="tab-gallery" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">🖼️ Galerie Photo</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Saisie Manuelle</button>
-                </div>
-                
-                <div class="p-6 space-y-6">
-                    <div id="form-scan" class="space-y-4">
-                        <div id="scanner-container">
-                            <video id="camera-feed" autoplay playsinline muted></video>
-                            <div class="scan-overlay"><div class="scan-target"></div></div>
-                        </div>
-                        <button onclick="prendrePhotoEtEnvoyer()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase"><i class="fas fa-camera mr-1"></i> Capturer le document</button>
-                        <div id="scan-feedback" class="text-xs font-black uppercase text-blue-700">🔴 Caméra prête</div>
-                    </div>
-
-                    <div id="form-gallery" class="hidden space-y-4">
-                        <label class="block w-full py-12 border-4 border-dashed border-blue-400 rounded-3xl cursor-pointer hover:bg-white/40 transition">
-                            <i class="fas fa-images text-4xl text-blue-600 mb-2"></i>
-                            <span class="block text-xs font-black uppercase text-slate-800">Parcourir ma galerie photo</span>
-                            <input type="file" id="file-gallery" accept="image/*" class="hidden" onchange="traiterImageGalerie(this)">
-                        </label>
-                        <div id="gallery-feedback" class="text-xs font-black uppercase text-emerald-700 hidden">✓ Fichier importé avec succès</div>
-                    </div>
-                    
-                    <div id="form-modele" class="hidden flex flex-col gap-3">
-                        <p class="text-[10px] font-bold uppercase text-blue-900">Complétez le maximum d'informations pour garantir la compatibilité de vos pièces.</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="m-marque" placeholder="MARQUE (EX: CHEVROLET)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                            <input type="text" id="m-modele" placeholder="MODÈLE & FINITION (EX: CRUZE LS PLUS)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <select id="m-carburant" class="w-full p-4 rounded-xl text-sm font-bold bg-white/70 border border-black/15 text-black">
-                                <option value="">-- ÉNERGIE --</option>
-                                <option value="ESSENCE">ESSENCE</option>
-                                <option value="DIESEL">DIESEL</option>
-                                <option value="HYBRIDE">HYBRIDE</option>
-                                <option value="ÉLECTRIQUE">ÉLECTRIQUE</option>
-                            </select>
-                            <input type="number" id="m-annee" placeholder="ANNÉE (EX: 2012)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input type="number" id="m-cv" placeholder="PUISSANCE FISCALE (CV)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                            <input type="number" id="m-ch" placeholder="PUISSANCE MOTEUR (CH / DIN)" class="w-full p-4 rounded-xl text-sm text-center uppercase">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 border-t border-blue-100 pt-6 text-left">
-                        <div>
-                            <label class="block text-[10px] font-black uppercase text-blue-900 mb-1">1. Sélectionnez votre Domaine</label>
-                            <select id="gsd-generique" onchange="actualiserFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white">
-                                <option value="">-- Choisir un domaine --</option>
-                                <option value="chassis">🚗 AUTO - Châssis & Direction</option>
-                                <option value="freinage">🚗 AUTO - Système de Freinage</option>
-                                <option value="moteur">🚗 AUTO - Moteur & Technique</option>
-                                <option value="electricite">🚗 AUTO - Électricité & Énergie</option>
-                                <option value="filtration">🚗 AUTO - Entretien & Filtration</option>
-                                <option value="carrosserie">🚗 AUTO - Carrosserie & Éclairage</option>
-                                <option value="agri_moteur">🚜 AGRI - Pièces Moteur Tracteur</option>
-                                <option value="agri_liaison">🚜 AGRI - Liaison au sol & Attelage</option>
-                                <option value="agri_recolte">🚜 AGRI - Pièces d'Usure & Récolte</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black uppercase text-blue-900 mb-1">2. Sélectionnez la Famille</label>
-                            <select id="gsd-famille" onchange="actualiserPieces()" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white disabled:opacity-50">
-                                <option value="">-- Sélectionnez d'abord le domaine --</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black uppercase text-blue-900 mb-1">3. Sélectionnez la Pièce exacte</label>
-                            <select id="gsd-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white disabled:opacity-50">
-                                <option value="">-- Sélectionnez d'abord la famille --</option>
-                            </select>
-                        </div>
-
-                        <button id="bouton-statut" onclick="lancerLaRechercheGlobaleGSD()" class="w-full mt-4 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase shadow-lg flex items-center justify-center gap-3 transition active:scale-95">
-                            <i class="fas fa-search"></i> VÉRIFIER LA COMPATIBILITÉ & TROUVER LE PRIX
-                        </button>
-                    </div>
-
-                    <div id="ai-resultat" class="hidden mt-4 space-y-4">
-                        <div id="ai-loading" class="py-8 bg-white/80 rounded-2xl text-center">
-                            <i class="fas fa-circle-notch fa-spin text-blue-700 text-3xl"></i>
-                            <p class="text-xs font-black uppercase text-blue-900 mt-2">Jarvis valide la conformité de votre demande...</p>
-                        </div>
-                        
-                        <div id="jarvis-success-msg" class="hidden p-5 bg-slate-950 text-white rounded-2xl border-b-4 border-slate-800 shadow-xl text-left space-y-3">
-                            <div class="flex items-center gap-2 border-b border-white/20 pb-2">
-                                <i class="fas fa-check-circle text-emerald-400 text-lg"></i>
-                                <span class="text-xs font-black uppercase tracking-wider text-emerald-400">VÉHICULE ENREGISTRÉ</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase text-slate-300">
-                                <p>🔹 Marque : <span id="info-marque" class="text-white font-black"></span></p>
-                                <p>🔹 Modèle : <span id="info-modele" class="text-white font-black"></span></p>
-                                <p>🔹 Année : <span id="info-annee" class="text-white font-black"></span></p>
-                                <p>🔹 Profil Moteur : <span id="info-moteur" class="text-white font-black"></span></p>
-                            </div>
-                            <div class="bg-emerald-500/10 p-2 rounded-lg text-center border border-emerald-500/30">
-                                <p class="text-[10px] font-black text-emerald-400 uppercase"><i class="fas fa-shield-check mr-1"></i> Analyse de compatibilité stricte activée avec Jarvis.</p>
-                            </div>
-                        </div>
-
-                        <div id="ai-content" class="hidden space-y-3 text-left">
-                            <div id="offres-container" class="space-y-3"></div>
-                        </div>
-                    </div>
-                </div>
+                <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold space-y-2"></div>
             </section>
         </div>
     </div>
 
-    <canvas id="capture-canvas" class="hidden"></canvas>
-
     <script>
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
 
-        let videoStream = null;
-        let imageBase64EnAttente = null;
-
-        const basePiecesGSD = {
-            chassis: { label: "Châssis & Direction", familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs avant", "Amortisseurs arrière", "Ressorts de suspension"] }, direction: { label: "Direction", pieces: ["Biellette de direction", "Rotule de direction", "Triangle de suspension"] } } },
-            freinage: { label: "Système de Freinage", familles: { roues: { label: "Freinage de roue", pieces: ["Plaquettes de frein avant", "Disques de frein avant", "Plaquettes de frein arrière", "Disques de frein arrière"] }, hydraulique: { label: "Hydraulique", pieces: ["Étriers de frein", "Maître-cylindre"] } } },
-            moteur: { label: "Moteur & Technique", familles: { distribution: { label: "Distribution", pieces: ["Kit de distribution", "Pompe à eau"] }, embrayage: { label: "Embrayage", pieces: ["Kit d'embrayage"] } } },
-            electricite: { label: "Électricité & Énergie", familles: { demarrage: { label: "Démarrage & Charge", pieces: ["Alternateur", "Démarreur"] } } },
-            filtration: { label: "Entretien & Filtration", familles: { filtres: { label: "Filtres", pieces: ["Filtre à huile", "Filtre à air", "Filtre à carburant"] } } },
-            carrosserie: { label: "Carrosserie & Éclairage", familles: { eclairage: { label: "Éclairage", pieces: ["Phare avant", "Feu arrière"] } } },
-            agri_moteur: { label: "Pièces Moteur Tracteur", familles: { moteur_tracteur: { label: "Moteur & Filtration Agri", pieces: ["Filtre hydraulique tracteur", "Pompe d'alimentation"] } } },
-            agri_liaison: { label: "Liaison au sol & Attelage", familles: { relevage: { label: "Relevage & Attelage", pieces: ["Rotule de relevage", "Bras de liaison"] } } },
-            agri_recolte: { label: "Pièces d'Usure & Récolte", familles: { travail_sol: { label: "Travail du Sol", pieces: ["Socs de charrue", "Pointes de décompacteur"] } } }
-        };
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
-            document.getElementById('form-gallery').classList.toggle('hidden', tab !== 'gallery');
-            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
-            if (tab === 'scan') initCameraPortrait(); else stopCamera();
-        }
-
-        async function initCameraPortrait() {
-            try {
-                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-                document.getElementById('camera-feed').srcObject = videoStream;
-            } catch (err) { console.log("Caméra inaccessible en local."); }
-        }
-
-        function stopCamera() { if (videoStream) videoStream.getTracks().forEach(track => track.stop()); }
-        window.addEventListener('DOMContentLoaded', initCameraPortrait);
-
-        function actualiserFamilles() {
-            const dom = document.getElementById("gsd-generique").value;
-            const famSel = document.getElementById("gsd-famille");
-            const pSel = document.getElementById("gsd-piece");
-            famSel.innerHTML = '<option value="">-- Choisir la famille --</option>';
-            pSel.innerHTML = '<option value="">-- Sélectionnez d\'abord la famille --</option>';
-            pSel.disabled = true;
-            if (dom && basePiecesGSD[dom]) {
-                famSel.disabled = false;
-                for (let k in basePiecesGSD[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`; }
-            } else { famSel.disabled = true; }
-        }
-
-        function actualiserPieces() {
-            const val = document.getElementById("gsd-famille").value;
-            const pSel = document.getElementById("gsd-piece");
-            pSel.innerHTML = '<option value="">-- Choisir la pièce exacte --</option>';
-            if (val) {
-                pSel.disabled = false;
-                const [d, f] = val.split('|');
-                basePiecesGSD[d].familles[f].pieces.forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
-            } else { pSel.disabled = true; }
-        }
-
-        function prendrePhotoEtEnvoyer() {
-            const video = document.getElementById('camera-feed');
-            const canvas = document.getElementById('capture-canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            imageBase64EnAttente = canvas.toDataURL('image/jpeg').split(',')[1];
-            document.getElementById('scan-feedback').innerText = "✓ DOCUMENT CAPTURÉ AVEC SUCCÈS !";
-        }
-
-        function traiterImageGalerie(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imageBase64EnAttente = e.target.result.split(',')[1];
-                    document.getElementById('gallery-feedback').classList.remove('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        async function lancerLaRechercheGlobaleGSD() {
-            const piece = document.getElementById('gsd-piece').value;
-            if (!piece || piece === "" || piece.startsWith("--")) return alert("Veuillez sélectionner une pièce.");
-            
-            document.getElementById('ai-resultat').classList.remove('hidden');
-            document.getElementById('ai-loading').classList.remove('hidden');
-            document.getElementById('jarvis-success-msg').classList.add('hidden');
-            document.getElementById('ai-content').classList.add('hidden');
-
-            if (!document.getElementById('form-modele').classList.contains('hidden')) {
-                var mMarque = document.getElementById('m-marque').value.trim() || "CHEVROLET";
-                var mModele = document.getElementById('m-modele').value.trim() || "CRUZE LS PLUS";
-                var mAnnee = document.getElementById('m-annee').value.trim() || "2012";
-                var mCarburant = document.getElementById('m-carburant').value || "ESSENCE";
-                var mCV = document.getElementById('m-cv').value.trim() || "7";
-                var mCH = document.getElementById('m-ch').value.trim() || "124";
-                
-                var moteurFormatte = `${mCarburant} | ${mCV} CV | ${mCH} CH`;
-                afficherResultatsFiche(mMarque, mModele, mAnnee, moteurFormatte);
-            } else {
-                if(!imageBase64EnAttente) return alert("Veuillez capturer une photo ou charger un document depuis votre galerie.");
-                
-                let bodyParams = "image=" + encodeURIComponent(imageBase64EnAttente) + "&piece=" + encodeURIComponent(piece);
-                
-                try {
-                    let res = await fetch(URL_WEB_APP, { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: bodyParams 
-                    });
-                    let json = await res.json();
-                    
-                    if(json.status === "Demande Confirmation") {
-                        let blocs = json.vehicule.split('|');
-                        afficherResultatsFiche(blocs[0], blocs[1], blocs[2], blocs[3] || "Non spécifié");
-                    } else {
-                        document.getElementById('ai-loading').classList.add('hidden');
-                        alert("Analyse impossible. Merci d'utiliser la Saisie Manuelle.");
-                    }
-                } catch(e) {
-                    document.getElementById('ai-loading').classList.add('hidden');
-                    alert("Erreur de communication avec le serveur.");
-                }
-            }
-        }
-
-        function afficherResultatsFiche(marque, modele, annee, moteur) {
-            document.getElementById('ai-loading').classList.add('hidden');
-            document.getElementById('info-marque').innerText = marque.toUpperCase().trim();
-            document.getElementById('info-modele').innerText = modele.toUpperCase().trim();
-            document.getElementById('info-annee').innerText = annee.trim();
-            document.getElementById('info-moteur').innerText = moteur.toUpperCase().trim();
-            
-            document.getElementById('jarvis-success-msg').classList.remove('hidden');
-            document.getElementById('ai-content').classList.remove('hidden');
-            
-            document.getElementById('offres-container').innerHTML = `
-                <div class="space-y-2">
-                    <p class="text-[10px] font-black text-blue-900 uppercase">🛒 Catalogues Pièces Neuves :</p>
-                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-black">🥇 NEUF PREMIUM</span><h5 class="text-xs font-black mt-1">Garantie Origine Constructeur</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                        <p class="text-base font-black text-slate-900">89.90 €</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black">🥈 NEUF ÉCO</span><h5 class="text-xs font-black mt-1">Marque Alternative Certifiée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                        <p class="text-base font-black text-slate-900">54.50 €</p>
-                    </div>
-
-                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🛠️ Catalogues Pièces Reconditionnées :</p>
-                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-black">🥉 RECONDITIONNÉ PRO</span><h5 class="text-xs font-black mt-1">Échange Standard Remis à Neuf</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                        <p class="text-base font-black text-slate-900">65.00 €</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black">🏾 RECONDITIONNÉ ÉCO</span><h5 class="text-xs font-black mt-1">Alternative Reconditionnée Éco</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                        <p class="text-base font-black text-slate-900">42.00 €</p>
-                    </div>
-
-                    <p class="text-[10px] font-black text-blue-900 uppercase mt-4">🚗 Catalogues Pièces d'Occasion :</p>
-                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black">🛞 OCCASION GRADE A</span><h5 class="text-xs font-black mt-1">Sélection testée en centre agréé</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                        <p class="text-base font-black text-slate-900">30.00 €</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
-                        <div><span class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">🚲 OCCASION GRADE B</span><h5 class="text-xs font-black mt-1">Pièce d'Usure Normale Contrôlée</h5><p class="text-[9px] text-slate-500">Logistique : En cours d'acheminement par nos plateformes</p></div>
-                        <p class="text-base font-black text-slate-900">19.50 €</p>
-                    </div>
-                </div>`;
-        }
-
-        // 🛠️ SUIVI LOGISTIQUE AVEC SÉLECTEUR DE PRÉFIXE INTERNATIONAL RESTAURÉ
         async function consulterLeSuiviRelance() {
             const id = document.getElementById('suivi-id').value.trim();
             const nom = document.getElementById('suivi-nom').value.trim();
-            
-            if(!id || !nom) return alert("Veuillez entrer votre numéro de devis ET votre nom de famille pour vous identifier.");
-            
             const conteneur = document.getElementById('resultat-suivi-container');
             conteneur.classList.remove('hidden');
-            conteneur.innerHTML = `<p class="text-xs font-black uppercase text-blue-700 animate-pulse"><i class="fas fa-spinner fa-spin mr-2"></i> Contrôle de sécurité et recherche en cours...</p>`;
+            conteneur.innerHTML = "Recherche...";
+
+            let res = await fetch(URL_WEB_APP, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: "action=track&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom)
+            });
+            let json = await res.json();
             
-            try {
-                let res = await fetch(URL_WEB_APP, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: "action=track&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom)
-                });
-                let json = await res.json();
-                
-                if (json.status === "Trouvé") {
-                    let affichageStatut = `
-                        <div class="border-b pb-2 mb-2">
-                            <p class="text-[10px] font-black text-slate-500 uppercase">SUIVI DU DOSSIER CLIENT N° ${id} - ${nom.toUpperCase()}</p>
-                            <p class="text-sm font-black text-blue-700">📦 ${json.statut_general.toUpperCase()}</p>
-                        </div>
-                        <div class="space-y-2 text-xs font-bold text-slate-700">
-                            <p class="flex items-center text-emerald-600"><i class="fas fa-check-circle mr-2"></i> Étape Actuelle : ${json.commentaire_etape}</p>
-                            <p class="flex items-center text-slate-500"><i class="fas fa-clock mr-2"></i> Statut mis à jour automatiquement par nos plateformes logistiques.</p>
-                        </div>
-                    `;
-
-                    // 🔍 DÉTECTION ACCORD : Demande du numéro avec menu déroulant international
-                    if (json.statut_general.toUpperCase().includes("ACCORD")) {
-                        affichageStatut += `
-                            <div class="mt-4 pt-4 border-t border-green-300 space-y-3" id="zone-otp-activation">
-                                <p class="text-xs font-black text-slate-900 uppercase">📢 VOTRE DEVIS EST DISPONIBLE :</p>
-                                <p class="text-[11px] text-slate-600 font-bold">Sélectionnez votre préfixe et entrez votre numéro WhatsApp pour recevoir votre code sécurisé.</p>
-                                
-                                <div class="flex flex-col gap-2">
-                                    <div class="flex gap-1">
-                                        <select id="input-client-prefixe" class="p-3 rounded-xl text-xs font-black bg-white border border-black/20 w-1/3">
-                                            <option value="+594">🇬🇫 +594 (GF)</option>
-                                            <option value="+596">🇲🇶 +596 (MQ)</option>
-                                            <option value="+590">🇬🇵 +590 (GP)</option>
-                                            <option value="+33">🇫🇷 +33 (FR)</option>
-                                            <option value="+55">🇧🇷 +55 (BR)</option>
-                                            <option value="+509">🇭🇹 +509 (HT)</option>
-                                            <option value="+1">🇺🇸 +1 (US)</option>
-                                        </select>
-                                        <input type="tel" id="input-client-tel" placeholder="SANS LE 0 (EX: 694123456)" class="w-2/3 p-3 rounded-xl text-center text-xs font-black bg-white border border-black/20">
-                                    </div>
-                                    <button onclick="declencherEnvoiCodeWhatsApp('${id}', '${nom}')" id="btn-demande-otp" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black text-xs uppercase transition shadow-md">
-                                        🟢 Recevoir mon code par WhatsApp
-                                    </button>
-                                </div>
-
-                                <div id="feedback-otp" class="hidden flex flex-col gap-2 mt-2">
-                                    <input type="number" id="input-code-otp" placeholder="ENTREZ LE CODE À 4 CHIFFRES REÇU" class="w-full p-3 rounded-xl text-center text-sm font-black tracking-widest bg-white border">
-                                    <button onclick="envoyerVerificationCodeOTP('${id}', '${nom}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-black text-xs uppercase transition">
-                                        🔒 Confirmer mon code et valider ma commande
-                                    </button>
-                                </div>
+            if (json.status === "Trouvé") {
+                let html = `<p class="text-blue-700 font-black">📦 ${json.statut_general}</p><p>Étape : ${json.commentaire_etape}</p>`;
+                if (json.statut_general.toUpperCase().includes("ACCORD")) {
+                    html += `
+                        <div class="mt-4 pt-4 border-t border-green-300">
+                            <input type="email" id="input-client-email" placeholder="VOTRE E-MAIL" class="w-full p-3 rounded-xl mb-2 text-center text-xs">
+                            <button onclick="declencherEnvoiCode('${id}', '${nom}')" id="btn-otp" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-xs">RECEVOIR LE CODE PAR E-MAIL</button>
+                            <div id="feedback-otp" class="hidden mt-2">
+                                <input type="number" id="input-code-otp" placeholder="CODE À 4 CHIFFRES" class="w-full p-3 rounded-xl text-center text-xs">
+                                <button onclick="envoyerVerificationCodeOTP('${id}', '${nom}')" class="w-full bg-emerald-600 text-white py-3 rounded-xl mt-2 font-black text-xs">VALIDER MA COMMANDE</button>
                             </div>
-                        `;
-                    }
-
-                    conteneur.innerHTML = affichageStatut;
-                } else {
-                    conteneur.innerHTML = `
-                        <p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur de nom ou d'identifiant.</p>
-                        <p class="text-[10px] text-slate-500 font-bold mt-1">Le numéro de devis ou le nom saisi ne correspond à aucun dossier actif.</p>
-                    `;
+                        </div>`;
                 }
-            } catch (e) {
-                conteneur.innerHTML = `<p class="text-xs font-black uppercase text-rose-600"><i class="fas fa-times mr-2"></i> Erreur lors de la synchronisation avec le serveur logistique.</p>`;
+                conteneur.innerHTML = html;
+            } else { conteneur.innerHTML = "Dossier introuvable."; }
+        }
+
+        async function declencherEnvoiCode(id, nom) {
+            const email = document.getElementById('input-client-email').value;
+            let res = await fetch(URL_WEB_APP, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&client_email=" + encodeURIComponent(email)
+            });
+            let json = await res.json();
+            if (json.status === "CodeEnvoye") {
+                document.getElementById('btn-otp').classList.add('hidden');
+                document.getElementById('feedback-otp').classList.remove('hidden');
+                alert("Code envoyé !");
             }
         }
 
-        // 📩 APPEL SERVEUR : TRANSMISSION DU NUMÉRO INTERNATIONAL ASSEMBLÉ
-        async function declencherEnvoiCodeWhatsApp(id, nom) {
-            const prefixe = document.getElementById('input-client-prefixe').value;
-            let telSaisi = document.getElementById('input-client-tel').value.trim();
-            
-            if (telSaisi.startsWith('0')) {
-                telSaisi = telSaisi.substring(1);
-            }
-            
-            if(!telSaisi || telSaisi.length < 6) return alert("Veuillez entrer un numéro de téléphone valide.");
-            
-            const telephoneComplet = prefixe + telSaisi;
-
-            const btn = document.getElementById('btn-demande-otp');
-            const zoneFeedback = document.getElementById('feedback-otp');
-            btn.disabled = true;
-            btn.innerText = "Envoi du code WhatsApp en cours...";
-
-            try {
-                let res = await fetch(URL_WEB_APP, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&client_tel=" + encodeURIComponent(telephoneComplet)
-                });
-                let json = await res.json();
-
-                if (json.status === "CodeEnvoye") {
-                    document.getElementById('input-client-prefixe').disabled = true;
-                    document.getElementById('input-client-tel').disabled = true;
-                    btn.classList.add('hidden');
-                    zoneFeedback.classList.remove('hidden');
-                    alert("🔑 Code envoyé ! Vérifiez votre application WhatsApp.");
-                } else {
-                    btn.disabled = false;
-                    btn.innerText = "🟢 Recevoir mon code par WhatsApp";
-                    alert("Erreur : " + (json.message || "Impossible d'envoyer le code via Twilio."));
-                }
-            } catch (e) {
-                btn.disabled = false;
-                btn.innerText = "🟢 Recevoir mon code par WhatsApp";
-                alert("Erreur réseau lors de la génération du code.");
-            }
-        }
-
-        // 🔒 APPEL SERVEUR : VÉRIFICATION OTP FINALE
         async function envoyerVerificationCodeOTP(id, nom) {
-            const codeSaisi = document.getElementById('input-code-otp').value.trim();
-            if (!codeSaisi || codeSaisi.length !== 4) return alert("Veuillez entrer le code de sécurité complet à 4 chiffres.");
-
-            try {
-                let res = await fetch(URL_WEB_APP, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: "action=verifier_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&code_validation=" + encodeURIComponent(codeSaisi)
-                });
-                let json = await res.json();
-
-                if (json.status === "ValidationSucces") {
-                    document.getElementById('zone-otp-activation').innerHTML = `
-                        <div class="bg-emerald-500/20 p-4 rounded-xl border border-emerald-500 text-center space-y-2 mt-2">
-                            <p class="text-xs font-black text-emerald-700 uppercase"><i class="fas fa-check-double mr-1"></i> COMMANDE VALIDÉE AVEC SUCCÈS !</p>
-                            <p class="text-[11px] text-slate-700 font-bold">Votre accord a bien été enregistré. Jarvis a modifié votre dossier en direct sur notre base logistique.</p>
-                        </div>
-                    `;
-                    setTimeout(consulterLeSuiviRelance, 2500);
-                } else {
-                    alert("❌ Code de validation incorrect. Veuillez vérifier votre saisie.");
-                }
-            } catch (e) {
-                alert("Erreur de traitement lors de l'authentification du code.");
-            }
+            const code = document.getElementById('input-code-otp').value;
+            let res = await fetch(URL_WEB_APP, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: "action=verifier_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&code_validation=" + encodeURIComponent(code)
+            });
+            let json = await res.json();
+            if (json.status === "ValidationSucces") { alert("Commande validée avec succès !"); } else { alert("Code incorrect."); }
         }
     </script>
 </body>
