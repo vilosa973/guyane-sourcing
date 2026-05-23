@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guyane Sourcing Direct | Officiel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -24,6 +25,13 @@
             <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black"><video id="videoPlayer" controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video></div>
         </section>
 
+        <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
+            <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
+            <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
+            <button onclick="consulterLeSuiviRelance()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
+            <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold"></div>
+        </section>
+
         <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
             <div class="flex bg-white/40 border-b border-blue-200">
                 <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
@@ -32,56 +40,60 @@
             </div>
             
             <div class="p-6">
-                <div id="form-scan" class="space-y-4">
+                <div id="form-scan" class="space-y-3">
                     <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                    <select id="s-domaine" onchange="actualiserSelect('s-domaine', 's-famille', 's-piece')" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR UN DOMAINE --</option><option value="chassis">🚗 CHÂSSIS</option><option value="freinage">🚗 FREINAGE</option></select>
+                    <select id="s-domaine" onchange="actualiserSelectScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
                     <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- FAMILLE --</option></select>
                     <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- PIÈCE EXACTE --</option></select>
-                    <button onclick="ajouterAuPanierScanner()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">RECHERCHER & AJOUTER AU PANIER</button>
+                    <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">AJOUTER AU PANIER</button>
                 </div>
-                <div id="zone-panier" class="hidden mt-6 border-t pt-4">
-                    <h3 class="text-xs font-black uppercase mb-2">🛒 MON PANIER</h3>
-                    <ul id="liste-panier" class="text-xs font-bold text-left mb-2"></ul>
-                    <button onclick="validerPanier()" class="w-full bg-green-600 text-white py-2 rounded-xl text-xs font-black">VALIDER MON DEVIS</button>
+                
+                <div id="zone-panier" class="hidden mt-6 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl text-left">
+                    <h3 class="text-xs font-black uppercase">🛒 PANIER</h3>
+                    <ul id="liste-panier" class="text-xs font-bold my-2"></ul>
+                    <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black">VALIDER LE DEVIS</button>
                 </div>
+
+                <div id="form-modele" class="hidden space-y-4">...</div>
+                <div id="form-hors-cat" class="hidden flex flex-col gap-3 text-left">...</div>
             </div>
         </section>
     </div>
 
     <script>
-        const basePieces = { chassis: { familles: { susp: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } } };
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
+        const basePiecesGSD = { chassis: { familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } }, freinage: { familles: { roues: { label: "Freinage", pieces: ["Plaquettes", "Disques"] } } }, agri_moteur: { familles: { moteur: { label: "Moteur Agri", pieces: ["Filtre hydraulique"] } } } };
         let panier = [];
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
+            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
         }
 
-        function actualiserSelect(domId, famId, pieceId) {
-            const dom = document.getElementById(domId).value;
-            const famSel = document.getElementById(famId);
+        function actualiserSelectScan() {
+            const dom = document.getElementById("s-domaine").value;
+            const famSel = document.getElementById("s-famille");
             famSel.innerHTML = '<option value="">-- FAMILLE --</option>';
             famSel.disabled = !dom;
-            if (dom && basePieces[dom]) {
-                for (let k in basePieces[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePieces[dom].familles[k].label}</option>`; }
+            if(dom && basePiecesGSD[dom]) {
+                for(let k in basePiecesGSD[dom].familles) famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`;
             }
         }
 
-        function ajouterAuPanierScanner() {
+        function ajouterPanier() {
             const piece = document.getElementById('s-piece').value;
-            if(!piece) return alert("Sélectionnez une pièce");
+            if(!piece) return alert("Choisissez une pièce");
             panier.push(piece);
             document.getElementById('zone-panier').classList.remove('hidden');
             document.getElementById('liste-panier').innerHTML += `<li>✅ ${piece}</li>`;
         }
 
-        function validerPanier() {
-            alert("Devis généré. Mémoire réinitialisée.");
-            panier = [];
-            document.getElementById('liste-panier').innerHTML = "";
-            document.getElementById('zone-panier').classList.add('hidden');
-        }
+        function validerDevis() { alert("Devis validé !"); panier = []; document.getElementById('zone-panier').classList.add('hidden'); }
+        
+        // ... (tes autres fonctions)
     </script>
 </body>
 </html>
