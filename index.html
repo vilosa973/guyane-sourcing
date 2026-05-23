@@ -40,18 +40,18 @@
             </div>
             
             <div class="p-6">
-                <div id="form-scan" class="space-y-3">
+                <div id="form-scan" class="space-y-4">
                     <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                    <select id="s-domaine" onchange="actualiserSelectScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
-                    <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- FAMILLE --</option></select>
-                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- PIÈCE EXACTE --</option></select>
-                    <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">AJOUTER AU PANIER</button>
+                    <select id="s-domaine" onchange="actualiserFamillesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR UN DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
+                    <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR LA FAMILLE --</option></select>
+                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- CHOISIR LA PIÈCE --</option></select>
+                    <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER & AJOUTER AU PANIER</button>
                 </div>
                 
-                <div id="zone-panier" class="hidden mt-6 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl text-left">
-                    <h3 class="text-xs font-black uppercase">🛒 PANIER</h3>
+                <div id="zone-panier" class="hidden mt-6 p-4 border-2 border-blue-500 rounded-2xl text-left">
+                    <h3 class="text-xs font-black uppercase mb-2">🛒 PANIER</h3>
                     <ul id="liste-panier" class="text-xs font-bold my-2"></ul>
-                    <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black">VALIDER LE DEVIS</button>
+                    <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black uppercase">VALIDER MON DEVIS</button>
                 </div>
 
                 <div id="form-modele" class="hidden space-y-4">...</div>
@@ -73,27 +73,27 @@
             document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
         }
 
-        function actualiserSelectScan() {
+        function actualiserFamillesScan() {
             const dom = document.getElementById("s-domaine").value;
             const famSel = document.getElementById("s-famille");
-            famSel.innerHTML = '<option value="">-- FAMILLE --</option>';
+            famSel.innerHTML = '<option value="">-- CHOISIR LA FAMILLE --</option>';
             famSel.disabled = !dom;
-            if(dom && basePiecesGSD[dom]) {
-                for(let k in basePiecesGSD[dom].familles) famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`;
+            if (dom && basePiecesGSD[dom]) {
+                for (let k in basePiecesGSD[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`; }
             }
         }
 
         function ajouterPanier() {
             const piece = document.getElementById('s-piece').value;
-            if(!piece) return alert("Choisissez une pièce");
+            if(!piece) return alert("Sélectionnez une pièce");
             panier.push(piece);
             document.getElementById('zone-panier').classList.remove('hidden');
             document.getElementById('liste-panier').innerHTML += `<li>✅ ${piece}</li>`;
         }
 
-        function validerDevis() { alert("Devis validé !"); panier = []; document.getElementById('zone-panier').classList.add('hidden'); }
+        function validerDevis() { alert("Panier validé. Envoi en cours."); panier = []; document.getElementById('zone-panier').classList.add('hidden'); }
         
-        // ... (tes autres fonctions)
+        // ... (Reste de ton code original)
     </script>
 </body>
 </html>
