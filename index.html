@@ -11,89 +11,110 @@
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
         #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        #camera-feed { width: 100%; height: 100%; object-fit: cover; }
         .tab-btn.active { background-color: #1d4ed8; color: white; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4); }
         input, select { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900 text-center">
-
-    <div class="content-overlay flex flex-col">
+    <div class="content-overlay p-4 max-w-2xl mx-auto space-y-6">
         <header class="bg-white/95 p-4 border-b-4 border-green-600 shadow-lg sticky top-0 z-50">
-            <img src="Logo.jpg" alt="Logo GSD" class="h-16 mx-auto mb-1">
-            <p class="text-green-700 text-[10px] font-black uppercase tracking-widest">Sourcing • Logistique • Agricole • Auto</p>
+            <img src="Logo.jpg" alt="Logo GSD" class="h-16 mx-auto">
         </header>
 
-        <div class="max-w-2xl mx-auto p-4 space-y-6 flex-grow w-full mt-6">
-            <section class="rounded-3xl p-4 shadow-xl border-2 border-slate-700 overflow-hidden bg-black/20">
-                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-inner">
-                    <video id="videoPlayer" controls class="w-full h-full object-cover">
-                        <source src="explication.mp4" type="video/mp4">
-                    </video>
-                </div>
-            </section>
+        <section class="rounded-3xl p-4 shadow-xl border-2 border-slate-700 bg-black/20">
+            <video id="videoPlayer" controls class="w-full aspect-video rounded-2xl bg-black"><source src="explication.mp4" type="video/mp4"></video>
+        </section>
 
-            <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
-                <h2 class="text-xs font-black uppercase text-green-900 mb-3"><i class="fas fa-truck-fast mr-2"></i> Suivi en temps réel</h2>
-                <div class="flex flex-col gap-2 sm:flex-row">
-                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
-                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="flex-grow p-3 rounded-xl text-xs uppercase text-center">
-                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 text-white px-5 py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
-                </div>
-                <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left border border-green-300"></div>
-            </section>
+        <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
+            <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
+            <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
+            <button onclick="consulterLeSuiviRelance()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
+            <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold"></div>
+        </section>
 
-            <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
-                <div class="flex bg-white/40 border-b border-blue-200">
-                    <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
-                    <button onclick="switchTab('gallery')" id="tab-gallery" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">🖼️ Galerie</button>
-                    <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Manuelle</button>
+        <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
+            <div class="flex bg-white/40 border-b border-blue-200">
+                <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
+                <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Manuelle</button>
+                <button onclick="switchTab('hors-cat')" id="tab-hors-cat" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">📧 Hors Cat.</button>
+            </div>
+            
+            <div class="p-6">
+                <div id="form-scan" class="space-y-4">
+                    <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
+                    <select id="s-domaine" onchange="actualiserFamillesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
+                    <select id="s-famille" disabled onchange="actualiserPiecesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR FAMILLE --</option></select>
+                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- CHOISIR PIÈCE --</option></select>
+                    <button onclick="ajouterPanier()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">AJOUTER AU PANIER</button>
+                    <div id="zone-panier" class="hidden mt-4 p-4 border-2 border-emerald-500 rounded-2xl text-left bg-emerald-50">
+                        <h3 class="text-xs font-black uppercase mb-2">🛒 PANIER</h3>
+                        <ul id="liste-panier" class="text-xs font-bold my-2"></ul>
+                        <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black uppercase">VALIDER DEVIS</button>
+                    </div>
+                </div>
+
+                <div id="form-modele" class="hidden space-y-4">
+                    <div class="grid grid-cols-2 gap-3"><input type="text" id="m-marque" placeholder="MARQUE" class="p-4 rounded-xl text-sm text-center uppercase"><input type="text" id="m-modele" placeholder="MODÈLE" class="p-4 rounded-xl text-sm text-center uppercase"></div>
+                    <div class="grid grid-cols-2 gap-3"><select id="m-carburant" class="p-4 rounded-xl text-sm text-center uppercase"><option value="">-- ÉNERGIE --</option><option value="ESSENCE">ESSENCE</option><option value="DIESEL">DIESEL</option></select><input type="number" id="m-annee" placeholder="ANNÉE" class="p-4 rounded-xl text-sm text-center uppercase"></div>
+                    <button onclick="lancerLaRechercheGlobaleGSD()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">Rechercher</button>
                 </div>
                 
-                <div class="p-6 space-y-6">
-                    <div id="form-scan" class="space-y-4">
-                        <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                        <select id="s-domaine" onchange="actualiserFamillesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri">🚜 AGRI</option></select>
-                        <select id="s-famille" disabled onchange="actualiserPiecesScan()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- FAMILLE --</option></select>
-                        <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- PIÈCE --</option></select>
-                        <button onclick="ajouterAuPanier()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">AJOUTER AU PANIER</button>
-                        
-                        <div id="zone-panier" class="hidden p-4 bg-emerald-50 rounded-2xl text-left border-2 border-emerald-500">
-                            <h3 class="text-xs font-black uppercase mb-2">🛒 PANIER</h3>
-                            <ul id="liste-panier" class="text-xs font-bold my-2"></ul>
-                            <button onclick="validerDevis()" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-black uppercase">VALIDER DEVIS</button>
-                        </div>
-                    </div>
-
-                    <div id="form-modele" class="hidden">...</div>
-                    <div id="form-hors-cat" class="hidden">...</div>
+                <div id="form-hors-cat" class="hidden flex flex-col gap-3 text-left">
+                    <select id="f-civilite" class="p-3 rounded-xl text-xs"><option value="">-- CIVILITÉ --</option><option value="Mr">Monsieur</option></select>
+                    <input type="text" id="f-nom" placeholder="NOM" class="p-3 rounded-xl text-xs"><input type="text" id="f-immat" placeholder="IMMAT" class="p-3 rounded-xl text-xs">
+                    <button onclick="envoyerDemandeEmail()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">Envoyer</button>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </div>
 
     <script>
-        // Ta base de données
-        const basePiecesScan = { chassis: { familles: { susp: ["Amortisseur", "Ressort"] } }, freinage: { familles: { roues: ["Plaquette", "Disque"] } } };
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
+        const basePiecesGSD = { chassis: { familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } }, freinage: { familles: { roues: { label: "Freinage", pieces: ["Plaquettes", "Disques"] } } }, agri_moteur: { familles: { moteur: { label: "Moteur Agri", pieces: ["Filtre hydraulique"] } } } };
         let panier = [];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
+            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
+        }
 
         function actualiserFamillesScan() {
             const dom = document.getElementById("s-domaine").value;
-            const fam = document.getElementById("s-famille");
-            fam.innerHTML = '<option value="">-- FAMILLE --</option>';
-            fam.disabled = !dom;
-            if(dom && basePiecesScan[dom]) { for(let f in basePiecesScan[dom].familles) fam.innerHTML += `<option value="${dom}|${f}">${f.toUpperCase()}</option>`; }
+            const famSel = document.getElementById("s-famille");
+            famSel.innerHTML = '<option value="">-- FAMILLE --</option>';
+            famSel.disabled = !dom;
+            if (dom && basePiecesGSD[dom]) {
+                for (let k in basePiecesGSD[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`; }
+            }
         }
 
-        function ajouterAuPanier() {
-            const p = document.getElementById('s-piece').value;
-            if(!p) return alert("Sélectionnez une pièce");
-            panier.push(p);
+        function actualiserPiecesScan() {
+            const val = document.getElementById("s-famille").value;
+            const pSel = document.getElementById("s-piece");
+            pSel.innerHTML = '<option value="">-- PIÈCE --</option>';
+            if (val) {
+                pSel.disabled = false;
+                const [d, f] = val.split('|');
+                basePiecesGSD[d].familles[f].pieces.forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
+            }
+        }
+
+        function ajouterPanier() {
+            const piece = document.getElementById('s-piece').value;
+            if(!piece) return alert("Sélectionnez une pièce");
+            panier.push(piece);
             document.getElementById('zone-panier').classList.remove('hidden');
-            document.getElementById('liste-panier').innerHTML += `<li>✅ ${p}</li>`;
+            document.getElementById('liste-panier').innerHTML += `<li>✅ ${piece}</li>`;
         }
 
-        // ... Ici, tu recopies toutes tes fonctions d'origine (suivi, recherche, etc.)
+        function validerDevis() { alert("Devis validé !"); panier = []; document.getElementById('liste-panier').innerHTML = ""; document.getElementById('zone-panier').classList.add('hidden'); }
+
+        async function consulterLeSuiviRelance() { /* ... */ }
+        function envoyerDemandeEmail() { /* ... */ }
+        // ... (Ton reste de code original)
     </script>
 </body>
 </html>
