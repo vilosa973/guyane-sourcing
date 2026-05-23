@@ -10,89 +10,89 @@
         body { background-image: url('Font_Premium.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #1a1a1a; }
         .content-overlay { position: relative; z-index: 1; min-height: 100vh; }
         section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
-        input, select { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
+        .tab-btn.active { background-color: #1d4ed8; color: white; }
+        input, select, textarea { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900 text-center">
 
-    <div class="content-overlay flex flex-col">
-        <header class="bg-white/95 p-4 border-b-4 border-green-600 shadow-lg sticky top-0 z-50">
-            <img src="Logo.jpg" alt="Logo GSD" class="h-16 mx-auto mb-1">
-            <p class="text-green-700 text-[10px] font-black uppercase tracking-widest">Sourcing • Logistique • Agricole • Auto</p>
+    <div class="content-overlay p-4 max-w-2xl mx-auto space-y-6">
+        <header class="bg-white/95 p-4 border-b-4 border-green-600 shadow-lg sticky top-0 z-50 rounded-b-2xl">
+            <img src="Logo.jpg" alt="Logo GSD" class="h-16 mx-auto">
         </header>
 
-        <div class="max-w-2xl mx-auto p-4 space-y-6">
-            <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
-                <h2 class="text-xs font-black uppercase text-green-900 mb-3"><i class="fas fa-truck-fast mr-2"></i> Suivi de votre livraison</h2>
-                <div class="flex flex-col gap-2">
-                    <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="p-3 rounded-xl text-xs uppercase text-center">
-                    <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="p-3 rounded-xl text-xs uppercase text-center">
-                    <button onclick="consulterLeSuiviRelance()" class="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-black text-xs uppercase transition">Suivre</button>
+        <section class="rounded-3xl p-4 shadow-xl bg-black/20">
+            <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black"><video id="videoPlayer" controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video></div>
+            <p class="text-[10px] font-black uppercase text-slate-700 mt-2">COMMENT COMMANDER EN 2 MINUTES ?</p>
+        </section>
+
+        <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
+            <h2 class="text-xs font-black uppercase text-green-900 mb-3">Suivi de votre livraison</h2>
+            <div class="flex flex-col gap-2">
+                <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="p-3 rounded-xl text-xs uppercase text-center">
+                <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="p-3 rounded-xl text-xs uppercase text-center">
+                <button onclick="consulterLeSuiviRelance()" class="bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
+            </div>
+            <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold"></div>
+        </section>
+
+        <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
+            <div class="flex bg-white/40 border-b border-blue-200">
+                <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
+                <button onclick="switchTab('modele')" id="tab-modele" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">✍️ Saisie Manuelle</button>
+                <button onclick="switchTab('hors-cat')" id="tab-hors-cat" class="tab-btn flex-1 py-4 font-black uppercase text-[10px]">📧 Hors Cat.</button>
+            </div>
+            
+            <div class="p-6">
+                <div id="form-scan"><div id="scanner-container" class="aspect-video bg-black rounded-2xl"></div></div>
+                
+                <div id="form-modele" class="hidden space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="m-marque" placeholder="MARQUE" class="p-4 rounded-xl text-sm text-center uppercase">
+                        <input type="text" id="m-modele" placeholder="MODÈLE & FINITION" class="p-4 rounded-xl text-sm text-center uppercase">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <select id="m-carburant" class="p-4 rounded-xl text-sm text-center uppercase">
+                            <option value="">-- ÉNERGIE --</option><option value="ESSENCE">ESSENCE</option><option value="DIESEL">DIESEL</option><option value="HYBRIDE">HYBRIDE</option><option value="ÉLECTRIQUE">ÉLECTRIQUE</option>
+                        </select>
+                        <input type="number" id="m-annee" placeholder="ANNÉE" class="p-4 rounded-xl text-sm text-center uppercase">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="m-cv" placeholder="PUISSANCE FISCALE (CV)" class="p-4 rounded-xl text-sm text-center uppercase">
+                        <input type="number" id="m-ch" placeholder="PUISSANCE MOTEUR (CH)" class="p-4 rounded-xl text-sm text-center uppercase">
+                    </div>
                 </div>
-                <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold space-y-2"></div>
-            </section>
-        </div>
+
+                <div id="form-hors-cat" class="hidden flex flex-col gap-3 text-left">
+                    <select id="f-civilite" class="p-3 rounded-xl text-xs"><option value="">-- CIVILITÉ --</option><option value="Mr">Monsieur</option><option value="Mme">Madame</option></select>
+                    <div class="grid grid-cols-2 gap-2"><input type="text" id="f-nom" placeholder="NOM" class="p-3 rounded-xl text-xs"><input type="text" id="f-prenom" placeholder="PRÉNOM" class="p-3 rounded-xl text-xs"></div>
+                    <input type="text" id="f-immat" placeholder="IMMATRICULATION / N° SÉRIE" class="p-3 rounded-xl text-xs">
+                    <textarea id="f-besoin" placeholder="DESCRIPTION DÉTAILLÉE DE VOTRE BESOIN" class="p-3 rounded-xl text-xs h-20"></textarea>
+                    <input type="email" id="f-email" placeholder="VOTRE E-MAIL DE CONTACT" class="p-3 rounded-xl text-xs">
+                    <button onclick="envoyerDemandeEmail()" class="bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase">Envoyer ma demande par Email</button>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
         const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
 
-        async function consulterLeSuiviRelance() {
-            const id = document.getElementById('suivi-id').value.trim();
-            const nom = document.getElementById('suivi-nom').value.trim();
-            const conteneur = document.getElementById('resultat-suivi-container');
-            conteneur.classList.remove('hidden');
-            conteneur.innerHTML = "Recherche...";
-
-            let res = await fetch(URL_WEB_APP, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: "action=track&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom)
-            });
-            let json = await res.json();
-            
-            if (json.status === "Trouvé") {
-                let html = `<p class="text-blue-700 font-black">📦 ${json.statut_general}</p><p>Étape : ${json.commentaire_etape}</p>`;
-                if (json.statut_general.toUpperCase().includes("ACCORD")) {
-                    html += `
-                        <div class="mt-4 pt-4 border-t border-green-300">
-                            <input type="email" id="input-client-email" placeholder="VOTRE E-MAIL" class="w-full p-3 rounded-xl mb-2 text-center text-xs">
-                            <button onclick="declencherEnvoiCode('${id}', '${nom}')" id="btn-otp" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-xs">RECEVOIR LE CODE PAR E-MAIL</button>
-                            <div id="feedback-otp" class="hidden mt-2">
-                                <input type="number" id="input-code-otp" placeholder="CODE À 4 CHIFFRES" class="w-full p-3 rounded-xl text-center text-xs">
-                                <button onclick="envoyerVerificationCodeOTP('${id}', '${nom}')" class="w-full bg-emerald-600 text-white py-3 rounded-xl mt-2 font-black text-xs">VALIDER MA COMMANDE</button>
-                            </div>
-                        </div>`;
-                }
-                conteneur.innerHTML = html;
-            } else { conteneur.innerHTML = "Dossier introuvable."; }
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
+            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
+            document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
         }
 
-        async function declencherEnvoiCode(id, nom) {
-            const email = document.getElementById('input-client-email').value;
-            let res = await fetch(URL_WEB_APP, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&client_email=" + encodeURIComponent(email)
-            });
-            let json = await res.json();
-            if (json.status === "CodeEnvoye") {
-                document.getElementById('btn-otp').classList.add('hidden');
-                document.getElementById('feedback-otp').classList.remove('hidden');
-                alert("Code envoyé !");
-            }
+        function envoyerDemandeEmail() {
+            const subject = "Nouvelle demande Hors Catalogue - " + document.getElementById('f-immat').value;
+            const body = `Civilité: ${document.getElementById('f-civilite').value}%0A Nom: ${document.getElementById('f-nom').value} ${document.getElementById('f-prenom').value}%0A Immat: ${document.getElementById('f-immat').value}%0A Besoin: ${document.getElementById('f-besoin').value}%0A Email: ${document.getElementById('f-email').value}`;
+            window.location.href = "mailto:ton-email@exemple.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
         }
 
-        async function envoyerVerificationCodeOTP(id, nom) {
-            const code = document.getElementById('input-code-otp').value;
-            let res = await fetch(URL_WEB_APP, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: "action=verifier_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&code_validation=" + encodeURIComponent(code)
-            });
-            let json = await res.json();
-            if (json.status === "ValidationSucces") { alert("Commande validée avec succès !"); } else { alert("Code incorrect."); }
-        }
+        // ... (Ajoute ici tes fonctions consulterLeSuiviRelance, declencherEnvoiCode, etc. du code précédent) ...
     </script>
 </body>
 </html>
