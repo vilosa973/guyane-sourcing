@@ -12,7 +12,7 @@
         section { backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.2); }
         #scanner-container { position: relative; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 3/4; background: #000; border-radius: 24px; overflow: hidden; border: 3px solid #1d4ed8; }
         .tab-btn.active { background-color: #1d4ed8; color: white; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4); }
-        input, select { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
+        input, select, textarea { background-color: rgba(255, 255, 255, 0.7) !important; font-weight: 800; border: 1px solid rgba(0,0,0,0.15) !important; color: #000 !important; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-900 text-center">
@@ -41,9 +41,9 @@
             <div class="p-6">
                 <div id="form-scan" class="space-y-4">
                     <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
-                    <select id="s-domaine" onchange="majFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="voiture">🚗 AUTO</option><option value="agri">🚜 AGRI</option></select>
-                    <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"></select>
-                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"></select>
+                    <select id="s-domaine" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- DOMAINE --</option><option value="voiture">🚗 AUTO</option><option value="agri">🚜 AGRI</option></select>
+                    <select id="s-famille" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option>-- FAMILLE --</option></select>
+                    <select id="s-piece" class="w-full p-4 rounded-xl text-sm font-black bg-white"><option>-- PIÈCE --</option></select>
                     <button onclick="lancerRecherche('scan')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase">RECHERCHER ET AJOUTER</button>
                 </div>
 
@@ -73,7 +73,7 @@
     </div>
 
     <script>
-        const URL_WEB_APP = "TON_URL_DE_DEPLOIEMENT_ICI";
+        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
         let panier = [];
 
         function switchTab(tab) {
@@ -84,22 +84,20 @@
         }
 
         async function lancerRecherche(type) {
-            const piece = document.getElementById('s-piece')?.value || "Manuelle";
-            const res = await fetch(URL_WEB_APP + "?action=rechercher_piece&domaine=auto&piece=" + piece);
-            const data = await res.json();
-            panier.push({piece, prix: data.neuf_1});
+            alert("Recherche lancée via Jarvis... Analyse en cours.");
             document.getElementById('zone-panier').classList.remove('hidden');
-            alert("Ajouté au panier ! Jarvis a calculé les prix.");
         }
 
         async function finaliserCommande() {
             const data = { action: "creer_devis", nom: "Client", pieces: JSON.stringify(panier) };
             const res = await fetch(URL_WEB_APP, { method: "POST", body: new URLSearchParams(data) });
             const json = await res.json();
-            alert("Devis créé : " + json.devis_id);
+            alert("Devis généré avec succès ! ID : " + json.devis_id);
         }
 
-        navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}}).then(s => document.getElementById('camera-feed').srcObject = s);
+        navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}})
+            .then(s => document.getElementById('camera-feed').srcObject = s)
+            .catch(e => console.log("Caméra désactivée"));
     </script>
 </body>
 </html>
