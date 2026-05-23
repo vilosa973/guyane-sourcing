@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guyane Sourcing Direct | Officiel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -25,13 +24,6 @@
             <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black"><video id="videoPlayer" controls class="w-full h-full object-cover"><source src="explication.mp4" type="video/mp4"></video></div>
         </section>
 
-        <section class="rounded-3xl p-5 shadow-xl border-2 border-green-600">
-            <input type="text" id="suivi-id" placeholder="NUMÉRO DE DEVIS" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
-            <input type="text" id="suivi-nom" placeholder="NOM DE FAMILLE" class="w-full p-3 mb-2 rounded-xl text-xs uppercase text-center">
-            <button onclick="consulterLeSuiviRelance()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-xs uppercase">Suivre</button>
-            <div id="resultat-suivi-container" class="hidden mt-4 p-4 bg-white/80 rounded-2xl text-left text-xs font-bold"></div>
-        </section>
-
         <section class="rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-600">
             <div class="flex bg-white/40 border-b border-blue-200">
                 <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-4 font-black uppercase text-[10px]">📷 Scanner</button>
@@ -40,89 +32,55 @@
             </div>
             
             <div class="p-6">
-                <div id="form-scan"><div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div></div>
-                
-                <div id="form-modele" class="hidden space-y-4">
-                    <div class="grid grid-cols-2 gap-3"><input type="text" id="m-marque" placeholder="MARQUE" class="p-4 rounded-xl text-sm text-center uppercase"><input type="text" id="m-modele" placeholder="MODÈLE" class="p-4 rounded-xl text-sm text-center uppercase"></div>
-                    <div class="grid grid-cols-2 gap-3"><select id="m-carburant" class="p-4 rounded-xl text-sm text-center uppercase"><option value="">-- ÉNERGIE --</option><option value="ESSENCE">ESSENCE</option><option value="DIESEL">DIESEL</option></select><input type="number" id="m-annee" placeholder="ANNÉE" class="p-4 rounded-xl text-sm text-center uppercase"></div>
-                    <div class="grid grid-cols-2 gap-3"><input type="number" id="m-cv" placeholder="PUISSANCE FISCALE" class="p-4 rounded-xl text-sm text-center uppercase"><input type="number" id="m-ch" placeholder="PUISSANCE MOTEUR" class="p-4 rounded-xl text-sm text-center uppercase"></div>
-                    
-                    <select id="gsd-generique" onchange="actualiserFamilles()" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR UN DOMAINE --</option><option value="chassis">🚗 CHÂSSIS & DIRECTION</option><option value="freinage">🚗 FREINAGE</option><option value="agri_moteur">🚜 AGRI</option></select>
-                    <select id="gsd-famille" onchange="actualiserPieces()" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR LA FAMILLE --</option></select>
-                    <select id="gsd-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- CHOISIR LA PIÈCE --</option></select>
-                    <button onclick="lancerLaRechercheGlobaleGSD()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">Rechercher</button>
+                <div id="form-scan" class="space-y-4">
+                    <div id="scanner-container"><video id="camera-feed" autoplay playsinline muted></video></div>
+                    <select id="s-domaine" onchange="actualiserSelect('s-domaine', 's-famille', 's-piece')" class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- CHOISIR UN DOMAINE --</option><option value="chassis">🚗 CHÂSSIS</option><option value="freinage">🚗 FREINAGE</option></select>
+                    <select id="s-famille" disabled class="w-full p-4 rounded-xl text-sm font-bold bg-white"><option value="">-- FAMILLE --</option></select>
+                    <select id="s-piece" disabled class="w-full p-4 rounded-xl text-sm font-black bg-white"><option value="">-- PIÈCE EXACTE --</option></select>
+                    <button onclick="ajouterAuPanierScanner()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">RECHERCHER & AJOUTER AU PANIER</button>
                 </div>
-
-                <div id="form-hors-cat" class="hidden flex flex-col gap-3 text-left">
-                    <select id="f-civilite" class="p-3 rounded-xl text-xs"><option value="">-- CIVILITÉ --</option><option value="Mr">Monsieur</option><option value="Mme">Madame</option></select>
-                    <div class="grid grid-cols-2 gap-2"><input type="text" id="f-nom" placeholder="NOM" class="p-3 rounded-xl text-xs"><input type="text" id="f-prenom" placeholder="PRÉNOM" class="p-3 rounded-xl text-xs"></div>
-                    <input type="text" id="f-immat" placeholder="IMMATRICULATION / N° SÉRIE" class="p-3 rounded-xl text-xs">
-                    <textarea id="f-besoin" placeholder="DESCRIPTION DÉTAILLÉE" class="p-3 rounded-xl text-xs h-20"></textarea>
-                    <input type="email" id="f-email" placeholder="VOTRE E-MAIL" class="p-3 rounded-xl text-xs">
-                    <button onclick="envoyerDemandeEmail()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase">Envoyer ma demande</button>
+                <div id="zone-panier" class="hidden mt-6 border-t pt-4">
+                    <h3 class="text-xs font-black uppercase mb-2">🛒 MON PANIER</h3>
+                    <ul id="liste-panier" class="text-xs font-bold text-left mb-2"></ul>
+                    <button onclick="validerPanier()" class="w-full bg-green-600 text-white py-2 rounded-xl text-xs font-black">VALIDER MON DEVIS</button>
                 </div>
             </div>
         </section>
     </div>
 
     <script>
-        const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbwt8JcKCe7NP1tdbeQToisn6YA-U7z33etQtd8ZFBeoaqMxD81N-AHIo7nLfiqGwr4G/exec";
-        const basePiecesGSD = { chassis: { familles: { suspension: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } }, freinage: { familles: { roues: { label: "Freinage", pieces: ["Plaquettes", "Disques"] } } }, agri_moteur: { familles: { moteur: { label: "Moteur Agri", pieces: ["Filtre hydraulique"] } } } };
+        const basePieces = { chassis: { familles: { susp: { label: "Suspension", pieces: ["Amortisseurs", "Ressorts"] } } } };
+        let panier = [];
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById('form-scan').classList.toggle('hidden', tab !== 'scan');
-            document.getElementById('form-modele').classList.toggle('hidden', tab !== 'modele');
-            document.getElementById('form-hors-cat').classList.toggle('hidden', tab !== 'hors-cat');
         }
 
-        function actualiserFamilles() {
-            const dom = document.getElementById("gsd-generique").value;
-            const famSel = document.getElementById("gsd-famille");
-            famSel.innerHTML = '<option value="">-- CHOISIR LA FAMILLE --</option>';
-            if (dom && basePiecesGSD[dom]) {
-                famSel.disabled = false;
-                for (let k in basePiecesGSD[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePiecesGSD[dom].familles[k].label}</option>`; }
+        function actualiserSelect(domId, famId, pieceId) {
+            const dom = document.getElementById(domId).value;
+            const famSel = document.getElementById(famId);
+            famSel.innerHTML = '<option value="">-- FAMILLE --</option>';
+            famSel.disabled = !dom;
+            if (dom && basePieces[dom]) {
+                for (let k in basePieces[dom].familles) { famSel.innerHTML += `<option value="${dom}|${k}">${basePieces[dom].familles[k].label}</option>`; }
             }
         }
 
-        function actualiserPieces() {
-            const val = document.getElementById("gsd-famille").value;
-            const pSel = document.getElementById("gsd-piece");
-            pSel.innerHTML = '<option value="">-- CHOISIR LA PIÈCE --</option>';
-            if (val) {
-                pSel.disabled = false;
-                const [d, f] = val.split('|');
-                basePiecesGSD[d].familles[f].pieces.forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
-            }
+        function ajouterAuPanierScanner() {
+            const piece = document.getElementById('s-piece').value;
+            if(!piece) return alert("Sélectionnez une pièce");
+            panier.push(piece);
+            document.getElementById('zone-panier').classList.remove('hidden');
+            document.getElementById('liste-panier').innerHTML += `<li>✅ ${piece}</li>`;
         }
 
-        function envoyerDemandeEmail() {
-            const subject = "Demande Hors Catalogue - " + document.getElementById('f-immat').value;
-            const body = `Civilité: ${document.getElementById('f-civilite').value}%0A Nom: ${document.getElementById('f-nom').value}%0A Immat: ${document.getElementById('f-immat').value}%0A Besoin: ${document.getElementById('f-besoin').value}%0A Email: ${document.getElementById('f-email').value}`;
-            window.location.href = "mailto:joachim.v@email.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-        }
-
-        async function consulterLeSuiviRelance() {
-            const id = document.getElementById('suivi-id').value.trim();
-            const nom = document.getElementById('suivi-nom').value.trim();
-            let res = await fetch(URL_WEB_APP, { method: 'POST', body: "action=track&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) });
-            let json = await res.json();
-            if (json.status === "Trouvé") {
-                let html = `<p>📦 ${json.statut_general}</p><p>Étape : ${json.commentaire_etape}</p>`;
-                if (json.statut_general.toUpperCase().includes("ACCORD")) {
-                    html += `<div class="mt-4 border-t pt-2"><input type="email" id="input-client-email" placeholder="VOTRE E-MAIL" class="w-full p-2 rounded-xl text-xs"><button onclick="declencherEnvoiCode('${id}', '${nom}')" class="w-full bg-blue-600 text-white p-2 rounded-xl">RECEVOIR CODE</button></div>`;
-                }
-                document.getElementById('resultat-suivi-container').classList.remove('hidden');
-                document.getElementById('resultat-suivi-container').innerHTML = html;
-            }
-        }
-
-        async function declencherEnvoiCode(id, nom) {
-            const email = document.getElementById('input-client-email').value;
-            await fetch(URL_WEB_APP, { method: 'POST', body: "action=demander_code&suivi_id=" + encodeURIComponent(id) + "&suivi_nom=" + encodeURIComponent(nom) + "&client_email=" + encodeURIComponent(email) });
-            alert("Code envoyé !");
+        function validerPanier() {
+            alert("Devis généré. Mémoire réinitialisée.");
+            panier = [];
+            document.getElementById('liste-panier').innerHTML = "";
+            document.getElementById('zone-panier').classList.add('hidden');
         }
     </script>
 </body>
